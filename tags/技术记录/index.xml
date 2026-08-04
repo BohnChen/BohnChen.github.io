@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Posts on Bohn's Blog</title><link>https://BohnChen.github.io/posts/</link><description>Recent content in Posts on Bohn's Blog</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Tue, 04 Aug 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://BohnChen.github.io/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>cpp概览</title><link>https://BohnChen.github.io/posts/studyrecord/cpp/cpp_overlook/</link><pubDate>Tue, 04 Aug 2026 00:00:00 +0000</pubDate><guid>https://BohnChen.github.io/posts/studyrecord/cpp/cpp_overlook/</guid><description>&lt;h2 id="概览"&gt;概览&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>技术记录 on Bohn's Blog</title><link>https://BohnChen.github.io/tags/%E6%8A%80%E6%9C%AF%E8%AE%B0%E5%BD%95/</link><description>Recent content in 技术记录 on Bohn's Blog</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Tue, 04 Aug 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://BohnChen.github.io/tags/%E6%8A%80%E6%9C%AF%E8%AE%B0%E5%BD%95/index.xml" rel="self" type="application/rss+xml"/><item><title>cpp概览</title><link>https://BohnChen.github.io/posts/studyrecord/cpp/cpp_overlook/</link><pubDate>Tue, 04 Aug 2026 00:00:00 +0000</pubDate><guid>https://BohnChen.github.io/posts/studyrecord/cpp/cpp_overlook/</guid><description>&lt;h2 id="概览"&gt;概览&lt;/h2&gt;
 &lt;p&gt;&lt;img alt="cpp概览" loading="lazy" src="https://BohnChen.github.io/Users/bohn/04_Project/06_MyWeb/BohnChen.github.io/static/images/1_LiLi_CPP_Overlook.png"&gt;&lt;/p&gt;
 &lt;h2 id="day1知识点"&gt;day1知识点&lt;/h2&gt;
 &lt;h3 id="c发展历史"&gt;c++发展历史&lt;/h3&gt;
@@ -53,12 +53,4 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="const关键字"&gt;const关键字&lt;/h3&gt;
-&lt;p&gt;常量修饰符，这里我们需要区分两个内容&lt;strong&gt;指针常量&lt;/strong&gt;和&lt;strong&gt;常量指针&lt;/strong&gt;&lt;/p&gt;</description></item><item><title>我的第一篇博客</title><link>https://BohnChen.github.io/posts/hello-world/</link><pubDate>Tue, 04 Aug 2026 00:00:00 +0000</pubDate><guid>https://BohnChen.github.io/posts/hello-world/</guid><description>&lt;p&gt;这是我的第一篇技术博客。&lt;/p&gt;
-&lt;h2 id="本文档旨在测试"&gt;本文档旨在测试&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;Hugo 框架搭建&lt;/li&gt;
-&lt;li&gt;PaperMod 主题&lt;/li&gt;
-&lt;li&gt;GitHub Pages 部署&lt;/li&gt;
-&lt;li&gt;分类和标签功能&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;以后写新文章，只需要在 &lt;code&gt;content/posts/&lt;/code&gt; 下新建 &lt;code&gt;.md&lt;/code&gt; 文件即可。&lt;/p&gt;</description></item></channel></rss>
+&lt;p&gt;常量修饰符，这里我们需要区分两个内容&lt;strong&gt;指针常量&lt;/strong&gt;和&lt;strong&gt;常量指针&lt;/strong&gt;&lt;/p&gt;</description></item></channel></rss>
