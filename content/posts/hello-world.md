@@ -1,6 +1,6 @@
 ---
 title: "我的第一篇博客"
-date: 2026-08-04T20:00:00+08:00
+date: 2026-08-04
 draft: false
 categories: ["Go"]
 tags: ["博客", "Hugo", "GitHub Pages"]
