@@ -1,42 +1,76 @@
-<script src="/js/tsparticles.bundle.min.js"></script>
+<canvas id="bg-canvas"></canvas>
 <script>
-(async () => {
-  await tsParticles.load({
-    id: "tsparticles",
-    fullScreen: { enable: true, zIndex: -1 },
-    fpsLimit: 60,
-    background: { color: "transparent" },
-    particles: {
-      number: { value: 50, density: { enable: true } },
-      color: { value: ["#3b82f6", "#1d4ed8", "#6366f1", "#06b6d4"] },
-      shape: { type: "circle" },
-      opacity: {
-        value: { min: 0.15, max: 0.5 },
-        animation: { enable: true, speed: 0.3, sync: false }
-      },
-      size: {
-        value: { min: 1, max: 4 },
-        animation: { enable: true, speed: 0.8, sync: false }
-      },
-      move: {
-        enable: true,
-        speed: { min: 0.3, max: 1.2 },
-        direction: "none",
-        random: true,
-        straight: false,
-        outModes: "bounce"
-      },
-      links: {
-        enable: true,
-        color: "#3b82f6",
-        opacity: 0.12,
-        distance: 150
+(function() {
+  var c = document.getElementById("bg-canvas");
+  var ctx = c.getContext("2d");
+  var w, h, particles = [];
+  var colors = [
+    "rgba(59,130,246,0.25)",
+    "rgba(29,78,216,0.20)",
+    "rgba(99,102,241,0.22)",
+    "rgba(6,182,212,0.18)"
+  ];
+
+  function resize() {
+    w = c.width = window.innerWidth;
+    h = c.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  // Create 60 particles
+  for (var i = 0; i < 60; i++) {
+    particles.push({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.6,
+      vy: (Math.random() - 0.5) * 0.6,
+      r: Math.random() * 3 + 1,
+      c: colors[Math.floor(Math.random() * colors.length)]
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+
+    // Draw connections
+    for (var i = 0; i < particles.length; i++) {
+      for (var j = i + 1; j < particles.length; j++) {
+        var dx = particles[i].x - particles[j].x;
+        var dy = particles[i].y - particles[j].y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 150) {
+          var alpha = (1 - dist / 150) * 0.15;
+          ctx.strokeStyle = "rgba(59,130,246," + alpha + ")";
+          ctx.lineWidth = 0.5;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
       }
-    },
-    interactivity: {
-      events: { onHover: { enable: true, mode: "grab" } },
-      modes: { grab: { distance: 180, links: { opacity: 0.4, color: "#6366f1" } } }
     }
-  });
+
+    // Draw particles
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.c;
+      ctx.fill();
+
+      // Move
+      p.x += p.vx;
+      p.y += p.vy;
+
+      // Bounce at edges
+      if (p.x < 0 || p.x > w) p.vx *= -1;
+      if (p.y < 0 || p.y > h) p.vy *= -1;
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  draw();
 })();
 </script>
