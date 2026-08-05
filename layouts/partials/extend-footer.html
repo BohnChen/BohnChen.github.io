@@ -1,1 +1,42 @@
-<!-- 粒子动效已改用纯 CSS 渐变背景，无需 JS 库 -->
+<script src="/js/tsparticles.bundle.min.js"></script>
+<script>
+(async () => {
+  await tsParticles.load({
+    id: "tsparticles",
+    fullScreen: { enable: true, zIndex: -1 },
+    fpsLimit: 60,
+    background: { color: "transparent" },
+    particles: {
+      number: { value: 50, density: { enable: true } },
+      color: { value: ["#3b82f6", "#1d4ed8", "#6366f1", "#06b6d4"] },
+      shape: { type: "circle" },
+      opacity: {
+        value: { min: 0.15, max: 0.5 },
+        animation: { enable: true, speed: 0.3, sync: false }
+      },
+      size: {
+        value: { min: 1, max: 4 },
+        animation: { enable: true, speed: 0.8, sync: false }
+      },
+      move: {
+        enable: true,
+        speed: { min: 0.3, max: 1.2 },
+        direction: "none",
+        random: true,
+        straight: false,
+        outModes: "bounce"
+      },
+      links: {
+        enable: true,
+        color: "#3b82f6",
+        opacity: 0.12,
+        distance: 150
+      }
+    },
+    interactivity: {
+      events: { onHover: { enable: true, mode: "grab" } },
+      modes: { grab: { distance: 180, links: { opacity: 0.4, color: "#6366f1" } } }
+    }
+  });
+})();
+</script>
