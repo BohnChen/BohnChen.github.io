@@ -7,14 +7,14 @@ tags: ["StudyRecord", "技术记录"]
 ---
 
 ## 概览
-![cpp概览](../../../../static/images/1_LiLi_CPP_Overlook.png)
+![cpp概览](/images/1_LiLi_CPP_Overlook.png)
 
 ## day1知识点
 ### c++发展历史
 诞生的直接原因：Bjarne博士在研究Unix内核时，发现没有合适的工具可以有效的分析由于内核分布而造成的网络流量以及如何将内核模块化
-![cpp历史](../../../../static/images/3_cpp_history.png)
+![cpp历史](/images/3_cpp_history.png)
 ### c++应用方向
-![cpp应用方向](../../../../static/images/2_cpp_for_what.png)
+![cpp应用方向](/images/2_cpp_for_what.png)
 ### 命名空间
 ```c++
 /* 
