@@ -1,60 +1,39 @@
 <style>
-:root {
-  --glass-bg: rgba(255,255,255,0.75);
-  --glass-bg-dark: rgba(20,20,30,0.80);
-}
-
-html, body {
-  background: transparent !important;
-}
-.bg-neutral, .bg-neutral-50, .bg-neutral-100 {
-  background-color: transparent !important;
-}
-.dark .bg-neutral-800, .dark .bg-neutral-900 {
-  background-color: transparent !important;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  z-index: -2;
+body {
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 40% 80%, rgba(6,182,212,0.10) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 60%, rgba(29,78,216,0.12) 0%, transparent 50%);
-  animation: bgFlow 20s ease-in-out infinite alternate;
+    radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.18), transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.15), transparent 50%),
+    radial-gradient(ellipse at 40% 80%, rgba(6,182,212,0.12), transparent 50%),
+    radial-gradient(ellipse at 70% 60%, rgba(29,78,216,0.14), transparent 50%) !important;
+  background-size: 200% 200% !important;
+  animation: bgFlow 20s ease-in-out infinite alternate !important;
 }
 @keyframes bgFlow {
-  0% { transform: translate(0, 0) rotate(0deg); }
-  33% { transform: translate(2%, -1%) rotate(1deg); }
-  66% { transform: translate(-1%, 2%) rotate(-1deg); }
-  100% { transform: translate(0, 0) rotate(0deg); }
+  0% { background-position: 0% 0%; }
+  33% { background-position: 2% 1%; }
+  66% { background-position: -1% -2%; }
+  100% { background-position: 0% 0%; }
 }
-.dark body::before {
-  background:
-    radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.2) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.18) 0%, transparent 50%),
-    radial-gradient(ellipse at 40% 80%, rgba(6,182,212,0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 60%, rgba(29,78,216,0.15) 0%, transparent 50%);
+
+.bg-neutral,
+.dark .bg-neutral-800,
+.dark .bg-neutral-900 {
+  background: none !important;
 }
 
 main article,
 main section,
 #home-profile {
-  background: var(--glass-bg) !important;
+  background: rgba(255,255,255,0.78) !important;
   backdrop-filter: blur(20px) saturate(1.2);
   -webkit-backdrop-filter: blur(20px) saturate(1.2);
   border-radius: 12px;
-  margin: 8px 0;
+  margin: 6px 0;
   padding: 16px;
 }
+
 footer {
-  background: var(--glass-bg) !important;
+  background: rgba(255,255,255,0.78) !important;
   backdrop-filter: blur(20px) saturate(1.2);
   -webkit-backdrop-filter: blur(20px) saturate(1.2);
 }
@@ -62,12 +41,13 @@ header nav {
   backdrop-filter: blur(20px) saturate(1.2);
   -webkit-backdrop-filter: blur(20px) saturate(1.2);
 }
+
 .dark main article,
 .dark main section,
 .dark #home-profile {
-  background: var(--glass-bg-dark) !important;
+  background: rgba(20,20,30,0.82) !important;
 }
 .dark footer {
-  background: var(--glass-bg-dark) !important;
+  background: rgba(20,20,30,0.82) !important;
 }
 </style>
