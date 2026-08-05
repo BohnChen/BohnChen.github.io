@@ -1,54 +1,38 @@
 <style>
-#tsparticles {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  pointer-events: none;
-}
-
-body {
-  background: transparent !important;
-}
-
-.bg-neutral { background: transparent !important; }
-
-#main-content > :not(#tsparticles):not(script) {
-  position: relative;
-  z-index: 1;
+:root {
+  --glass-bg: rgba(255,255,255,0.75);
+  --glass-bg-dark: rgba(20,20,30,0.80);
 }
 
 main article,
-main section {
-  background: rgba(255,255,255,0.75) !important;
+main section,
+#home-profile {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border-radius: 12px;
+  margin: 8px 0;
+  padding: 16px;
+}
+
+footer {
+  background: var(--glass-bg) !important;
   backdrop-filter: blur(16px) saturate(1.2);
   -webkit-backdrop-filter: blur(16px) saturate(1.2);
 }
 
-footer {
-  background: rgba(255,255,255,0.75) !important;
+header nav {
   backdrop-filter: blur(16px) saturate(1.2);
   -webkit-backdrop-filter: blur(16px) saturate(1.2);
 }
 
 .dark main article,
-.dark main section {
-  background: rgba(20,20,30,0.80) !important;
+.dark main section,
+.dark #home-profile {
+  background: var(--glass-bg-dark) !important;
 }
 
 .dark footer {
-  background: rgba(20,20,30,0.80) !important;
-}
-
-header nav {
-  background: rgba(255,255,255,0.75) !important;
-  backdrop-filter: blur(16px) saturate(1.2);
-  -webkit-backdrop-filter: blur(16px) saturate(1.2);
-}
-
-.dark header nav {
-  background: rgba(20,20,30,0.80) !important;
+  background: var(--glass-bg-dark) !important;
 }
 </style>
