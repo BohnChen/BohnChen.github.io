@@ -1,560 +1,409 @@
-<!doctype html><html lang=en dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>命名空间、const关键字、new/delete、引用 | Bohn's Blog</title><meta name=keywords content="StudyRecord,技术记录"><meta name=description content='概览
-
-day1知识点
-c++发展历史
-诞生的直接原因：Bjarne博士在研究Unix内核时，发现没有合适的工具可以有效的分析由于内核分布而造成的网络流量以及如何将内核模块化
-
-c++应用方向
-
-命名空间
-/* 
-// 为了避免不经意间的名称冲突，让重复名称被正确管理，创造了命名空间
-正确使用命名空间，我们有三种方法：
-    1. 将命名空间写完整，处处使用std::cout,std::endl;
-    2. 靠经验使得不冲突(不可靠)
-    3. 使用一个写一个命名空间：using std::cout;
-
-命名空间有一些自己的特性：
-    1. 可以嵌套使用，namespace nice{namespace nice {}}
-    2. 可以扩展，比如你可以给std空间增加内容而不会报错（但很容易冲突）。为防止报错，一般不扩写。系统命名空间一般都是小写。
-    3. 就近覆盖
-    4. 在命名空间中，我们可以定义变量、函数、结构体、命名空间，统称为实体
-    5. ::  叫做“作用域限定符”
-*/
-
-// 1. 嵌套
-namespace test {
-    namespace test {
-        void TestNameSpace();
-    }
-}
-
-// 2. 追加
-namespace std {
-    void MyStdFunc() {
-        std::cout << "My std Funct" << std::endl;
-    }
-}
-
-// 3. 就近覆盖
-// 全局变量 print
-int print = 10;
-
-namespace OverWrite {
-    int print = 20;
-    void test(int print = 1) {
-        std::cout << "形式参数 print = " << print << std::endl;
-        std::cout << "命名空间内的 print = " << OverWrite::print << std::endl;
-        std::cout << "全局变量 print = " << ::print << std::endl;
-    }
-}
-const关键字
-/****
-
-常量修饰符，这里我们需要区分两个内容**指针常量**和**常量指针**
-
-核心区分方式：从右往左读。
-    const 修饰的是它左边的内容（如果左边有东西的话），如果左边没有东西，则修饰右边：
-
-1. *常量指针 (pointer to const)*：const int *p 或 int const *p
-    1. 读法：p 是一个指针，指向 const int
-    2. 含义：指向的值不能改，指针本身可以改
-    3. *p = 10; ❌ | p = &amp;b; ✅
-
-2. *指针常量 (const pointer)*：int * const p
-    1. 读法：p 是一个 const 指针，指向 int
-    2. 含义：指针本身不能改，指向的值可以改
-    3. *p = 10; ✅ | p = &amp;b; ❌
-    4. 组合：const int * const p — 都不能改
-
-* 和运算符优先级无关。 区别完全取决于 const 相对于 * 的位置，跟优先级规则没有直接关系。
-* 运算符优先级影响的是带解引用的表达式求值顺序（如 *p++ vs (*p)++），而不是类型声明本身的语义。
-* 类型声明遵循的是 C/C++ 的"声明模仿使用"（declaration mimics use）语法规则。
-
-
-> 中文区分：从左往右读
-* const : 指针常量
-const * : 常量指针
-
-> 英文区分：从右往左读
-* const : a const pointer
-const * : a pointer to const
-
-****/
-
-#include <iostream>
-
-using std::cout;
-using std::endl;
-
-//宏定义发生的时机是在预处理阶段,字符串替换,有bug会到运行时才会发现
-#define MAX 10
-#define multiply(x, y) ((x) * (y))
-
-
-void test()
-{
-    //发生时机在编译阶段,会进行类型安全检查,如果有bug在编译时候就会出现
-    //内置类型：char/short/int/long/double/float/void *
-    const int number = 10;//const修饰的变量称为常量，必须在定义的时候进行初始化
-    /* number = 20;//赋值,常量不能进行赋值 */
-
-    int const number2 = 20;
-}
-
-//函数指针           指针函数
-//int (*pf)(int)     int*   pf(int)
-//
-//数组指针           指针数组
-//int (*pArray)[]    int* pArray[]
-
-void test2()
-{
-    int value = 2;
-    int value1 = 10;
-    int *p1 = &amp;value1;
-    p1 = &amp;value;
-    *p1 = 20000;
-
-    cout << endl;
-    int value2 = 200;
-    const int *p2 = &amp;value2;//当const位于*左边的时候，常量指针(pointer to const)
-    /* *p2 = 222;//error,不能修改指针所指变量的值 */
-    p2 = &amp;value;//ok,可以改变指针本身（指向）
-
-    cout << endl;
-    int value3 = 300;
-    int const *p3 = &amp;value3;//当const位于*左边的时候，常量指针(pointer to const)
-    /* *p3 = 333;//error,不能修改指针所指变量的值 */
-    p3 = &amp;value;//ok,可以改变指针本身（指向）
-
-    cout << endl;
-    int value4 = 400;
-    int * const p4 = &amp;value4;//当const位于*右边的时候，指针常量(const pointer)
-    *p4 = 444;//ok,可以修改指针所指变量的值
-    /* p4 = &amp;value;//error,不可以改变指针本身（指向） */
-
-    cout << endl;
-    int value5 = 500;
-    const int * const p5 = &amp;value5;//双const
-    /* *p5 = 555;//error,不可以修改指针所指变量的值 */
-    /* p5 = &amp;value;//error,不可以改变指针本身（指向） */
-}
-int main(int argc, char **argv)
-{
-    test2();
-    return 0;
-}
-new和delete
-new/delete与malloc/free的区别是什么?'><meta name=author content><link rel=canonical href=https://BohnChen.github.io/posts/studyrecord/cpp/cpp_day01/><link crossorigin=anonymous href=/assets/css/stylesheet.cd9298b33628769aa1bc1acebbbfd7aa11ce81dfe03484d479e1907760249a1d.css integrity="sha256-zZKYszYodpqhvBrOu7/XqhHOgd/gNITUeeGQd2Akmh0=" rel="preload stylesheet" as=style><link rel=icon href=https://BohnChen.github.io/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://BohnChen.github.io/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://BohnChen.github.io/favicon-32x32.png><link rel=apple-touch-icon href=https://BohnChen.github.io/apple-touch-icon.png><link rel=mask-icon href=https://BohnChen.github.io/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=en href=https://BohnChen.github.io/posts/studyrecord/cpp/cpp_day01/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://BohnChen.github.io/posts/studyrecord/cpp/cpp_day01/"><meta property="og:site_name" content="Bohn's Blog"><meta property="og:title" content="命名空间、const关键字、new/delete、引用"><meta property="og:description" content='概览 day1知识点 c++发展历史 诞生的直接原因：Bjarne博士在研究Unix内核时，发现没有合适的工具可以有效的分析由于内核分布而造成的网络流量以及如何将内核模块化 c++应用方向 命名空间 /* // 为了避免不经意间的名称冲突，让重复名称被正确管理，创造了命名空间 正确使用命名空间，我们有三种方法： 1. 将命名空间写完整，处处使用std::cout,std::endl; 2. 靠经验使得不冲突(不可靠) 3. 使用一个写一个命名空间：using std::cout; 命名空间有一些自己的特性： 1. 可以嵌套使用，namespace nice{namespace nice {}} 2. 可以扩展，比如你可以给std空间增加内容而不会报错（但很容易冲突）。为防止报错，一般不扩写。系统命名空间一般都是小写。 3. 就近覆盖 4. 在命名空间中，我们可以定义变量、函数、结构体、命名空间，统称为实体 5. :: 叫做“作用域限定符” */ // 1. 嵌套 namespace test { namespace test { void TestNameSpace(); } } // 2. 追加 namespace std { void MyStdFunc() { std::cout << "My std Funct" << std::endl; } } // 3. 就近覆盖 // 全局变量 print int print = 10; namespace OverWrite { int print = 20; void test(int print = 1) { std::cout << "形式参数 print = " << print << std::endl; std::cout << "命名空间内的 print = " << OverWrite::print << std::endl; std::cout << "全局变量 print = " << ::print << std::endl; } } const关键字 /**** 常量修饰符，这里我们需要区分两个内容**指针常量**和**常量指针** 核心区分方式：从右往左读。 const 修饰的是它左边的内容（如果左边有东西的话），如果左边没有东西，则修饰右边： 1. *常量指针 (pointer to const)*：const int *p 或 int const *p 1. 读法：p 是一个指针，指向 const int 2. 含义：指向的值不能改，指针本身可以改 3. *p = 10; ❌ | p = &amp;b; ✅ 2. *指针常量 (const pointer)*：int * const p 1. 读法：p 是一个 const 指针，指向 int 2. 含义：指针本身不能改，指向的值可以改 3. *p = 10; ✅ | p = &amp;b; ❌ 4. 组合：const int * const p — 都不能改 * 和运算符优先级无关。 区别完全取决于 const 相对于 * 的位置，跟优先级规则没有直接关系。 * 运算符优先级影响的是带解引用的表达式求值顺序（如 *p++ vs (*p)++），而不是类型声明本身的语义。 * 类型声明遵循的是 C/C++ 的"声明模仿使用"（declaration mimics use）语法规则。 > 中文区分：从左往右读 * const : 指针常量 const * : 常量指针 > 英文区分：从右往左读 * const : a const pointer const * : a pointer to const ****/ #include <iostream> using std::cout; using std::endl; //宏定义发生的时机是在预处理阶段,字符串替换,有bug会到运行时才会发现 #define MAX 10 #define multiply(x, y) ((x) * (y)) void test() { //发生时机在编译阶段,会进行类型安全检查,如果有bug在编译时候就会出现 //内置类型：char/short/int/long/double/float/void * const int number = 10;//const修饰的变量称为常量，必须在定义的时候进行初始化 /* number = 20;//赋值,常量不能进行赋值 */ int const number2 = 20; } //函数指针 指针函数 //int (*pf)(int) int* pf(int) // //数组指针 指针数组 //int (*pArray)[] int* pArray[] void test2() { int value = 2; int value1 = 10; int *p1 = &amp;value1; p1 = &amp;value; *p1 = 20000; cout << endl; int value2 = 200; const int *p2 = &amp;value2;//当const位于*左边的时候，常量指针(pointer to const) /* *p2 = 222;//error,不能修改指针所指变量的值 */ p2 = &amp;value;//ok,可以改变指针本身（指向） cout << endl; int value3 = 300; int const *p3 = &amp;value3;//当const位于*左边的时候，常量指针(pointer to const) /* *p3 = 333;//error,不能修改指针所指变量的值 */ p3 = &amp;value;//ok,可以改变指针本身（指向） cout << endl; int value4 = 400; int * const p4 = &amp;value4;//当const位于*右边的时候，指针常量(const pointer) *p4 = 444;//ok,可以修改指针所指变量的值 /* p4 = &amp;value;//error,不可以改变指针本身（指向） */ cout << endl; int value5 = 500; const int * const p5 = &amp;value5;//双const /* *p5 = 555;//error,不可以修改指针所指变量的值 */ /* p5 = &amp;value;//error,不可以改变指针本身（指向） */ } int main(int argc, char **argv) { test2(); return 0; } new和delete new/delete与malloc/free的区别是什么?'><meta property="og:locale" content="zh_cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-08-04T00:00:00+00:00"><meta property="article:modified_time" content="2026-08-04T00:00:00+00:00"><meta property="article:tag" content="StudyRecord"><meta property="article:tag" content="技术记录"><meta name=twitter:card content="summary"><meta name=twitter:title content="命名空间、const关键字、new/delete、引用"><meta name=twitter:description content='概览 day1知识点 c++发展历史 诞生的直接原因：Bjarne博士在研究Unix内核时，发现没有合适的工具可以有效的分析由于内核分布而造成的网络流量以及如何将内核模块化 c++应用方向 命名空间 /* // 为了避免不经意间的名称冲突，让重复名称被正确管理，创造了命名空间 正确使用命名空间，我们有三种方法： 1. 将命名空间写完整，处处使用std::cout,std::endl; 2. 靠经验使得不冲突(不可靠) 3. 使用一个写一个命名空间：using std::cout; 命名空间有一些自己的特性： 1. 可以嵌套使用，namespace nice{namespace nice {}} 2. 可以扩展，比如你可以给std空间增加内容而不会报错（但很容易冲突）。为防止报错，一般不扩写。系统命名空间一般都是小写。 3. 就近覆盖 4. 在命名空间中，我们可以定义变量、函数、结构体、命名空间，统称为实体 5. :: 叫做“作用域限定符” */ // 1. 嵌套 namespace test { namespace test { void TestNameSpace(); } } // 2. 追加 namespace std { void MyStdFunc() { std::cout << "My std Funct" << std::endl; } } // 3. 就近覆盖 // 全局变量 print int print = 10; namespace OverWrite { int print = 20; void test(int print = 1) { std::cout << "形式参数 print = " << print << std::endl; std::cout << "命名空间内的 print = " << OverWrite::print << std::endl; std::cout << "全局变量 print = " << ::print << std::endl; } } const关键字 /**** 常量修饰符，这里我们需要区分两个内容**指针常量**和**常量指针** 核心区分方式：从右往左读。 const 修饰的是它左边的内容（如果左边有东西的话），如果左边没有东西，则修饰右边： 1. *常量指针 (pointer to const)*：const int *p 或 int const *p 1. 读法：p 是一个指针，指向 const int 2. 含义：指向的值不能改，指针本身可以改 3. *p = 10; ❌ | p = &amp;b; ✅ 2. *指针常量 (const pointer)*：int * const p 1. 读法：p 是一个 const 指针，指向 int 2. 含义：指针本身不能改，指向的值可以改 3. *p = 10; ✅ | p = &amp;b; ❌ 4. 组合：const int * const p — 都不能改 * 和运算符优先级无关。 区别完全取决于 const 相对于 * 的位置，跟优先级规则没有直接关系。 * 运算符优先级影响的是带解引用的表达式求值顺序（如 *p++ vs (*p)++），而不是类型声明本身的语义。 * 类型声明遵循的是 C/C++ 的"声明模仿使用"（declaration mimics use）语法规则。 > 中文区分：从左往右读 * const : 指针常量 const * : 常量指针 > 英文区分：从右往左读 * const : a const pointer const * : a pointer to const ****/ #include <iostream> using std::cout; using std::endl; //宏定义发生的时机是在预处理阶段,字符串替换,有bug会到运行时才会发现 #define MAX 10 #define multiply(x, y) ((x) * (y)) void test() { //发生时机在编译阶段,会进行类型安全检查,如果有bug在编译时候就会出现 //内置类型：char/short/int/long/double/float/void * const int number = 10;//const修饰的变量称为常量，必须在定义的时候进行初始化 /* number = 20;//赋值,常量不能进行赋值 */ int const number2 = 20; } //函数指针 指针函数 //int (*pf)(int) int* pf(int) // //数组指针 指针数组 //int (*pArray)[] int* pArray[] void test2() { int value = 2; int value1 = 10; int *p1 = &amp;value1; p1 = &amp;value; *p1 = 20000; cout << endl; int value2 = 200; const int *p2 = &amp;value2;//当const位于*左边的时候，常量指针(pointer to const) /* *p2 = 222;//error,不能修改指针所指变量的值 */ p2 = &amp;value;//ok,可以改变指针本身（指向） cout << endl; int value3 = 300; int const *p3 = &amp;value3;//当const位于*左边的时候，常量指针(pointer to const) /* *p3 = 333;//error,不能修改指针所指变量的值 */ p3 = &amp;value;//ok,可以改变指针本身（指向） cout << endl; int value4 = 400; int * const p4 = &amp;value4;//当const位于*右边的时候，指针常量(const pointer) *p4 = 444;//ok,可以修改指针所指变量的值 /* p4 = &amp;value;//error,不可以改变指针本身（指向） */ cout << endl; int value5 = 500; const int * const p5 = &amp;value5;//双const /* *p5 = 555;//error,不可以修改指针所指变量的值 */ /* p5 = &amp;value;//error,不可以改变指针本身（指向） */ } int main(int argc, char **argv) { test2(); return 0; } new和delete new/delete与malloc/free的区别是什么?'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://BohnChen.github.io/posts/"},{"@type":"ListItem","position":2,"name":"命名空间、const关键字、new/delete、引用","item":"https://BohnChen.github.io/posts/studyrecord/cpp/cpp_day01/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"命名空间、const关键字、new/delete、引用","name":"命名空间、const关键字、new\/delete、引用","description":"概览 day1知识点 c++发展历史 诞生的直接原因：Bjarne博士在研究Unix内核时，发现没有合适的工具可以有效的分析由于内核分布而造成的网络流量以及如何将内核模块化 c++应用方向 命名空间 /* // 为了避免不经意间的名称冲突，让重复名称被正确管理，创造了命名空间 正确使用命名空间，我们有三种方法： 1. 将命名空间写完整，处处使用std::cout,std::endl; 2. 靠经验使得不冲突(不可靠) 3. 使用一个写一个命名空间：using std::cout; 命名空间有一些自己的特性： 1. 可以嵌套使用，namespace nice{namespace nice {}} 2. 可以扩展，比如你可以给std空间增加内容而不会报错（但很容易冲突）。为防止报错，一般不扩写。系统命名空间一般都是小写。 3. 就近覆盖 4. 在命名空间中，我们可以定义变量、函数、结构体、命名空间，统称为实体 5. :: 叫做“作用域限定符” */ // 1. 嵌套 namespace test { namespace test { void TestNameSpace(); } } // 2. 追加 namespace std { void MyStdFunc() { std::cout \u0026lt;\u0026lt; \u0026#34;My std Funct\u0026#34; \u0026lt;\u0026lt; std::endl; } } // 3. 就近覆盖 // 全局变量 print int print = 10; namespace OverWrite { int print = 20; void test(int print = 1) { std::cout \u0026lt;\u0026lt; \u0026#34;形式参数 print = \u0026#34; \u0026lt;\u0026lt; print \u0026lt;\u0026lt; std::endl; std::cout \u0026lt;\u0026lt; \u0026#34;命名空间内的 print = \u0026#34; \u0026lt;\u0026lt; OverWrite::print \u0026lt;\u0026lt; std::endl; std::cout \u0026lt;\u0026lt; \u0026#34;全局变量 print = \u0026#34; \u0026lt;\u0026lt; ::print \u0026lt;\u0026lt; std::endl; } } const关键字 /**** 常量修饰符，这里我们需要区分两个内容**指针常量**和**常量指针** 核心区分方式：从右往左读。 const 修饰的是它左边的内容（如果左边有东西的话），如果左边没有东西，则修饰右边： 1. *常量指针 (pointer to const)*：const int *p 或 int const *p 1. 读法：p 是一个指针，指向 const int 2. 含义：指向的值不能改，指针本身可以改 3. *p = 10; ❌ | p = \u0026amp;b; ✅ 2. *指针常量 (const pointer)*：int * const p 1. 读法：p 是一个 const 指针，指向 int 2. 含义：指针本身不能改，指向的值可以改 3. *p = 10; ✅ | p = \u0026amp;b; ❌ 4. 组合：const int * const p — 都不能改 * 和运算符优先级无关。 区别完全取决于 const 相对于 * 的位置，跟优先级规则没有直接关系。 * 运算符优先级影响的是带解引用的表达式求值顺序（如 *p++ vs (*p)++），而不是类型声明本身的语义。 * 类型声明遵循的是 C/C++ 的\u0026#34;声明模仿使用\u0026#34;（declaration mimics use）语法规则。 \u0026gt; 中文区分：从左往右读 * const : 指针常量 const * : 常量指针 \u0026gt; 英文区分：从右往左读 * const : a const pointer const * : a pointer to const ****/ #include \u0026lt;iostream\u0026gt; using std::cout; using std::endl; //宏定义发生的时机是在预处理阶段,字符串替换,有bug会到运行时才会发现 #define MAX 10 #define multiply(x, y) ((x) * (y)) void test() { //发生时机在编译阶段,会进行类型安全检查,如果有bug在编译时候就会出现 //内置类型：char/short/int/long/double/float/void * const int number = 10;//const修饰的变量称为常量，必须在定义的时候进行初始化 /* number = 20;//赋值,常量不能进行赋值 */ int const number2 = 20; } //函数指针 指针函数 //int (*pf)(int) int* pf(int) // //数组指针 指针数组 //int (*pArray)[] int* pArray[] void test2() { int value = 2; int value1 = 10; int *p1 = \u0026amp;value1; p1 = \u0026amp;value; *p1 = 20000; cout \u0026lt;\u0026lt; endl; int value2 = 200; const int *p2 = \u0026amp;value2;//当const位于*左边的时候，常量指针(pointer to const) /* *p2 = 222;//error,不能修改指针所指变量的值 */ p2 = \u0026amp;value;//ok,可以改变指针本身（指向） cout \u0026lt;\u0026lt; endl; int value3 = 300; int const *p3 = \u0026amp;value3;//当const位于*左边的时候，常量指针(pointer to const) /* *p3 = 333;//error,不能修改指针所指变量的值 */ p3 = \u0026amp;value;//ok,可以改变指针本身（指向） cout \u0026lt;\u0026lt; endl; int value4 = 400; int * const p4 = \u0026amp;value4;//当const位于*右边的时候，指针常量(const pointer) *p4 = 444;//ok,可以修改指针所指变量的值 /* p4 = \u0026amp;value;//error,不可以改变指针本身（指向） */ cout \u0026lt;\u0026lt; endl; int value5 = 500; const int * const p5 = \u0026amp;value5;//双const /* *p5 = 555;//error,不可以修改指针所指变量的值 */ /* p5 = \u0026amp;value;//error,不可以改变指针本身（指向） */ } int main(int argc, char **argv) { test2(); return 0; } new和delete new/delete与malloc/free的区别是什么?\n","keywords":["StudyRecord","技术记录"],"articleBody":"概览 day1知识点 c++发展历史 诞生的直接原因：Bjarne博士在研究Unix内核时，发现没有合适的工具可以有效的分析由于内核分布而造成的网络流量以及如何将内核模块化 c++应用方向 命名空间 /* // 为了避免不经意间的名称冲突，让重复名称被正确管理，创造了命名空间 正确使用命名空间，我们有三种方法： 1. 将命名空间写完整，处处使用std::cout,std::endl; 2. 靠经验使得不冲突(不可靠) 3. 使用一个写一个命名空间：using std::cout; 命名空间有一些自己的特性： 1. 可以嵌套使用，namespace nice{namespace nice {}} 2. 可以扩展，比如你可以给std空间增加内容而不会报错（但很容易冲突）。为防止报错，一般不扩写。系统命名空间一般都是小写。 3. 就近覆盖 4. 在命名空间中，我们可以定义变量、函数、结构体、命名空间，统称为实体 5. :: 叫做“作用域限定符” */ // 1. 嵌套 namespace test { namespace test { void TestNameSpace(); } } // 2. 追加 namespace std { void MyStdFunc() { std::cout \u003c\u003c \"My std Funct\" \u003c\u003c std::endl; } } // 3. 就近覆盖 // 全局变量 print int print = 10; namespace OverWrite { int print = 20; void test(int print = 1) { std::cout \u003c\u003c \"形式参数 print = \" \u003c\u003c print \u003c\u003c std::endl; std::cout \u003c\u003c \"命名空间内的 print = \" \u003c\u003c OverWrite::print \u003c\u003c std::endl; std::cout \u003c\u003c \"全局变量 print = \" \u003c\u003c ::print \u003c\u003c std::endl; } } const关键字 /**** 常量修饰符，这里我们需要区分两个内容**指针常量**和**常量指针** 核心区分方式：从右往左读。 const 修饰的是它左边的内容（如果左边有东西的话），如果左边没有东西，则修饰右边： 1. *常量指针 (pointer to const)*：const int *p 或 int const *p 1. 读法：p 是一个指针，指向 const int 2. 含义：指向的值不能改，指针本身可以改 3. *p = 10; ❌ | p = \u0026b; ✅ 2. *指针常量 (const pointer)*：int * const p 1. 读法：p 是一个 const 指针，指向 int 2. 含义：指针本身不能改，指向的值可以改 3. *p = 10; ✅ | p = \u0026b; ❌ 4. 组合：const int * const p — 都不能改 * 和运算符优先级无关。 区别完全取决于 const 相对于 * 的位置，跟优先级规则没有直接关系。 * 运算符优先级影响的是带解引用的表达式求值顺序（如 *p++ vs (*p)++），而不是类型声明本身的语义。 * 类型声明遵循的是 C/C++ 的\"声明模仿使用\"（declaration mimics use）语法规则。 \u003e 中文区分：从左往右读 * const : 指针常量 const * : 常量指针 \u003e 英文区分：从右往左读 * const : a const pointer const * : a pointer to const ****/ #include using std::cout; using std::endl; //宏定义发生的时机是在预处理阶段,字符串替换,有bug会到运行时才会发现 #define MAX 10 #define multiply(x, y) ((x) * (y)) void test() { //发生时机在编译阶段,会进行类型安全检查,如果有bug在编译时候就会出现 //内置类型：char/short/int/long/double/float/void * const int number = 10;//const修饰的变量称为常量，必须在定义的时候进行初始化 /* number = 20;//赋值,常量不能进行赋值 */ int const number2 = 20; } //函数指针 指针函数 //int (*pf)(int) int* pf(int) // //数组指针 指针数组 //int (*pArray)[] int* pArray[] void test2() { int value = 2; int value1 = 10; int *p1 = \u0026value1; p1 = \u0026value; *p1 = 20000; cout \u003c\u003c endl; int value2 = 200; const int *p2 = \u0026value2;//当const位于*左边的时候，常量指针(pointer to const) /* *p2 = 222;//error,不能修改指针所指变量的值 */ p2 = \u0026value;//ok,可以改变指针本身（指向） cout \u003c\u003c endl; int value3 = 300; int const *p3 = \u0026value3;//当const位于*左边的时候，常量指针(pointer to const) /* *p3 = 333;//error,不能修改指针所指变量的值 */ p3 = \u0026value;//ok,可以改变指针本身（指向） cout \u003c\u003c endl; int value4 = 400; int * const p4 = \u0026value4;//当const位于*右边的时候，指针常量(const pointer) *p4 = 444;//ok,可以修改指针所指变量的值 /* p4 = \u0026value;//error,不可以改变指针本身（指向） */ cout \u003c\u003c endl; int value5 = 500; const int * const p5 = \u0026value5;//双const /* *p5 = 555;//error,不可以修改指针所指变量的值 */ /* p5 = \u0026value;//error,不可以改变指针本身（指向） */ } int main(int argc, char **argv) { test2(); return 0; } new和delete new/delete与malloc/free的区别是什么?\n#include #include #include using std::cout; using std::endl; void test2() { int number = 10; printf(\"sizeof(number) = %lu\", sizeof(number)); printf(\"sizeof number = %lu\", sizeof number);//sizeof是一个运算符 } //面试中常问的 //内存溢出？踩内存？内存越界？野指针 // // //面试题 //malloc/free与new/delete异同点？ //1、都是用来申请堆空间的 //2、malloc与free，new与delete要成对出现，否则可能造成内存泄漏 // //不同点： //1、malloc/free是C里面的库函数，new/delete是C++中的表达式 //2、malloc申请的是未初始化的堆空间，new申请是已经初始化的堆空间 void test() { int *pInt = (int *)malloc(sizeof(int));//1、申请堆空间 memset(pInt, 0, sizeof(int));//2、初始化 *pInt = 10;//3、赋值 free(pInt);//4、释放堆空间 /* pInt = NULL;//0 */ pInt = nullptr;//void * int *pArray = (int *)(malloc(sizeof(int) * 10)); memset(pArray, 0, sizeof(int) * 10); free(pArray); pArray = nullptr; } void test3() { int *pInt = new int(10);//1、申请堆空间，并初始化，还可以进行赋值 cout \u003c\u003c \"*pInt = \" \u003c\u003c *pInt \u003c\u003c endl; delete pInt;//2、释放堆空间 pInt = nullptr; int *pArray = new int[10](); pArray[0] = 120; delete [] pArray; } int main(int argc, char **argv) { cout \u003c\u003c \"Hello world\" \u003c\u003c endl; return 0; } 引用的使用 // 引用就是对指针解引用的语法糖(甜的，用起来舒服就是甜的)。 // 为了减少指针的使用，创造了引用这个用起来甜甜的功能。 // 引用本身就是别名 int a = 0 // 下面两句在汇编代码中完全相同 int \u0026r = a; int *p = \u0026a; #include using std::cout; using std::endl; //指针与引用的异同点？ void test() { int number = 10; int \u0026ref = number;//引用是变量的别名,引用的提出就是为了减少指针的使用 \u0026ref; cout \u003c\u003c \"number = \" \u003c\u003c number \u003c\u003c endl; cout \u003c\u003c \"ref = \" \u003c\u003c ref \u003c\u003c endl; printf(\"number = %p\\n\", \u0026number); printf(\"ref = %p\\n\", \u0026ref); cout \u003c\u003c endl; int number2 = 200; ref = number2;//操作引用与操作变量本身是一样的 cout \u003c\u003c \"number2 = \" \u003c\u003c number2 \u003c\u003c endl; cout \u003c\u003c \"number = \" \u003c\u003c number \u003c\u003c endl; cout \u003c\u003c \"ref = \" \u003c\u003c ref \u003c\u003c endl; printf(\"number2 = %p\\n\", \u0026number2); printf(\"number = %p\\n\", \u0026number); printf(\"ref = %p\\n\", \u0026ref); cout \u003c\u003c endl; //引用的实质：指针常量 * const //引用不能独立存在，在定义的时候必须要进行初始化,在定义的 //的时候绑定到变量上面，跟变量绑定到一起，不会改变引用的指向 /* int \u0026ref2; ERROR */ } //1、引用作为函数参数 #if 0 //值传递====副本 //没有触及a b本身 void swap(int x, int y)//int x = a, int y = b { int temp = x; x = y; y = temp; } #endif #if 0 //值传递====地址值 void swap(int *px, int *py)//int *px = \u0026a, int *py = \u0026b; { int temp = *px; *px = *py; *py = temp; } #endif //引用传递====变量本身 void swap(int \u0026x, int \u0026y)//int \u0026x = a, int \u0026y = b { int temp = x; x = y; y = temp; } void test2() { int a = 3, b = 4; cout \u003c\u003c \"在交换之前 a = \" \u003c\u003c a \u003c\u003c \", b = \" \u003c\u003c b \u003c\u003c endl; swap(a, b); cout \u003c\u003c \"在交换之后 a = \" \u003c\u003c a \u003c\u003c \", b = \" \u003c\u003c b \u003c\u003c endl; } //2、引用作为函数返回类型 int func1() { int number = 10; return number;//执行一个拷贝操作 } int \u0026func2() { int number = 10;//局部变量 return number;//不能返回一个局部变量的引用 } //不要去返回堆空间的引用,必须要有内存回收的机制 int \u0026getHeapData() { int *pInt = new int(100); return *pInt; } void test4() { int a = 3, b = 5; int temp = a + getHeapData() + b; cout \u003c\u003c \"temp = \" \u003c\u003c temp \u003c\u003c endl; int \u0026ref = getHeapData(); delete \u0026ref; } //函数返回类型是引用的前提:实体的生命周期一定要大于函数的生命周期 int arr[10] = {1, 3, 5, 7, 9, 10}; int \u0026getIndex(int idx) { return arr[idx];//先不去考虑越界 } void test3() { cout \u003c\u003c \"getIndex(0) = \" \u003c\u003c getIndex(0) \u003c\u003c endl; getIndex(0) = 200; cout \u003c\u003c \"getIndex(0) = \" \u003c\u003c getIndex(0) \u003c\u003c endl; cout \u003c\u003c \"arr[0] = \" \u003c\u003c arr[0] \u003c\u003c endl; /* func1() = 200; */ } int main(int argc, char **argv) { test4(); return 0; } Day1作业 C++Day1\nC++语法规则很多，要落实下来，得通过多敲代码来理解，看N遍不如写一次；在写代码的过程中，会碰到其它你不曾碰到过的编译问题，切记程序是调试出来的；再就是通过练习，把敲代码的速度提升上来，熟悉键盘，培养写代码的感觉\n一、选择题 1、在C++中执行以下4条语句后输出rad值为：（）\nstatic int hot=200; int \u0026rad=hot; hot = hot + 100; cout\u003c\u003c rad \u003c\u003c endl; A、100 B、200 C、300 D、400 二、简答题 const关键字与宏定义的区别是什么？ malloc的底层实现是怎样的？free是怎么回收内存的？ new/delete与malloc/free的区别与联系是什么？(面试常考) 区分以下概念：内存泄漏、内存溢出、内存踩踏、野指针？(面试常考) 引用与指针的区别是什么？并且将\"引用\"作为函数参数有哪些特点？在什么时候需要使用\"常引用\"？ 三、写出下面程序的运行结果。 1、第一题：\n#include using std::cout; using std::endl; void f2(int \u0026x, int \u0026y) { int z = x; x = y; y = z; } void f3(int *x, int *y) { int z = *x; *x = *y; *y = z; } int main() { int x, y; x = 10; y = 26; cout \u003c\u003c \"x, y = \" \u003c\u003c x \u003c\u003c \", \" \u003c\u003c y \u003c\u003c endl; f2(x, y); cout \u003c\u003c \"x, y = \" \u003c\u003c x \u003c\u003c \", \" \u003c\u003c y \u003c\u003c endl; f3(\u0026x, \u0026y); cout \u003c\u003c \"x, y = \" \u003c\u003c x \u003c\u003c \", \" \u003c\u003c y \u003c\u003c endl; x++; y--; f2(y, x); cout \u003c\u003c \"x, y = \" \u003c\u003c x \u003c\u003c \", \" \u003c\u003c y \u003c\u003c endl; return 0; } 2、以下代码输出的是__？\nint foo(int x,int y) { if(x \u003c= 0 ||y \u003c= 0) return 1; return 3 * foo(x-1, y/2); } cout \u003c\u003c foo(3,5) \u003c\u003c endl; 3、若执行下面的程序时，从键盘上输入5，则输出是（）\nint main(int argc, char** argv) { int x; cin \u003e\u003e x; if(x++ \u003e 5) { cout \u003c\u003c x \u003c\u003c endl; } else { cout \u003c\u003c x-- \u003c\u003c endl; } return 0; } 4、写出下面程序的结果：\nint main() { int a[5]={1,2,3,4,5}; int *ptr=(int *)(\u0026a+1); printf(\"%d,%d\",*(a+1),*(ptr-1)); } 四、有段代码写成了下边这样，如何在只修改一个字符的前提下，使代码输出20个hello? for(int i = 0; i \u003c 20; i--) cout \u003c\u003c \"hello\" \u003c\u003c endl; ","wordCount":"1165","inLanguage":"en","datePublished":"2026-08-04T00:00:00Z","dateModified":"2026-08-04T00:00:00Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://BohnChen.github.io/posts/studyrecord/cpp/cpp_day01/"},"publisher":{"@type":"Organization","name":"Bohn's Blog","logo":{"@type":"ImageObject","url":"https://BohnChen.github.io/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=header-nav><div class=logo><a href=https://BohnChen.github.io/ accesskey=h title="Bohn's Blog (Alt + H)">Bohn's Blog</a><div class=logo-switches><button id=theme-toggle class=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
-<svg class="moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-<svg class="sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu class=menu><li><a href=https://BohnChen.github.io/archives/ title=归档><span>归档</span></a></li><li><a href=https://BohnChen.github.io/categories/ title=分类><span>分类</span></a></li><li><a href=https://BohnChen.github.io/tags/ title=标签><span>标签</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><nav class=breadcrumbs role=navigation aria-label=Breadcrumb><a href=/>Home</a>
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"/></svg>
-<a href=/posts/>Posts</a>
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"/></svg></nav><h1 class="post-title entry-hint-parent">命名空间、const关键字、new/delete、引用</h1><div class=post-meta><span title='2026-08-04 00:00:00 +0000 UTC'>August 4, 2026</span>&nbsp;·&nbsp;<span>6 min</span></div></header><details class=toc><summary accesskey=c title="(Alt + C)"><span class=title>Table of Contents</span></summary><div class=inner><ul><li><a href=#%e6%a6%82%e8%a7%88 aria-label=概览>概览</a></li><li><a href=#day1%e7%9f%a5%e8%af%86%e7%82%b9 aria-label=day1知识点>day1知识点</a><ul><li><a href=#c%e5%8f%91%e5%b1%95%e5%8e%86%e5%8f%b2 aria-label=c++发展历史>c++发展历史</a></li><li><a href=#c%e5%ba%94%e7%94%a8%e6%96%b9%e5%90%91 aria-label=c++应用方向>c++应用方向</a></li><li><a href=#%e5%91%bd%e5%90%8d%e7%a9%ba%e9%97%b4 aria-label=命名空间>命名空间</a></li><li><a href=#const%e5%85%b3%e9%94%ae%e5%ad%97 aria-label=const关键字>const关键字</a></li><li><a href=#new%e5%92%8cdelete aria-label=new和delete>new和delete</a></li><li><a href=#%e5%bc%95%e7%94%a8%e7%9a%84%e4%bd%bf%e7%94%a8 aria-label=引用的使用>引用的使用</a></li></ul></li><li><a href=#day1%e4%bd%9c%e4%b8%9a aria-label=Day1作业>Day1作业</a><ul><li><a href=#%e4%b8%80%e9%80%89%e6%8b%a9%e9%a2%98 aria-label=一、选择题>一、选择题</a></li><li><a href=#%e4%ba%8c%e7%ae%80%e7%ad%94%e9%a2%98 aria-label=二、简答题>二、简答题</a></li><li><a href=#%e4%b8%89%e5%86%99%e5%87%ba%e4%b8%8b%e9%9d%a2%e7%a8%8b%e5%ba%8f%e7%9a%84%e8%bf%90%e8%a1%8c%e7%bb%93%e6%9e%9c aria-label=三、写出下面程序的运行结果。>三、写出下面程序的运行结果。</a></li><li><a href=#%e5%9b%9b%e6%9c%89%e6%ae%b5%e4%bb%a3%e7%a0%81%e5%86%99%e6%88%90%e4%ba%86%e4%b8%8b%e8%be%b9%e8%bf%99%e6%a0%b7%e5%a6%82%e4%bd%95%e5%9c%a8%e5%8f%aa%e4%bf%ae%e6%94%b9%e4%b8%80%e4%b8%aa%e5%ad%97%e7%ac%a6%e7%9a%84%e5%89%8d%e6%8f%90%e4%b8%8b%e4%bd%bf%e4%bb%a3%e7%a0%81%e8%be%93%e5%87%ba20%e4%b8%aahello aria-label=四、有段代码写成了下边这样，如何在只修改一个字符的前提下，使代码输出20个hello?>四、有段代码写成了下边这样，如何在只修改一个字符的前提下，使代码输出20个hello?</a></li></ul></li></ul></div></details><div class="post-content md-content"><h2 id=概览>概览<a hidden class=anchor aria-hidden=true href=#概览>#</a></h2><p><img alt=cpp概览 loading=lazy src=/images/1_LiLi_CPP_Overlook.png></p><h2 id=day1知识点>day1知识点<a hidden class=anchor aria-hidden=true href=#day1知识点>#</a></h2><h3 id=c发展历史>c++发展历史<a hidden class=anchor aria-hidden=true href=#c发展历史>#</a></h3><p>诞生的直接原因：Bjarne博士在研究Unix内核时，发现没有合适的工具可以有效的分析由于内核分布而造成的网络流量以及如何将内核模块化
-<img alt=cpp历史 loading=lazy src=/images/3_cpp_history.png></p><h3 id=c应用方向>c++应用方向<a hidden class=anchor aria-hidden=true href=#c应用方向>#</a></h3><p><img alt=cpp应用方向 loading=lazy src=/images/2_cpp_for_what.png></p><h3 id=命名空间>命名空间<a hidden class=anchor aria-hidden=true href=#命名空间>#</a></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-c++ data-lang=c++><span style=display:flex><span><span style=color:#75715e>/* 
-</span></span></span><span style=display:flex><span><span style=color:#75715e>// 为了避免不经意间的名称冲突，让重复名称被正确管理，创造了命名空间
-</span></span></span><span style=display:flex><span><span style=color:#75715e>正确使用命名空间，我们有三种方法：
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    1. 将命名空间写完整，处处使用std::cout,std::endl;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    2. 靠经验使得不冲突(不可靠)
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    3. 使用一个写一个命名空间：using std::cout;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span><span style=color:#75715e>命名空间有一些自己的特性：
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    1. 可以嵌套使用，namespace nice{namespace nice {}}
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    2. 可以扩展，比如你可以给std空间增加内容而不会报错（但很容易冲突）。为防止报错，一般不扩写。系统命名空间一般都是小写。
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    3. 就近覆盖
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    4. 在命名空间中，我们可以定义变量、函数、结构体、命名空间，统称为实体
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    5. ::  叫做“作用域限定符”
-</span></span></span><span style=display:flex><span><span style=color:#75715e>*/</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// 1. 嵌套
-</span></span></span><span style=display:flex><span><span style=color:#66d9ef>namespace</span> test {
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>namespace</span> test {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>TestNameSpace</span>();
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// 2. 追加
-</span></span></span><span style=display:flex><span><span style=color:#66d9ef>namespace</span> std {
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>MyStdFunc</span>() {
-</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;My std Funct&#34;</span> <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// 3. 就近覆盖
-</span></span></span><span style=display:flex><span><span style=color:#75715e>// 全局变量 print
-</span></span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> print <span style=color:#f92672>=</span> <span style=color:#ae81ff>10</span>;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>namespace</span> OverWrite {
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> print <span style=color:#f92672>=</span> <span style=color:#ae81ff>20</span>;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>test</span>(<span style=color:#66d9ef>int</span> print <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>) {
-</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;形式参数 print = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> print <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
-</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;命名空间内的 print = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> OverWrite<span style=color:#f92672>::</span>print <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
-</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;全局变量 print = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> <span style=color:#f92672>::</span>print <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><h3 id=const关键字>const关键字<a hidden class=anchor aria-hidden=true href=#const关键字>#</a></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-c++ data-lang=c++><span style=display:flex><span><span style=color:#75715e>/****
-</span></span></span><span style=display:flex><span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span><span style=color:#75715e>常量修饰符，这里我们需要区分两个内容**指针常量**和**常量指针**
-</span></span></span><span style=display:flex><span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span><span style=color:#75715e>核心区分方式：从右往左读。
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    const 修饰的是它左边的内容（如果左边有东西的话），如果左边没有东西，则修饰右边：
-</span></span></span><span style=display:flex><span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span><span style=color:#75715e>1. *常量指针 (pointer to const)*：const int *p 或 int const *p
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    1. 读法：p 是一个指针，指向 const int
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    2. 含义：指向的值不能改，指针本身可以改
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    3. *p = 10; ❌ | p = &amp;b; ✅
-</span></span></span><span style=display:flex><span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span><span style=color:#75715e>2. *指针常量 (const pointer)*：int * const p
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    1. 读法：p 是一个 const 指针，指向 int
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    2. 含义：指针本身不能改，指向的值可以改
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    3. *p = 10; ✅ | p = &amp;b; ❌
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    4. 组合：const int * const p — 都不能改
-</span></span></span><span style=display:flex><span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span><span style=color:#75715e>* 和运算符优先级无关。 区别完全取决于 const 相对于 * 的位置，跟优先级规则没有直接关系。
-</span></span></span><span style=display:flex><span><span style=color:#75715e>* 运算符优先级影响的是带解引用的表达式求值顺序（如 *p++ vs (*p)++），而不是类型声明本身的语义。
-</span></span></span><span style=display:flex><span><span style=color:#75715e>* 类型声明遵循的是 C/C++ 的&#34;声明模仿使用&#34;（declaration mimics use）语法规则。
-</span></span></span><span style=display:flex><span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span><span style=color:#75715e>&gt; 中文区分：从左往右读
-</span></span></span><span style=display:flex><span><span style=color:#75715e>* const : 指针常量
-</span></span></span><span style=display:flex><span><span style=color:#75715e>const * : 常量指针
-</span></span></span><span style=display:flex><span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span><span style=color:#75715e>&gt; 英文区分：从右往左读
-</span></span></span><span style=display:flex><span><span style=color:#75715e>* const : a const pointer
-</span></span></span><span style=display:flex><span><span style=color:#75715e>const * : a pointer to const
-</span></span></span><span style=display:flex><span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span><span style=color:#75715e>****/</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> std<span style=color:#f92672>::</span>cout;
-</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> std<span style=color:#f92672>::</span>endl;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>//宏定义发生的时机是在预处理阶段,字符串替换,有bug会到运行时才会发现
-</span></span></span><span style=display:flex><span><span style=color:#75715e>#define MAX 10
-</span></span></span><span style=display:flex><span><span style=color:#75715e>#define multiply(x, y) ((x) * (y))
-</span></span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>test</span>()
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#75715e>//发生时机在编译阶段,会进行类型安全检查,如果有bug在编译时候就会出现
-</span></span></span><span style=display:flex><span>    <span style=color:#75715e>//内置类型：char/short/int/long/double/float/void *
-</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> number <span style=color:#f92672>=</span> <span style=color:#ae81ff>10</span>;<span style=color:#75715e>//const修饰的变量称为常量，必须在定义的时候进行初始化
-</span></span></span><span style=display:flex><span>    <span style=color:#75715e>/* number = 20;//赋值,常量不能进行赋值 */</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#66d9ef>const</span> number2 <span style=color:#f92672>=</span> <span style=color:#ae81ff>20</span>;
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>//函数指针           指针函数
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//int (*pf)(int)     int*   pf(int)
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//数组指针           指针数组
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//int (*pArray)[]    int* pArray[]
-</span></span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>test2</span>()
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> value <span style=color:#f92672>=</span> <span style=color:#ae81ff>2</span>;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> value1 <span style=color:#f92672>=</span> <span style=color:#ae81ff>10</span>;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#f92672>*</span>p1 <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>value1;
-</span></span><span style=display:flex><span>    p1 <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>value;
-</span></span><span style=display:flex><span>    <span style=color:#f92672>*</span>p1 <span style=color:#f92672>=</span> <span style=color:#ae81ff>20000</span>;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> value2 <span style=color:#f92672>=</span> <span style=color:#ae81ff>200</span>;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> <span style=color:#f92672>*</span>p2 <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>value2;<span style=color:#75715e>//当const位于*左边的时候，常量指针(pointer to const)
-</span></span></span><span style=display:flex><span>    <span style=color:#75715e>/* *p2 = 222;//error,不能修改指针所指变量的值 */</span>
-</span></span><span style=display:flex><span>    p2 <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>value;<span style=color:#75715e>//ok,可以改变指针本身（指向）
-</span></span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> value3 <span style=color:#f92672>=</span> <span style=color:#ae81ff>300</span>;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#66d9ef>const</span> <span style=color:#f92672>*</span>p3 <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>value3;<span style=color:#75715e>//当const位于*左边的时候，常量指针(pointer to const)
-</span></span></span><span style=display:flex><span>    <span style=color:#75715e>/* *p3 = 333;//error,不能修改指针所指变量的值 */</span>
-</span></span><span style=display:flex><span>    p3 <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>value;<span style=color:#75715e>//ok,可以改变指针本身（指向）
-</span></span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> value4 <span style=color:#f92672>=</span> <span style=color:#ae81ff>400</span>;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#f92672>*</span> <span style=color:#66d9ef>const</span> p4 <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>value4;<span style=color:#75715e>//当const位于*右边的时候，指针常量(const pointer)
-</span></span></span><span style=display:flex><span>    <span style=color:#f92672>*</span>p4 <span style=color:#f92672>=</span> <span style=color:#ae81ff>444</span>;<span style=color:#75715e>//ok,可以修改指针所指变量的值
-</span></span></span><span style=display:flex><span>    <span style=color:#75715e>/* p4 = &amp;value;//error,不可以改变指针本身（指向） */</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> value5 <span style=color:#f92672>=</span> <span style=color:#ae81ff>500</span>;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> <span style=color:#f92672>*</span> <span style=color:#66d9ef>const</span> p5 <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>value5;<span style=color:#75715e>//双const
-</span></span></span><span style=display:flex><span>    <span style=color:#75715e>/* *p5 = 555;//error,不可以修改指针所指变量的值 */</span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/* p5 = &amp;value;//error,不可以改变指针本身（指向） */</span>
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>(<span style=color:#66d9ef>int</span> argc, <span style=color:#66d9ef>char</span> <span style=color:#f92672>**</span>argv)
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    test2();
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><h3 id=new和delete>new和delete<a hidden class=anchor aria-hidden=true href=#new和delete>#</a></h3><p>new/delete与malloc/free的区别是什么?</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-c++ data-lang=c++><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;stdlib.h&gt;</span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;string.h&gt;</span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> std<span style=color:#f92672>::</span>cout;
-</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> std<span style=color:#f92672>::</span>endl;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>test2</span>()
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> number <span style=color:#f92672>=</span> <span style=color:#ae81ff>10</span>;
-</span></span><span style=display:flex><span>    printf(<span style=color:#e6db74>&#34;sizeof(number) = %lu&#34;</span>, <span style=color:#66d9ef>sizeof</span>(number));
-</span></span><span style=display:flex><span>    printf(<span style=color:#e6db74>&#34;sizeof number = %lu&#34;</span>, <span style=color:#66d9ef>sizeof</span> number);<span style=color:#75715e>//sizeof是一个运算符
-</span></span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span><span style=color:#75715e>//面试中常问的
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//内存溢出？踩内存？内存越界？野指针
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//面试题
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//malloc/free与new/delete异同点？
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//1、都是用来申请堆空间的
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//2、malloc与free，new与delete要成对出现，否则可能造成内存泄漏
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//不同点：
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//1、malloc/free是C里面的库函数，new/delete是C++中的表达式
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//2、malloc申请的是未初始化的堆空间，new申请是已经初始化的堆空间
-</span></span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>test</span>()
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#f92672>*</span>pInt <span style=color:#f92672>=</span> (<span style=color:#66d9ef>int</span> <span style=color:#f92672>*</span>)malloc(<span style=color:#66d9ef>sizeof</span>(<span style=color:#66d9ef>int</span>));<span style=color:#75715e>//1、申请堆空间
-</span></span></span><span style=display:flex><span>    memset(pInt, <span style=color:#ae81ff>0</span>, <span style=color:#66d9ef>sizeof</span>(<span style=color:#66d9ef>int</span>));<span style=color:#75715e>//2、初始化
-</span></span></span><span style=display:flex><span>    <span style=color:#f92672>*</span>pInt <span style=color:#f92672>=</span> <span style=color:#ae81ff>10</span>;<span style=color:#75715e>//3、赋值
-</span></span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    free(pInt);<span style=color:#75715e>//4、释放堆空间
-</span></span></span><span style=display:flex><span>    <span style=color:#75715e>/* pInt = NULL;//0 */</span>
-</span></span><span style=display:flex><span>    pInt <span style=color:#f92672>=</span> <span style=color:#66d9ef>nullptr</span>;<span style=color:#75715e>//void *
-</span></span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#f92672>*</span>pArray <span style=color:#f92672>=</span> (<span style=color:#66d9ef>int</span> <span style=color:#f92672>*</span>)(malloc(<span style=color:#66d9ef>sizeof</span>(<span style=color:#66d9ef>int</span>) <span style=color:#f92672>*</span> <span style=color:#ae81ff>10</span>));
-</span></span><span style=display:flex><span>    memset(pArray, <span style=color:#ae81ff>0</span>, <span style=color:#66d9ef>sizeof</span>(<span style=color:#66d9ef>int</span>) <span style=color:#f92672>*</span> <span style=color:#ae81ff>10</span>);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    free(pArray);
-</span></span><span style=display:flex><span>    pArray <span style=color:#f92672>=</span> <span style=color:#66d9ef>nullptr</span>;
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>test3</span>()
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#f92672>*</span>pInt <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> <span style=color:#66d9ef>int</span>(<span style=color:#ae81ff>10</span>);<span style=color:#75715e>//1、申请堆空间，并初始化，还可以进行赋值
-</span></span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;*pInt = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> <span style=color:#f92672>*</span>pInt <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>delete</span> pInt;<span style=color:#75715e>//2、释放堆空间
-</span></span></span><span style=display:flex><span>    pInt <span style=color:#f92672>=</span> <span style=color:#66d9ef>nullptr</span>;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#f92672>*</span>pArray <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> <span style=color:#66d9ef>int</span>[<span style=color:#ae81ff>10</span>]();
-</span></span><span style=display:flex><span>    pArray[<span style=color:#ae81ff>0</span>] <span style=color:#f92672>=</span> <span style=color:#ae81ff>120</span>;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>delete</span> [] pArray;
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>(<span style=color:#66d9ef>int</span> argc, <span style=color:#66d9ef>char</span> <span style=color:#f92672>**</span>argv)
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;Hello world&#34;</span> <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><h3 id=引用的使用>引用的使用<a hidden class=anchor aria-hidden=true href=#引用的使用>#</a></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-c++ data-lang=c++><span style=display:flex><span><span style=color:#75715e>// 引用就是对指针解引用的语法糖(甜的，用起来舒服就是甜的)。
-</span></span></span><span style=display:flex><span><span style=color:#75715e>// 为了减少指针的使用，创造了引用这个用起来甜甜的功能。
-</span></span></span><span style=display:flex><span><span style=color:#75715e>// 引用本身就是别名
-</span></span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> a <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// 下面两句在汇编代码中完全相同
-</span></span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#f92672>&amp;</span>r <span style=color:#f92672>=</span> a;
-</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#f92672>*</span>p <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>a;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> std<span style=color:#f92672>::</span>cout;
-</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> std<span style=color:#f92672>::</span>endl;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>//指针与引用的异同点？
-</span></span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>test</span>()
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> number <span style=color:#f92672>=</span> <span style=color:#ae81ff>10</span>;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#f92672>&amp;</span>ref <span style=color:#f92672>=</span> number;<span style=color:#75715e>//引用是变量的别名,引用的提出就是为了减少指针的使用
-</span></span></span><span style=display:flex><span>    <span style=color:#f92672>&amp;</span>ref;
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;number = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> number <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;ref = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> ref <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>    printf(<span style=color:#e6db74>&#34;number = %p</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>, <span style=color:#f92672>&amp;</span>number);
-</span></span><span style=display:flex><span>    printf(<span style=color:#e6db74>&#34;ref = %p</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>, <span style=color:#f92672>&amp;</span>ref);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> number2 <span style=color:#f92672>=</span> <span style=color:#ae81ff>200</span>;
-</span></span><span style=display:flex><span>    ref <span style=color:#f92672>=</span> number2;<span style=color:#75715e>//操作引用与操作变量本身是一样的
-</span></span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;number2 = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> number2 <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;number = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> number <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;ref = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> ref <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>    printf(<span style=color:#e6db74>&#34;number2 = %p</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>, <span style=color:#f92672>&amp;</span>number2);
-</span></span><span style=display:flex><span>    printf(<span style=color:#e6db74>&#34;number = %p</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>, <span style=color:#f92672>&amp;</span>number);
-</span></span><span style=display:flex><span>    printf(<span style=color:#e6db74>&#34;ref = %p</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>, <span style=color:#f92672>&amp;</span>ref);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>    <span style=color:#75715e>//引用的实质：指针常量 * const
-</span></span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>//引用不能独立存在，在定义的时候必须要进行初始化,在定义的
-</span></span></span><span style=display:flex><span>    <span style=color:#75715e>//的时候绑定到变量上面，跟变量绑定到一起，不会改变引用的指向
-</span></span></span><span style=display:flex><span><span style=color:#75715e>/*    int &amp;ref2;   ERROR */</span>
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>//1、引用作为函数参数
-</span></span></span><span style=display:flex><span><span style=color:#75715e>#if 0</span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//值传递====副本
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//没有触及a b本身
-</span></span></span><span style=display:flex><span><span style=color:#75715e>void swap(int x, int y)//int x = a, int y = b
-</span></span></span><span style=display:flex><span><span style=color:#75715e>{
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    int temp = x;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    x = y;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    y = temp;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>}
-</span></span></span><span style=display:flex><span><span style=color:#75715e>#endif
-</span></span></span><span style=display:flex><span><span style=color:#75715e>#if 0</span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//值传递====地址值
-</span></span></span><span style=display:flex><span><span style=color:#75715e>void swap(int *px, int *py)//int *px = &amp;a, int *py = &amp;b;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>{
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    int temp = *px;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    *px = *py;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>    *py = temp;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>}
-</span></span></span><span style=display:flex><span><span style=color:#75715e>#endif
-</span></span></span><span style=display:flex><span><span style=color:#75715e>//引用传递====变量本身
-</span></span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>swap</span>(<span style=color:#66d9ef>int</span> <span style=color:#f92672>&amp;</span>x, <span style=color:#66d9ef>int</span> <span style=color:#f92672>&amp;</span>y)<span style=color:#75715e>//int &amp;x = a, int &amp;y = b
-</span></span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> temp <span style=color:#f92672>=</span> x;
-</span></span><span style=display:flex><span>    x <span style=color:#f92672>=</span> y;
-</span></span><span style=display:flex><span>    y <span style=color:#f92672>=</span> temp;
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>test2</span>()
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> a <span style=color:#f92672>=</span> <span style=color:#ae81ff>3</span>, b <span style=color:#f92672>=</span> <span style=color:#ae81ff>4</span>;
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;在交换之前 a = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> a <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;, b = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> b <span style=color:#f92672>&lt;&lt;</span> endl; 
-</span></span><span style=display:flex><span>    swap(a, b);
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;在交换之后 a = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> a <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;, b = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> b <span style=color:#f92672>&lt;&lt;</span> endl; 
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>//2、引用作为函数返回类型
-</span></span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>func1</span>()
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> number <span style=color:#f92672>=</span> <span style=color:#ae81ff>10</span>;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> number;<span style=color:#75715e>//执行一个拷贝操作
-</span></span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#f92672>&amp;</span>func2()
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> number <span style=color:#f92672>=</span> <span style=color:#ae81ff>10</span>;<span style=color:#75715e>//局部变量
-</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> number;<span style=color:#75715e>//不能返回一个局部变量的引用
-</span></span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>//不要去返回堆空间的引用,必须要有内存回收的机制
-</span></span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#f92672>&amp;</span>getHeapData()
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#f92672>*</span>pInt <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> <span style=color:#66d9ef>int</span>(<span style=color:#ae81ff>100</span>);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#f92672>*</span>pInt;
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>test4</span>()
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> a <span style=color:#f92672>=</span> <span style=color:#ae81ff>3</span>, b <span style=color:#f92672>=</span> <span style=color:#ae81ff>5</span>;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> temp <span style=color:#f92672>=</span> a <span style=color:#f92672>+</span> getHeapData() <span style=color:#f92672>+</span> b;
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;temp = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> temp <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#f92672>&amp;</span>ref <span style=color:#f92672>=</span> getHeapData();
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>delete</span> <span style=color:#f92672>&amp;</span>ref;
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>//函数返回类型是引用的前提:实体的生命周期一定要大于函数的生命周期
-</span></span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> arr[<span style=color:#ae81ff>10</span>] <span style=color:#f92672>=</span> {<span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>3</span>, <span style=color:#ae81ff>5</span>, <span style=color:#ae81ff>7</span>, <span style=color:#ae81ff>9</span>, <span style=color:#ae81ff>10</span>};
-</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#f92672>&amp;</span>getIndex(<span style=color:#66d9ef>int</span> idx)
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> arr[idx];<span style=color:#75715e>//先不去考虑越界
-</span></span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>test3</span>()
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;getIndex(0) = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> getIndex(<span style=color:#ae81ff>0</span>) <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>    getIndex(<span style=color:#ae81ff>0</span>) <span style=color:#f92672>=</span> <span style=color:#ae81ff>200</span>;
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;getIndex(0) = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> getIndex(<span style=color:#ae81ff>0</span>) <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;arr[0] = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> arr[<span style=color:#ae81ff>0</span>] <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/* func1() = 200; */</span>
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>(<span style=color:#66d9ef>int</span> argc, <span style=color:#66d9ef>char</span> <span style=color:#f92672>**</span>argv)
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    test4();
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><h2 id=day1作业>Day1作业<a hidden class=anchor aria-hidden=true href=#day1作业>#</a></h2><p>C++Day1</p><p>C++语法规则很多，要落实下来，得通过多敲代码来理解，看N遍不如写一次；在写代码的过程中，会碰到其它你不曾碰到过的编译问题，切记程序是调试出来的；再就是通过练习，把敲代码的速度提升上来，熟悉键盘，培养写代码的感觉</p><h3 id=一选择题>一、选择题<a hidden class=anchor aria-hidden=true href=#一选择题>#</a></h3><p>1、在C++中执行以下4条语句后输出rad值为：（）</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-C++ data-lang=C++><span style=display:flex><span><span style=color:#66d9ef>static</span> <span style=color:#66d9ef>int</span> hot<span style=color:#f92672>=</span><span style=color:#ae81ff>200</span>; 
-</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#f92672>&amp;</span>rad<span style=color:#f92672>=</span>hot;
-</span></span><span style=display:flex><span>hot <span style=color:#f92672>=</span> hot <span style=color:#f92672>+</span> <span style=color:#ae81ff>100</span>; 
-</span></span><span style=display:flex><span>cout<span style=color:#f92672>&lt;&lt;</span> rad <span style=color:#f92672>&lt;&lt;</span> endl; 
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>A<span style=color:#960050;background-color:#1e0010>、</span><span style=color:#ae81ff>100</span>        B<span style=color:#960050;background-color:#1e0010>、</span><span style=color:#ae81ff>200</span>     C<span style=color:#960050;background-color:#1e0010>、</span><span style=color:#ae81ff>300</span>    D<span style=color:#960050;background-color:#1e0010>、</span><span style=color:#ae81ff>400</span>
-</span></span></code></pre></div><h3 id=二简答题>二、简答题<a hidden class=anchor aria-hidden=true href=#二简答题>#</a></h3><ol><li>const关键字与宏定义的区别是什么？</li><li>malloc的底层实现是怎样的？free是怎么回收内存的？</li><li>new/delete与malloc/free的区别与联系是什么？(面试常考)</li><li>区分以下概念：内存泄漏、内存溢出、内存踩踏、野指针？(面试常考)</li><li>引用与指针的区别是什么？并且将"引用"作为函数参数有哪些特点？在什么时候需要使用"常引用"？</li></ol><h3 id=三写出下面程序的运行结果>三、写出下面程序的运行结果。<a hidden class=anchor aria-hidden=true href=#三写出下面程序的运行结果>#</a></h3><p>1、第一题：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-C++ data-lang=C++><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
-</span></span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> std<span style=color:#f92672>::</span>cout;
-</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> std<span style=color:#f92672>::</span>endl;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>f2</span>(<span style=color:#66d9ef>int</span> <span style=color:#f92672>&amp;</span>x, <span style=color:#66d9ef>int</span> <span style=color:#f92672>&amp;</span>y) 
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>int</span> z <span style=color:#f92672>=</span> x; 
-</span></span><span style=display:flex><span>	x <span style=color:#f92672>=</span> y; 
-</span></span><span style=display:flex><span>	y <span style=color:#f92672>=</span> z;
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>f3</span>(<span style=color:#66d9ef>int</span> <span style=color:#f92672>*</span>x, <span style=color:#66d9ef>int</span> <span style=color:#f92672>*</span>y) 
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>int</span> z <span style=color:#f92672>=</span> <span style=color:#f92672>*</span>x; 
-</span></span><span style=display:flex><span>	<span style=color:#f92672>*</span>x <span style=color:#f92672>=</span> <span style=color:#f92672>*</span>y; 
-</span></span><span style=display:flex><span>	<span style=color:#f92672>*</span>y <span style=color:#f92672>=</span> z;
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>() 
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>int</span> x, y;
-</span></span><span style=display:flex><span>	x <span style=color:#f92672>=</span> <span style=color:#ae81ff>10</span>; y <span style=color:#f92672>=</span> <span style=color:#ae81ff>26</span>;
-</span></span><span style=display:flex><span>	cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;x, y = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> x <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;, &#34;</span> <span style=color:#f92672>&lt;&lt;</span> y <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>	f2(x, y);
-</span></span><span style=display:flex><span>	cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;x, y = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> x <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;, &#34;</span> <span style=color:#f92672>&lt;&lt;</span> y <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>	f3(<span style=color:#f92672>&amp;</span>x, <span style=color:#f92672>&amp;</span>y);
-</span></span><span style=display:flex><span>	cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;x, y = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> x <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;, &#34;</span> <span style=color:#f92672>&lt;&lt;</span> y <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>	x<span style=color:#f92672>++</span>; 
-</span></span><span style=display:flex><span>	y<span style=color:#f92672>--</span>;
-</span></span><span style=display:flex><span>	f2(y, x);
-</span></span><span style=display:flex><span>	cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;x, y = &#34;</span> <span style=color:#f92672>&lt;&lt;</span> x <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;, &#34;</span> <span style=color:#f92672>&lt;&lt;</span> y <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>2、以下代码输出的是__？</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-C++ data-lang=C++><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>foo</span>(<span style=color:#66d9ef>int</span> x,<span style=color:#66d9ef>int</span> y)
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span>(x <span style=color:#f92672>&lt;=</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>||</span>y <span style=color:#f92672>&lt;=</span> <span style=color:#ae81ff>0</span>)  
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>1</span>;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>3</span> <span style=color:#f92672>*</span> foo(x<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, y<span style=color:#f92672>/</span><span style=color:#ae81ff>2</span>);
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>cout <span style=color:#f92672>&lt;&lt;</span> foo(<span style=color:#ae81ff>3</span>,<span style=color:#ae81ff>5</span>) <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span></code></pre></div><p>3、若执行下面的程序时，从键盘上输入5，则输出是（）</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-C++ data-lang=C++><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>(<span style=color:#66d9ef>int</span> argc, <span style=color:#66d9ef>char</span><span style=color:#f92672>**</span> argv)
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> x;
-</span></span><span style=display:flex><span>    cin <span style=color:#f92672>&gt;&gt;</span> x;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span>(x<span style=color:#f92672>++</span> <span style=color:#f92672>&gt;</span> <span style=color:#ae81ff>5</span>)
-</span></span><span style=display:flex><span>	{
-</span></span><span style=display:flex><span>		cout <span style=color:#f92672>&lt;&lt;</span> x <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>	}      
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>else</span>
-</span></span><span style=display:flex><span>	{
-</span></span><span style=display:flex><span>		cout <span style=color:#f92672>&lt;&lt;</span> x<span style=color:#f92672>--</span> <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>4、写出下面程序的结果：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-C++ data-lang=C++><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>() 
-</span></span><span style=display:flex><span>{ 
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> a[<span style=color:#ae81ff>5</span>]<span style=color:#f92672>=</span>{<span style=color:#ae81ff>1</span>,<span style=color:#ae81ff>2</span>,<span style=color:#ae81ff>3</span>,<span style=color:#ae81ff>4</span>,<span style=color:#ae81ff>5</span>}; 
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#f92672>*</span>ptr<span style=color:#f92672>=</span>(<span style=color:#66d9ef>int</span> <span style=color:#f92672>*</span>)(<span style=color:#f92672>&amp;</span>a<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>); 
-</span></span><span style=display:flex><span>    printf(<span style=color:#e6db74>&#34;%d,%d&#34;</span>,<span style=color:#f92672>*</span>(a<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>),<span style=color:#f92672>*</span>(ptr<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>)); 
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><h3 id=四有段代码写成了下边这样如何在只修改一个字符的前提下使代码输出20个hello>四、有段代码写成了下边这样，如何在只修改一个字符的前提下，使代码输出20个hello?<a hidden class=anchor aria-hidden=true href=#四有段代码写成了下边这样如何在只修改一个字符的前提下使代码输出20个hello>#</a></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-C++ data-lang=C++><span style=display:flex><span><span style=color:#66d9ef>for</span>(<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>20</span>; i<span style=color:#f92672>--</span>)
-</span></span><span style=display:flex><span>    cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;hello&#34;</span> <span style=color:#f92672>&lt;&lt;</span> endl;
-</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags><li><a href=https://BohnChen.github.io/tags/studyrecord/>StudyRecord</a></li><li><a href=https://BohnChen.github.io/tags/%E6%8A%80%E6%9C%AF%E8%AE%B0%E5%BD%95/>技术记录</a></li></ul><nav class=paginav><a class=next href=https://BohnChen.github.io/posts/hello-world/><span class=title>Next »</span>
-<span>我的第一篇博客</span></a></nav></footer></article></main><footer class=footer><span>&copy; 2026 <a href=https://BohnChen.github.io/>Bohn's Blog</a></span> ·
-<span>Powered by
-<a href="https://gohugo.io/?utm_source=papermod" rel=noopener target=_blank>Hugo</a> &
-<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top id=top-link class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey=g><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
-</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var toplink=document.getElementById("top-link");window.onscroll=function(){const e=window.innerHeight;document.body.scrollTop>e||document.documentElement.scrollTop>e?toplink.classList.remove("hidden"):toplink.classList.add("hidden")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script><script>document.querySelectorAll("pre > code").forEach(e=>{const n=e.parentNode.parentNode,t=document.createElement("button");t.classList.add("copy-code"),t.innerHTML="copy";function s(){t.innerHTML="copied!",setTimeout(()=>{t.innerHTML="copy"},2e3)}t.addEventListener("click",t=>{if("clipboard"in navigator){navigator.clipboard.writeText(e.textContent),s();return}const n=document.createRange();n.selectNodeContents(e);const o=window.getSelection();o.removeAllRanges(),o.addRange(n);try{document.execCommand("copy"),s()}catch{}o.removeRange(n)}),n.classList.contains("highlight")?n.appendChild(t):n.parentNode.firstChild==n||(e.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName=="TABLE"?e.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(t):e.parentNode.appendChild(t))})</script></body></html>
+<!doctype html><html lang=zh-CN dir=ltr class=scroll-smooth data-default-appearance=light data-auto-appearance=true><head><meta charset=utf-8><meta http-equiv=content-language content="zh-cn"><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=X-UA-Compatible content="ie=edge"><meta name=theme-color><title>命名空间、const关键字、new/delete、引用 &#183; Bohn's Blog</title><meta name=title content="命名空间、const关键字、new/delete、引用 &#183; Bohn's Blog"><meta name=keywords content="StudyRecord,技术记录,"><link rel=canonical href=https://BohnChen.github.io/posts/studyrecord/cpp/cpp_day01/><meta name=author content="Bohn"><link href=https://github.com/BohnChen rel=me><meta property="og:url" content="https://BohnChen.github.io/posts/studyrecord/cpp/cpp_day01/"><meta property="og:site_name" content="Bohn's Blog"><meta property="og:title" content="命名空间、const关键字、new/delete、引用"><meta property="og:locale" content="zh_cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-08-04T00:00:00+00:00"><meta property="article:modified_time" content="2026-08-04T00:00:00+00:00"><meta property="article:tag" content="StudyRecord"><meta property="article:tag" content="技术记录"><meta name=twitter:card content="summary"><meta name=twitter:title content="命名空间、const关键字、new/delete、引用"><link type=text/css rel=stylesheet href=/css/main.bundle.min.c1f53cac91e747bf888133acd9ce50332ad7d899d454b7d06c02c51622b5893f6a5db8c7859b29c14eacef22dd73357fa55048fbb6db2bc67945b762f3196d8e.css integrity="sha512-wfU8rJHnR7+IgTOs2c5QMyrX2JnUVLfQbALFFiK1iT9qXbjHhZspwU6s7yLdczV/pVBI+7bbK8Z5Rbdi8xltjg=="><script type=text/javascript src=/js/appearance.min.11183536302aa30e374452803c0154673009b5a4995c7f6559d1c935544cc591b599a5f2adfaeda41e1cc865bd62bdace9b0672a75294ce49d185f0f82b98cbe.js integrity="sha512-ERg1NjAqow43RFKAPAFUZzAJtaSZXH9lWdHJNVRMxZG1maXyrfrtpB4cyGW9Yr2s6bBnKnUpTOSdGF8PgrmMvg=="></script><script src=/lib/zoom/zoom.min.umd.a527109b68c082a70f3697716dd72a9d5aa8b545cf800cecbbc7399f2ca6f6e0ce3e431f2062b48bbfa47c9ea42822714060bef309be073f49b9c0e30d318d7b.js integrity="sha512-pScQm2jAgqcPNpdxbdcqnVqotUXPgAzsu8c5nyym9uDOPkMfIGK0i7+kfJ6kKCJxQGC+8wm+Bz9JucDjDTGNew=="></script><script defer type=text/javascript id=script-bundle src=/js/main.bundle.min.de7f0ce3aa4ad2ce343c7a087f96d2d00e05d9afe124ed223ada5580efdeb8c0a6cb07eaed4fcad6ed0bfed1a0ab36a8150dc2563c9ea46070aa30b26960454b.js integrity="sha512-3n8M46pK0s40PHoIf5bS0A4F2a/hJO0iOtpVgO/euMCmywfq7U/K1u0L/tGgqzaoFQ3CVjyepGBwqjCyaWBFSw==" data-copy=复制 data-copied=已复制></script><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/site.webmanifest><script type=application/ld+json>[{"@context":"https://schema.org","@type":"Article","articleSection":"Posts","name":"命名空间、const关键字、new\/delete、引用","headline":"命名空间、const关键字、new\/delete、引用","inLanguage":"zh-cn","url":"https://BohnChen.github.io/posts/studyrecord/cpp/cpp_day01/","author":{"@type":"Person","name":"Bohn","image":"https://BohnChen.github.io/img/author.jpg","sameAs":["https://github.com/BohnChen"]},"copyrightYear":"2026","dateCreated":"2026-08-04T00:00:00\u002b00:00","datePublished":"2026-08-04T00:00:00\u002b00:00","dateModified":"2026-08-04T00:00:00\u002b00:00","keywords":["StudyRecord","技术记录"],"mainEntityOfPage":"https://BohnChen.github.io/posts/studyrecord/cpp/cpp_day01/","wordCount":"1178"}]</script></head><body class="flex flex-col h-screen m-auto leading-7 max-w-7xl px-6 sm:px-14 md:px-24 lg:px-32 text-lg bg-neutral text-neutral-900 dark:bg-neutral-800 dark:text-neutral bf-scrollbar"><div id=the-top class="absolute flex self-center"><a class="px-3 py-1 text-sm -translate-y-8 rounded-b-lg bg-primary-200 focus:translate-y-0 dark:bg-neutral-600" href=#main-content><span class="font-bold text-primary-600 pe-2 dark:text-primary-400">&darr;</span>
+跳过正文</a></div><div class=min-h-[148px]></div><div class="fixed inset-x-0 z-100"><div id=menu-blur class="absolute opacity-0 inset-x-0 top-0 h-full single_hero_background nozoom backdrop-blur-2xl shadow-2xl bg-neutral/25 dark:bg-neutral-800/25"></div><div class="relative m-auto leading-7 max-w-7xl px-6 sm:px-14 md:px-24 lg:px-32"><div class="main-menu flex items-center w-full gap-2 p-1 pl-0"><a href=/ class="text-base font-medium truncate min-w-0 shrink">Bohn&rsquo;s Blog</a><div class="flex items-center ms-auto"><div class="hidden md:flex"><nav class="flex items-center gap-x-5 h-12"><a href=/posts/ class="flex items-center bf-icon-color-hover" aria-label=文章 title=Posts><span class="text-base font-medium break-normal">文章
+</span></a><a href=/categories/ class="flex items-center bf-icon-color-hover" aria-label=分类 title=Categories><span class="text-base font-medium break-normal">分类
+</span></a><a href=/tags/ class="flex items-center bf-icon-color-hover" aria-label=标签 title=Tags><span class="text-base font-medium break-normal">标签
+</span></a><button id=search-button aria-label=Search class="text-base bf-icon-color-hover" title="搜索 (/)">
+<span class="relative block icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" class="svg-inline--fa fa-search fa-w-16" role="img" viewBox="0 0 512 512"><path fill="currentColor" d="M505 442.7 405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9.0 208 0S0 93.1.0 208s93.1 208 208 208c48.3.0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9.0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7.0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7.0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg></span></button><div class="flex items-center"><button id=appearance-switcher aria-label=切换为深色模式 type=button class="text-base bf-icon-color-hover" title=切换为深色模式><div class="flex items-center justify-center dark:hidden"><span class="relative block icon"><svg viewBox="0 0 512 512"><path fill="currentColor" d="M32 256C32 132.2 132.3 32 255.8 32c11.36.0 29.7 1.668 40.9 3.746 9.616 1.777 11.75 14.63 3.279 19.44C245 86.5 211.2 144.6 211.2 207.8c0 109.7 99.71 193 208.3 172.3 9.561-1.805 16.28 9.324 10.11 16.95C387.9 448.6 324.8 480 255.8 480 132.1 480 32 379.6 32 256z"/></svg></span></div><div class="items-center justify-center hidden dark:flex"><span class="relative block icon"><svg viewBox="0 0 512 512"><path fill="currentColor" d="M256 159.1c-53.02.0-95.1 42.98-95.1 95.1s41.2 96.9 95.1 96.9 95.1-42.98 95.1-95.1S309 159.1 256 159.1zM509.3 347l-63.2-91.9 63.15-91.01c6.332-9.125 1.104-21.74-9.826-23.72l-109-19.7-19.7-109c-1.975-10.93-14.59-16.16-23.72-9.824L256 65.89 164.1 2.736c-9.125-6.332-21.74-1.107-23.72 9.824L121.6 121.6 12.56 141.3C1.633 143.2-3.596 155.9 2.736 164.1L65.89 256 2.74 347.01c-6.332 9.125-1.105 21.74 9.824 23.72l109 19.7 19.7 109c1.975 10.93 14.59 16.16 23.72 9.824L256 446.1l91.01 63.15c9.127 6.334 21.75 1.107 23.72-9.822l19.7-109 109-19.7C510.4 368.8 515.6 356.1 509.3 347zM256 383.1c-70.69.0-127.1-57.31-127.1-127.1.0-70.69 57.31-127.1 127.1-127.1S383.1 186.2 383.1 256c0 70.7-56.4 127.1-127.1 127.1z"/></svg></span></div></button></div></nav></div><div class="flex md:hidden"><div class="flex items-center h-14 gap-4"><button id=search-button-mobile aria-label=Search class="flex items-center justify-center bf-icon-color-hover" title="搜索 (/)">
+<span class="relative block icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" class="svg-inline--fa fa-search fa-w-16" role="img" viewBox="0 0 512 512"><path fill="currentColor" d="M505 442.7 405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9.0 208 0S0 93.1.0 208s93.1 208 208 208c48.3.0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9.0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7.0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7.0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg>
+</span></button>
+<button id=appearance-switcher-mobile type=button aria-label=切换为深色模式 title=切换为深色模式 class="flex items-center justify-center text-neutral-900 hover:text-primary-600 dark:text-neutral-200 dark:hover:text-primary-400"><div class=dark:hidden><span class="relative block icon"><svg viewBox="0 0 512 512"><path fill="currentColor" d="M32 256C32 132.2 132.3 32 255.8 32c11.36.0 29.7 1.668 40.9 3.746 9.616 1.777 11.75 14.63 3.279 19.44C245 86.5 211.2 144.6 211.2 207.8c0 109.7 99.71 193 208.3 172.3 9.561-1.805 16.28 9.324 10.11 16.95C387.9 448.6 324.8 480 255.8 480 132.1 480 32 379.6 32 256z"/></svg></span></div><div class="hidden dark:block"><span class="relative block icon"><svg viewBox="0 0 512 512"><path fill="currentColor" d="M256 159.1c-53.02.0-95.1 42.98-95.1 95.1s41.2 96.9 95.1 96.9 95.1-42.98 95.1-95.1S309 159.1 256 159.1zM509.3 347l-63.2-91.9 63.15-91.01c6.332-9.125 1.104-21.74-9.826-23.72l-109-19.7-19.7-109c-1.975-10.93-14.59-16.16-23.72-9.824L256 65.89 164.1 2.736c-9.125-6.332-21.74-1.107-23.72 9.824L121.6 121.6 12.56 141.3C1.633 143.2-3.596 155.9 2.736 164.1L65.89 256 2.74 347.01c-6.332 9.125-1.105 21.74 9.824 23.72l109 19.7 19.7 109c1.975 10.93 14.59 16.16 23.72 9.824L256 446.1l91.01 63.15c9.127 6.334 21.75 1.107 23.72-9.822l19.7-109 109-19.7C510.4 368.8 515.6 356.1 509.3 347zM256 383.1c-70.69.0-127.1-57.31-127.1-127.1.0-70.69 57.31-127.1 127.1-127.1S383.1 186.2 383.1 256c0 70.7-56.4 127.1-127.1 127.1z"/></svg></span></div></button>
+<input type=checkbox id=mobile-menu-toggle autocomplete=off class="hidden peer">
+<label for=mobile-menu-toggle class="flex items-center justify-center cursor-pointer bf-icon-color-hover"><span class="relative block icon"><svg viewBox="0 0 448 512"><path fill="currentColor" d="M0 96C0 78.33 14.33 64 32 64H416c17.7.0 32 14.33 32 32 0 17.7-14.3 32-32 32H32C14.33 128 0 113.7.0 96zM0 256c0-17.7 14.33-32 32-32H416c17.7.0 32 14.3 32 32s-14.3 32-32 32H32c-17.67.0-32-14.3-32-32zM416 448H32c-17.67.0-32-14.3-32-32s14.33-32 32-32H416c17.7.0 32 14.3 32 32s-14.3 32-32 32z"/></svg></span></label><div role=dialog aria-modal=true style=scrollbar-gutter:stable class="fixed inset-0 z-50 invisible overflow-y-auto px-6 py-20 opacity-0 transition-[opacity,visibility] duration-300 peer-checked:visible peer-checked:opacity-100 bg-neutral-50/97 dark:bg-neutral-900/99
+bf-scrollbar"><label for=mobile-menu-toggle class="fixed end-8 top-5 flex items-center justify-center z-50 h-12 w-12 cursor-pointer select-none rounded-full bf-icon-color-hover border bf-border-color bf-border-color-hover bg-neutral-50 dark:bg-neutral-900"><span class="relative block icon"><svg viewBox="0 0 320 512"><path fill="currentColor" d="M310.6 361.4c12.5 12.5 12.5 32.75.0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3 54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75.0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75.0-45.25s32.75-12.5 45.25.0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25.0s12.5 32.75.0 45.25l-105.4 105.4L310.6 361.4z"/></svg></span></label><nav class="mx-auto max-w-md space-y-6"><div class=px-2><a href=/posts/ aria-label=文章 class="flex items-center gap-4 group bf-icon-color-hover text-neutral-700 dark:text-neutral-200"><span title=Posts class="text-2xl font-bold tracking-tight">文章</span></a></div><div class=px-2><a href=/categories/ aria-label=分类 class="flex items-center gap-4 group bf-icon-color-hover text-neutral-700 dark:text-neutral-200"><span title=Categories class="text-2xl font-bold tracking-tight">分类</span></a></div><div class=px-2><a href=/tags/ aria-label=标签 class="flex items-center gap-4 group bf-icon-color-hover text-neutral-700 dark:text-neutral-200"><span title=Tags class="text-2xl font-bold tracking-tight">标签</span></a></div></nav></div></div></div></div></div></div></div><script type=text/javascript src=/js/background-blur.min.605b3b942818f0ab5a717ae446135ec46b8ee5a2ad12ae56fb90dc2a76ce30c388f9fec8bcc18db15bd47e3fa8a09d779fa12aa9c184cf614a315bc72c6c163d.js integrity="sha512-YFs7lCgY8KtacXrkRhNexGuO5aKtEq5W+5DcKnbOMMOI+f7IvMGNsVvUfj+ooJ13n6EqqcGEz2FKMVvHLGwWPQ==" data-blur-id=menu-blur></script><div class="relative flex flex-col grow"><main id=main-content class=grow><article><header id=single_header class="mt-5 max-w-prose"><ol class="text-sm text-neutral-500 dark:text-neutral-400 print:hidden"><li class=hidden><a class="hover:underline decoration-neutral-300 dark:underline-neutral-600" href=/>Bohn's Blog</a><span class="px-1 text-primary-500">/</span></li><li class=inline><a class="hover:underline decoration-neutral-300 dark:underline-neutral-600" href=/posts/>Posts</a><span class="px-1 text-primary-500">/</span></li><li class=hidden><a class="hover:underline decoration-neutral-300 dark:underline-neutral-600" href=/posts/studyrecord/cpp/cpp_day01/>命名空间、const关键字、new/delete、引用</a><span class="px-1 text-primary-500">/</span></li></ol><h1 class="mt-0 text-4xl font-extrabold text-neutral-900 dark:text-neutral">命名空间、const关键字、new/delete、引用</h1><div class="mt-1 mb-6 text-base text-neutral-500 dark:text-neutral-400 print:hidden"><div class="flex flex-row flex-wrap items-center"><time datetime=2026-08-04T00:00:00+00:00>2026-08-04</time><span class="px-2 text-primary-500">&#183;</span><span title=预计阅读>6 分钟</span></div><div class="flex flex-row flex-wrap items-center"><a class="relative mt-[0.5rem] me-2" href=/categories/cpp/><span class="flex cursor-pointer"><span class="rounded-md border border-primary-400 px-1 py-[1px] text-xs font-normal text-primary-700 dark:border-primary-600 dark:text-primary-400">Cpp
+</span></span></a><a class="relative mt-[0.5rem] me-2" href=/tags/studyrecord/><span class="flex cursor-pointer"><span class="rounded-md border border-primary-400 px-1 py-[1px] text-xs font-normal text-primary-700 dark:border-primary-600 dark:text-primary-400">StudyRecord
+</span></span></a><a class="relative mt-[0.5rem] me-2" href=/tags/%E6%8A%80%E6%9C%AF%E8%AE%B0%E5%BD%95/><span class="flex cursor-pointer"><span class="rounded-md border border-primary-400 px-1 py-[1px] text-xs font-normal text-primary-700 dark:border-primary-600 dark:text-primary-400">技术记录</span></span></a></div></div><div class="flex author"><img class="!mt-0 !mb-0 h-24 w-24 rounded-full me-4" width=96 height=96 alt=Bohn src=/img/author_hu_7640b7d537a6d18e.jpg data-zoom-src=/img/author_hu_a8f99317955172ef.jpg><div class=place-self-center><div class="text-[0.6rem] uppercase leading-3 text-neutral-500 dark:text-neutral-400">作者</div><div class="font-semibold leading-6 text-neutral-800 dark:text-neutral-300">Bohn</div><div class="text-sm text-neutral-700 dark:text-neutral-400">记录学习过程，分享技术笔记。</div><div class="text-2xl sm:text-lg"><div class="flex flex-wrap text-neutral-400 dark:text-neutral-500 space-x-2"><a class="hover:text-primary-700 dark:hover:text-primary-400" href=https://github.com/BohnChen target=_blank aria-label=Github title=Github rel="me noopener noreferrer"><span class="inline-block align-text-bottom"><span class="relative block icon"><svg viewBox="0 0 496 512"><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6.0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6.0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3.0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1.0-6.2-.3-40.4-.3-61.4.0.0-70 15-84.7-29.8.0.0-11.4-29.1-27.8-36.6.0.0-22.9-15.7 1.6-15.4.0.0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5.0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9.0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4.0 33.7-.3 75.4-.3 83.6.0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6.0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9.0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span></span></a></div></div></div></div><div class=mb-5></div></header><section class="flex flex-col max-w-full mt-0 prose dark:prose-invert lg:flex-row"><div class="order-first lg:ms-auto px-0 lg:order-last lg:ps-8 lg:max-w-2xs"><div class="toc ps-5 print:hidden lg:sticky lg:top-[140px]"><details open id=TOCView class="toc-right mt-0 overflow-y-auto overscroll-contain bf-scrollbar rounded-lg -ms-5 ps-5 pe-2 hidden lg:block"><summary class="block py-1 text-lg font-semibold cursor-pointer bg-neutral-100 text-neutral-800 -ms-5 ps-5 dark:bg-neutral-700 dark:text-neutral-100 lg:hidden">目录</summary><div class="min-w-[220px] py-2 border-dotted border-s-1 -ms-5 ps-5 dark:border-neutral-600"><nav id=TableOfContents><ul><li><a href=#概览>概览</a></li><li><a href=#day1知识点>day1知识点</a><ul><li><a href=#c发展历史>c++发展历史</a></li><li><a href=#c应用方向>c++应用方向</a></li><li><a href=#命名空间>命名空间</a></li><li><a href=#const关键字>const关键字</a></li><li><a href=#new和delete>new和delete</a></li><li><a href=#引用的使用>引用的使用</a></li></ul></li><li><a href=#day1作业>Day1作业</a><ul><li><a href=#一选择题>一、选择题</a></li><li><a href=#二简答题>二、简答题</a></li><li><a href=#三写出下面程序的运行结果>三、写出下面程序的运行结果。</a></li><li><a href=#四有段代码写成了下边这样如何在只修改一个字符的前提下使代码输出20个hello>四、有段代码写成了下边这样，如何在只修改一个字符的前提下，使代码输出20个hello?</a></li></ul></li></ul></nav></div></details><details class="toc-inside mt-0 overflow-hidden rounded-lg -ms-5 ps-5 lg:hidden"><summary class="py-1 text-lg font-semibold cursor-pointer bg-neutral-100 text-neutral-800 -ms-5 ps-5 dark:bg-neutral-700 dark:text-neutral-100 lg:hidden">目录</summary><div class="py-2 border-dotted border-neutral-300 border-s-1 -ms-5 ps-5 dark:border-neutral-600"><nav id=TableOfContents><ul><li><a href=#概览>概览</a></li><li><a href=#day1知识点>day1知识点</a><ul><li><a href=#c发展历史>c++发展历史</a></li><li><a href=#c应用方向>c++应用方向</a></li><li><a href=#命名空间>命名空间</a></li><li><a href=#const关键字>const关键字</a></li><li><a href=#new和delete>new和delete</a></li><li><a href=#引用的使用>引用的使用</a></li></ul></li><li><a href=#day1作业>Day1作业</a><ul><li><a href=#一选择题>一、选择题</a></li><li><a href=#二简答题>二、简答题</a></li><li><a href=#三写出下面程序的运行结果>三、写出下面程序的运行结果。</a></li><li><a href=#四有段代码写成了下边这样如何在只修改一个字符的前提下使代码输出20个hello>四、有段代码写成了下边这样，如何在只修改一个字符的前提下，使代码输出20个hello?</a></li></ul></li></ul></nav></div></details></div></div><div class="min-w-0 min-h-0 max-w-fit"><div class="article-content max-w-prose mb-20"><h2 class="relative group">概览<div id=概览 class=anchor></div><span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none"><a class="text-primary-300 dark:text-neutral-700 !no-underline" href=#%e6%a6%82%e8%a7%88 aria-label=锚点>#</a></span></h2><figure><img class="my-0 rounded-md" loading=lazy decoding=async fetchpriority=low alt=cpp概览 src=/images/1_LiLi_CPP_Overlook.png></figure><h2 class="relative group">day1知识点<div id=day1知识点 class=anchor></div><span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none"><a class="text-primary-300 dark:text-neutral-700 !no-underline" href=#day1%e7%9f%a5%e8%af%86%e7%82%b9 aria-label=锚点>#</a></span></h2><h3 class="relative group">c++发展历史<div id=c发展历史 class=anchor></div><span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none"><a class="text-primary-300 dark:text-neutral-700 !no-underline" href=#c%e5%8f%91%e5%b1%95%e5%8e%86%e5%8f%b2 aria-label=锚点>#</a></span></h3><p>诞生的直接原因：Bjarne博士在研究Unix内核时，发现没有合适的工具可以有效的分析由于内核分布而造成的网络流量以及如何将内核模块化<figure><img class="my-0 rounded-md" loading=lazy decoding=async fetchpriority=low alt=cpp历史 src=/images/3_cpp_history.png></figure></p><h3 class="relative group">c++应用方向<div id=c应用方向 class=anchor></div><span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none"><a class="text-primary-300 dark:text-neutral-700 !no-underline" href=#c%e5%ba%94%e7%94%a8%e6%96%b9%e5%90%91 aria-label=锚点>#</a></span></h3><figure><img class="my-0 rounded-md" loading=lazy decoding=async fetchpriority=low alt=cpp应用方向 src=/images/2_cpp_for_what.png></figure><h3 class="relative group">命名空间<div id=命名空间 class=anchor></div><span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none"><a class="text-primary-300 dark:text-neutral-700 !no-underline" href=#%e5%91%bd%e5%90%8d%e7%a9%ba%e9%97%b4 aria-label=锚点>#</a></span></h3><div class=highlight-wrapper><div class=highlight><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=cm>/* 
+</span></span></span><span class=line><span class=cl><span class=cm>// 为了避免不经意间的名称冲突，让重复名称被正确管理，创造了命名空间
+</span></span></span><span class=line><span class=cl><span class=cm>正确使用命名空间，我们有三种方法：
+</span></span></span><span class=line><span class=cl><span class=cm>    1. 将命名空间写完整，处处使用std::cout,std::endl;
+</span></span></span><span class=line><span class=cl><span class=cm>    2. 靠经验使得不冲突(不可靠)
+</span></span></span><span class=line><span class=cl><span class=cm>    3. 使用一个写一个命名空间：using std::cout;
+</span></span></span><span class=line><span class=cl><span class=cm>
+</span></span></span><span class=line><span class=cl><span class=cm>命名空间有一些自己的特性：
+</span></span></span><span class=line><span class=cl><span class=cm>    1. 可以嵌套使用，namespace nice{namespace nice {}}
+</span></span></span><span class=line><span class=cl><span class=cm>    2. 可以扩展，比如你可以给std空间增加内容而不会报错（但很容易冲突）。为防止报错，一般不扩写。系统命名空间一般都是小写。
+</span></span></span><span class=line><span class=cl><span class=cm>    3. 就近覆盖
+</span></span></span><span class=line><span class=cl><span class=cm>    4. 在命名空间中，我们可以定义变量、函数、结构体、命名空间，统称为实体
+</span></span></span><span class=line><span class=cl><span class=cm>    5. ::  叫做“作用域限定符”
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 1. 嵌套
+</span></span></span><span class=line><span class=cl><span class=k>namespace</span> <span class=n>test</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>namespace</span> <span class=n>test</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kt>void</span> <span class=nf>TestNameSpace</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 2. 追加
+</span></span></span><span class=line><span class=cl><span class=k>namespace</span> <span class=n>std</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>MyStdFunc</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>std</span><span class=o>::</span><span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;My std Funct&#34;</span> <span class=o>&lt;&lt;</span> <span class=n>std</span><span class=o>::</span><span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 3. 就近覆盖
+</span></span></span><span class=line><span class=cl><span class=c1>// 全局变量 print
+</span></span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>print</span> <span class=o>=</span> <span class=mi>10</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>namespace</span> <span class=n>OverWrite</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>print</span> <span class=o>=</span> <span class=mi>20</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>test</span><span class=p>(</span><span class=kt>int</span> <span class=n>print</span> <span class=o>=</span> <span class=mi>1</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>std</span><span class=o>::</span><span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;形式参数 print = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>print</span> <span class=o>&lt;&lt;</span> <span class=n>std</span><span class=o>::</span><span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>std</span><span class=o>::</span><span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;命名空间内的 print = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>OverWrite</span><span class=o>::</span><span class=n>print</span> <span class=o>&lt;&lt;</span> <span class=n>std</span><span class=o>::</span><span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>std</span><span class=o>::</span><span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;全局变量 print = &#34;</span> <span class=o>&lt;&lt;</span> <span class=o>::</span><span class=n>print</span> <span class=o>&lt;&lt;</span> <span class=n>std</span><span class=o>::</span><span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></div></div><h3 class="relative group">const关键字<div id=const关键字 class=anchor></div><span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none"><a class="text-primary-300 dark:text-neutral-700 !no-underline" href=#const%e5%85%b3%e9%94%ae%e5%ad%97 aria-label=锚点>#</a></span></h3><div class=highlight-wrapper><div class=highlight><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=cm>/****
+</span></span></span><span class=line><span class=cl><span class=cm>
+</span></span></span><span class=line><span class=cl><span class=cm>常量修饰符，这里我们需要区分两个内容**指针常量**和**常量指针**
+</span></span></span><span class=line><span class=cl><span class=cm>
+</span></span></span><span class=line><span class=cl><span class=cm>核心区分方式：从右往左读。
+</span></span></span><span class=line><span class=cl><span class=cm>    const 修饰的是它左边的内容（如果左边有东西的话），如果左边没有东西，则修饰右边：
+</span></span></span><span class=line><span class=cl><span class=cm>
+</span></span></span><span class=line><span class=cl><span class=cm>1. *常量指针 (pointer to const)*：const int *p 或 int const *p
+</span></span></span><span class=line><span class=cl><span class=cm>    1. 读法：p 是一个指针，指向 const int
+</span></span></span><span class=line><span class=cl><span class=cm>    2. 含义：指向的值不能改，指针本身可以改
+</span></span></span><span class=line><span class=cl><span class=cm>    3. *p = 10; ❌ | p = &amp;b; ✅
+</span></span></span><span class=line><span class=cl><span class=cm>
+</span></span></span><span class=line><span class=cl><span class=cm>2. *指针常量 (const pointer)*：int * const p
+</span></span></span><span class=line><span class=cl><span class=cm>    1. 读法：p 是一个 const 指针，指向 int
+</span></span></span><span class=line><span class=cl><span class=cm>    2. 含义：指针本身不能改，指向的值可以改
+</span></span></span><span class=line><span class=cl><span class=cm>    3. *p = 10; ✅ | p = &amp;b; ❌
+</span></span></span><span class=line><span class=cl><span class=cm>    4. 组合：const int * const p — 都不能改
+</span></span></span><span class=line><span class=cl><span class=cm>
+</span></span></span><span class=line><span class=cl><span class=cm>* 和运算符优先级无关。 区别完全取决于 const 相对于 * 的位置，跟优先级规则没有直接关系。
+</span></span></span><span class=line><span class=cl><span class=cm>* 运算符优先级影响的是带解引用的表达式求值顺序（如 *p++ vs (*p)++），而不是类型声明本身的语义。
+</span></span></span><span class=line><span class=cl><span class=cm>* 类型声明遵循的是 C/C++ 的&#34;声明模仿使用&#34;（declaration mimics use）语法规则。
+</span></span></span><span class=line><span class=cl><span class=cm>
+</span></span></span><span class=line><span class=cl><span class=cm>
+</span></span></span><span class=line><span class=cl><span class=cm>&gt; 中文区分：从左往右读
+</span></span></span><span class=line><span class=cl><span class=cm>* const : 指针常量
+</span></span></span><span class=line><span class=cl><span class=cm>const * : 常量指针
+</span></span></span><span class=line><span class=cl><span class=cm>
+</span></span></span><span class=line><span class=cl><span class=cm>&gt; 英文区分：从右往左读
+</span></span></span><span class=line><span class=cl><span class=cm>* const : a const pointer
+</span></span></span><span class=line><span class=cl><span class=cm>const * : a pointer to const
+</span></span></span><span class=line><span class=cl><span class=cm>
+</span></span></span><span class=line><span class=cl><span class=cm>****/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;iostream&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>using</span> <span class=n>std</span><span class=o>::</span><span class=n>cout</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>using</span> <span class=n>std</span><span class=o>::</span><span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>//宏定义发生的时机是在预处理阶段,字符串替换,有bug会到运行时才会发现
+</span></span></span><span class=line><span class=cl><span class=cp>#define MAX 10
+</span></span></span><span class=line><span class=cl><span class=cp>#define multiply(x, y) ((x) * (y))
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>test</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//发生时机在编译阶段,会进行类型安全检查,如果有bug在编译时候就会出现
+</span></span></span><span class=line><span class=cl>    <span class=c1>//内置类型：char/short/int/long/double/float/void *
+</span></span></span><span class=line><span class=cl>    <span class=k>const</span> <span class=kt>int</span> <span class=n>number</span> <span class=o>=</span> <span class=mi>10</span><span class=p>;</span><span class=c1>//const修饰的变量称为常量，必须在定义的时候进行初始化
+</span></span></span><span class=line><span class=cl>    <span class=cm>/* number = 20;//赋值,常量不能进行赋值 */</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=k>const</span> <span class=n>number2</span> <span class=o>=</span> <span class=mi>20</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>//函数指针           指针函数
+</span></span></span><span class=line><span class=cl><span class=c1>//int (*pf)(int)     int*   pf(int)
+</span></span></span><span class=line><span class=cl><span class=c1>//
+</span></span></span><span class=line><span class=cl><span class=c1>//数组指针           指针数组
+</span></span></span><span class=line><span class=cl><span class=c1>//int (*pArray)[]    int* pArray[]
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>test2</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>value</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>value1</span> <span class=o>=</span> <span class=mi>10</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=o>*</span><span class=n>p1</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>value1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>p1</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>value</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>*</span><span class=n>p1</span> <span class=o>=</span> <span class=mi>20000</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>value2</span> <span class=o>=</span> <span class=mi>200</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>const</span> <span class=kt>int</span> <span class=o>*</span><span class=n>p2</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>value2</span><span class=p>;</span><span class=c1>//当const位于*左边的时候，常量指针(pointer to const)
+</span></span></span><span class=line><span class=cl>    <span class=cm>/* *p2 = 222;//error,不能修改指针所指变量的值 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>p2</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>value</span><span class=p>;</span><span class=c1>//ok,可以改变指针本身（指向）
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>value3</span> <span class=o>=</span> <span class=mi>300</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=k>const</span> <span class=o>*</span><span class=n>p3</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>value3</span><span class=p>;</span><span class=c1>//当const位于*左边的时候，常量指针(pointer to const)
+</span></span></span><span class=line><span class=cl>    <span class=cm>/* *p3 = 333;//error,不能修改指针所指变量的值 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>p3</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>value</span><span class=p>;</span><span class=c1>//ok,可以改变指针本身（指向）
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>value4</span> <span class=o>=</span> <span class=mi>400</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=o>*</span> <span class=k>const</span> <span class=n>p4</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>value4</span><span class=p>;</span><span class=c1>//当const位于*右边的时候，指针常量(const pointer)
+</span></span></span><span class=line><span class=cl>    <span class=o>*</span><span class=n>p4</span> <span class=o>=</span> <span class=mi>444</span><span class=p>;</span><span class=c1>//ok,可以修改指针所指变量的值
+</span></span></span><span class=line><span class=cl>    <span class=cm>/* p4 = &amp;value;//error,不可以改变指针本身（指向） */</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>value5</span> <span class=o>=</span> <span class=mi>500</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>const</span> <span class=kt>int</span> <span class=o>*</span> <span class=k>const</span> <span class=n>p5</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>value5</span><span class=p>;</span><span class=c1>//双const
+</span></span></span><span class=line><span class=cl>    <span class=cm>/* *p5 = 555;//error,不可以修改指针所指变量的值 */</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* p5 = &amp;value;//error,不可以改变指针本身（指向） */</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>int</span> <span class=n>argc</span><span class=p>,</span> <span class=kt>char</span> <span class=o>**</span><span class=n>argv</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>test2</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></div></div><h3 class="relative group">new和delete<div id=new和delete class=anchor></div><span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none"><a class="text-primary-300 dark:text-neutral-700 !no-underline" href=#new%e5%92%8cdelete aria-label=锚点>#</a></span></h3><p>new/delete与malloc/free的区别是什么?</p><div class=highlight-wrapper><div class=highlight><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdlib.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;string.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;iostream&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>using</span> <span class=n>std</span><span class=o>::</span><span class=n>cout</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>using</span> <span class=n>std</span><span class=o>::</span><span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>test2</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>number</span> <span class=o>=</span> <span class=mi>10</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;sizeof(number) = %lu&#34;</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>number</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;sizeof number = %lu&#34;</span><span class=p>,</span> <span class=k>sizeof</span> <span class=n>number</span><span class=p>);</span><span class=c1>//sizeof是一个运算符
+</span></span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=c1>//面试中常问的
+</span></span></span><span class=line><span class=cl><span class=c1>//内存溢出？踩内存？内存越界？野指针
+</span></span></span><span class=line><span class=cl><span class=c1>//
+</span></span></span><span class=line><span class=cl><span class=c1>//
+</span></span></span><span class=line><span class=cl><span class=c1>//面试题
+</span></span></span><span class=line><span class=cl><span class=c1>//malloc/free与new/delete异同点？
+</span></span></span><span class=line><span class=cl><span class=c1>//1、都是用来申请堆空间的
+</span></span></span><span class=line><span class=cl><span class=c1>//2、malloc与free，new与delete要成对出现，否则可能造成内存泄漏
+</span></span></span><span class=line><span class=cl><span class=c1>//
+</span></span></span><span class=line><span class=cl><span class=c1>//不同点：
+</span></span></span><span class=line><span class=cl><span class=c1>//1、malloc/free是C里面的库函数，new/delete是C++中的表达式
+</span></span></span><span class=line><span class=cl><span class=c1>//2、malloc申请的是未初始化的堆空间，new申请是已经初始化的堆空间
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>test</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=o>*</span><span class=n>pInt</span> <span class=o>=</span> <span class=p>(</span><span class=kt>int</span> <span class=o>*</span><span class=p>)</span><span class=n>malloc</span><span class=p>(</span><span class=k>sizeof</span><span class=p>(</span><span class=kt>int</span><span class=p>));</span><span class=c1>//1、申请堆空间
+</span></span></span><span class=line><span class=cl>    <span class=n>memset</span><span class=p>(</span><span class=n>pInt</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=kt>int</span><span class=p>));</span><span class=c1>//2、初始化
+</span></span></span><span class=line><span class=cl>    <span class=o>*</span><span class=n>pInt</span> <span class=o>=</span> <span class=mi>10</span><span class=p>;</span><span class=c1>//3、赋值
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>free</span><span class=p>(</span><span class=n>pInt</span><span class=p>);</span><span class=c1>//4、释放堆空间
+</span></span></span><span class=line><span class=cl>    <span class=cm>/* pInt = NULL;//0 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>pInt</span> <span class=o>=</span> <span class=k>nullptr</span><span class=p>;</span><span class=c1>//void *
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=o>*</span><span class=n>pArray</span> <span class=o>=</span> <span class=p>(</span><span class=kt>int</span> <span class=o>*</span><span class=p>)(</span><span class=n>malloc</span><span class=p>(</span><span class=k>sizeof</span><span class=p>(</span><span class=kt>int</span><span class=p>)</span> <span class=o>*</span> <span class=mi>10</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>    <span class=n>memset</span><span class=p>(</span><span class=n>pArray</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=kt>int</span><span class=p>)</span> <span class=o>*</span> <span class=mi>10</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>free</span><span class=p>(</span><span class=n>pArray</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>pArray</span> <span class=o>=</span> <span class=k>nullptr</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>test3</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=o>*</span><span class=n>pInt</span> <span class=o>=</span> <span class=k>new</span> <span class=kt>int</span><span class=p>(</span><span class=mi>10</span><span class=p>);</span><span class=c1>//1、申请堆空间，并初始化，还可以进行赋值
+</span></span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;*pInt = &#34;</span> <span class=o>&lt;&lt;</span> <span class=o>*</span><span class=n>pInt</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>delete</span> <span class=n>pInt</span><span class=p>;</span><span class=c1>//2、释放堆空间
+</span></span></span><span class=line><span class=cl>    <span class=n>pInt</span> <span class=o>=</span> <span class=k>nullptr</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=o>*</span><span class=n>pArray</span> <span class=o>=</span> <span class=k>new</span> <span class=kt>int</span><span class=p>[</span><span class=mi>10</span><span class=p>]();</span>
+</span></span><span class=line><span class=cl>    <span class=n>pArray</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=mi>120</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>delete</span> <span class=p>[]</span> <span class=n>pArray</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>int</span> <span class=n>argc</span><span class=p>,</span> <span class=kt>char</span> <span class=o>**</span><span class=n>argv</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;Hello world&#34;</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></div></div><h3 class="relative group">引用的使用<div id=引用的使用 class=anchor></div><span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none"><a class="text-primary-300 dark:text-neutral-700 !no-underline" href=#%e5%bc%95%e7%94%a8%e7%9a%84%e4%bd%bf%e7%94%a8 aria-label=锚点>#</a></span></h3><div class=highlight-wrapper><div class=highlight><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=c1>// 引用就是对指针解引用的语法糖(甜的，用起来舒服就是甜的)。
+</span></span></span><span class=line><span class=cl><span class=c1>// 为了减少指针的使用，创造了引用这个用起来甜甜的功能。
+</span></span></span><span class=line><span class=cl><span class=c1>// 引用本身就是别名
+</span></span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>a</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl><span class=c1>// 下面两句在汇编代码中完全相同
+</span></span></span><span class=line><span class=cl><span class=kt>int</span> <span class=o>&amp;</span><span class=n>r</span> <span class=o>=</span> <span class=n>a</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=o>*</span><span class=n>p</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>a</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;iostream&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>using</span> <span class=n>std</span><span class=o>::</span><span class=n>cout</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>using</span> <span class=n>std</span><span class=o>::</span><span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>//指针与引用的异同点？
+</span></span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>test</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>number</span> <span class=o>=</span> <span class=mi>10</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=o>&amp;</span><span class=n>ref</span> <span class=o>=</span> <span class=n>number</span><span class=p>;</span><span class=c1>//引用是变量的别名,引用的提出就是为了减少指针的使用
+</span></span></span><span class=line><span class=cl>    <span class=o>&amp;</span><span class=n>ref</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;number = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>number</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;ref = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>ref</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;number = %p</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>number</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;ref = %p</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>ref</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>number2</span> <span class=o>=</span> <span class=mi>200</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>ref</span> <span class=o>=</span> <span class=n>number2</span><span class=p>;</span><span class=c1>//操作引用与操作变量本身是一样的
+</span></span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;number2 = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>number2</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;number = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>number</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;ref = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>ref</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;number2 = %p</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>number2</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;number = %p</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>number</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;ref = %p</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>ref</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//引用的实质：指针常量 * const
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>//引用不能独立存在，在定义的时候必须要进行初始化,在定义的
+</span></span></span><span class=line><span class=cl>    <span class=c1>//的时候绑定到变量上面，跟变量绑定到一起，不会改变引用的指向
+</span></span></span><span class=line><span class=cl><span class=cm>/*    int &amp;ref2;   ERROR */</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>//1、引用作为函数参数
+</span></span></span><span class=line><span class=cl><span class=cp>#if 0</span><span class=c>
+</span></span></span><span class=line><span class=cl><span class=c>//值传递====副本
+</span></span></span><span class=line><span class=cl><span class=c>//没有触及a b本身
+</span></span></span><span class=line><span class=cl><span class=c>void swap(int x, int y)//int x = a, int y = b
+</span></span></span><span class=line><span class=cl><span class=c>{
+</span></span></span><span class=line><span class=cl><span class=c>    int temp = x;
+</span></span></span><span class=line><span class=cl><span class=c>    x = y;
+</span></span></span><span class=line><span class=cl><span class=c>    y = temp;
+</span></span></span><span class=line><span class=cl><span class=c>}
+</span></span></span><span class=line><span class=cl><span class=cp>#endif
+</span></span></span><span class=line><span class=cl><span class=cp>#if 0</span><span class=c>
+</span></span></span><span class=line><span class=cl><span class=c>//值传递====地址值
+</span></span></span><span class=line><span class=cl><span class=c>void swap(int *px, int *py)//int *px = &amp;a, int *py = &amp;b;
+</span></span></span><span class=line><span class=cl><span class=c>{
+</span></span></span><span class=line><span class=cl><span class=c>    int temp = *px;
+</span></span></span><span class=line><span class=cl><span class=c>    *px = *py;
+</span></span></span><span class=line><span class=cl><span class=c>    *py = temp;
+</span></span></span><span class=line><span class=cl><span class=c>}
+</span></span></span><span class=line><span class=cl><span class=cp>#endif
+</span></span></span><span class=line><span class=cl><span class=c1>//引用传递====变量本身
+</span></span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>swap</span><span class=p>(</span><span class=kt>int</span> <span class=o>&amp;</span><span class=n>x</span><span class=p>,</span> <span class=kt>int</span> <span class=o>&amp;</span><span class=n>y</span><span class=p>)</span><span class=c1>//int &amp;x = a, int &amp;y = b
+</span></span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>temp</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>x</span> <span class=o>=</span> <span class=n>y</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>y</span> <span class=o>=</span> <span class=n>temp</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>test2</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>a</span> <span class=o>=</span> <span class=mi>3</span><span class=p>,</span> <span class=n>b</span> <span class=o>=</span> <span class=mi>4</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;在交换之前 a = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>a</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;, b = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>b</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl>    <span class=n>swap</span><span class=p>(</span><span class=n>a</span><span class=p>,</span> <span class=n>b</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;在交换之后 a = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>a</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;, b = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>b</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>//2、引用作为函数返回类型
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>func1</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>number</span> <span class=o>=</span> <span class=mi>10</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>number</span><span class=p>;</span><span class=c1>//执行一个拷贝操作
+</span></span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=o>&amp;</span><span class=n>func2</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>number</span> <span class=o>=</span> <span class=mi>10</span><span class=p>;</span><span class=c1>//局部变量
+</span></span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>number</span><span class=p>;</span><span class=c1>//不能返回一个局部变量的引用
+</span></span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>//不要去返回堆空间的引用,必须要有内存回收的机制
+</span></span></span><span class=line><span class=cl><span class=kt>int</span> <span class=o>&amp;</span><span class=n>getHeapData</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=o>*</span><span class=n>pInt</span> <span class=o>=</span> <span class=k>new</span> <span class=kt>int</span><span class=p>(</span><span class=mi>100</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=o>*</span><span class=n>pInt</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>test4</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>a</span> <span class=o>=</span> <span class=mi>3</span><span class=p>,</span> <span class=n>b</span> <span class=o>=</span> <span class=mi>5</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>temp</span> <span class=o>=</span> <span class=n>a</span> <span class=o>+</span> <span class=n>getHeapData</span><span class=p>()</span> <span class=o>+</span> <span class=n>b</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;temp = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>temp</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=o>&amp;</span><span class=n>ref</span> <span class=o>=</span> <span class=n>getHeapData</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=k>delete</span> <span class=o>&amp;</span><span class=n>ref</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>//函数返回类型是引用的前提:实体的生命周期一定要大于函数的生命周期
+</span></span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>arr</span><span class=p>[</span><span class=mi>10</span><span class=p>]</span> <span class=o>=</span> <span class=p>{</span><span class=mi>1</span><span class=p>,</span> <span class=mi>3</span><span class=p>,</span> <span class=mi>5</span><span class=p>,</span> <span class=mi>7</span><span class=p>,</span> <span class=mi>9</span><span class=p>,</span> <span class=mi>10</span><span class=p>};</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=o>&amp;</span><span class=n>getIndex</span><span class=p>(</span><span class=kt>int</span> <span class=n>idx</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>arr</span><span class=p>[</span><span class=n>idx</span><span class=p>];</span><span class=c1>//先不去考虑越界
+</span></span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>test3</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;getIndex(0) = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>getIndex</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>getIndex</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span> <span class=o>=</span> <span class=mi>200</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;getIndex(0) = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>getIndex</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;arr[0] = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>arr</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* func1() = 200; */</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>int</span> <span class=n>argc</span><span class=p>,</span> <span class=kt>char</span> <span class=o>**</span><span class=n>argv</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>test4</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></div></div><h2 class="relative group">Day1作业<div id=day1作业 class=anchor></div><span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none"><a class="text-primary-300 dark:text-neutral-700 !no-underline" href=#day1%e4%bd%9c%e4%b8%9a aria-label=锚点>#</a></span></h2><p>C++Day1</p><p>C++语法规则很多，要落实下来，得通过多敲代码来理解，看N遍不如写一次；在写代码的过程中，会碰到其它你不曾碰到过的编译问题，切记程序是调试出来的；再就是通过练习，把敲代码的速度提升上来，熟悉键盘，培养写代码的感觉</p><h3 class="relative group">一、选择题<div id=一选择题 class=anchor></div><span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none"><a class="text-primary-300 dark:text-neutral-700 !no-underline" href=#%e4%b8%80%e9%80%89%e6%8b%a9%e9%a2%98 aria-label=锚点>#</a></span></h3><p>1、在C++中执行以下4条语句后输出rad值为：（）</p><div class=highlight-wrapper><div class=highlight><pre tabindex=0 class=chroma><code class=language-C++ data-lang=C++><span class=line><span class=cl><span class=k>static</span> <span class=kt>int</span> <span class=n>hot</span><span class=o>=</span><span class=mi>200</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=o>&amp;</span><span class=n>rad</span><span class=o>=</span><span class=n>hot</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=n>hot</span> <span class=o>=</span> <span class=n>hot</span> <span class=o>+</span> <span class=mi>100</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl><span class=n>cout</span><span class=o>&lt;&lt;</span> <span class=n>rad</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>A</span><span class=err>、</span><span class=mi>100</span>        <span class=n>B</span><span class=err>、</span><span class=mi>200</span>     <span class=n>C</span><span class=err>、</span><span class=mi>300</span>    <span class=n>D</span><span class=err>、</span><span class=mi>400</span></span></span></code></pre></div></div><h3 class="relative group">二、简答题<div id=二简答题 class=anchor></div><span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none"><a class="text-primary-300 dark:text-neutral-700 !no-underline" href=#%e4%ba%8c%e7%ae%80%e7%ad%94%e9%a2%98 aria-label=锚点>#</a></span></h3><ol><li>const关键字与宏定义的区别是什么？</li><li>malloc的底层实现是怎样的？free是怎么回收内存的？</li><li>new/delete与malloc/free的区别与联系是什么？(面试常考)</li><li>区分以下概念：内存泄漏、内存溢出、内存踩踏、野指针？(面试常考)</li><li>引用与指针的区别是什么？并且将"引用"作为函数参数有哪些特点？在什么时候需要使用"常引用"？</li></ol><h3 class="relative group">三、写出下面程序的运行结果。<div id=三写出下面程序的运行结果 class=anchor></div><span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none"><a class="text-primary-300 dark:text-neutral-700 !no-underline" href=#%e4%b8%89%e5%86%99%e5%87%ba%e4%b8%8b%e9%9d%a2%e7%a8%8b%e5%ba%8f%e7%9a%84%e8%bf%90%e8%a1%8c%e7%bb%93%e6%9e%9c aria-label=锚点>#</a></span></h3><p>1、第一题：</p><div class=highlight-wrapper><div class=highlight><pre tabindex=0 class=chroma><code class=language-C++ data-lang=C++><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;iostream&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>using</span> <span class=n>std</span><span class=o>::</span><span class=n>cout</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>using</span> <span class=n>std</span><span class=o>::</span><span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>f2</span><span class=p>(</span><span class=kt>int</span> <span class=o>&amp;</span><span class=n>x</span><span class=p>,</span> <span class=kt>int</span> <span class=o>&amp;</span><span class=n>y</span><span class=p>)</span> 
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>z</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl>	<span class=n>x</span> <span class=o>=</span> <span class=n>y</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl>	<span class=n>y</span> <span class=o>=</span> <span class=n>z</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>f3</span><span class=p>(</span><span class=kt>int</span> <span class=o>*</span><span class=n>x</span><span class=p>,</span> <span class=kt>int</span> <span class=o>*</span><span class=n>y</span><span class=p>)</span> 
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>z</span> <span class=o>=</span> <span class=o>*</span><span class=n>x</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl>	<span class=o>*</span><span class=n>x</span> <span class=o>=</span> <span class=o>*</span><span class=n>y</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl>	<span class=o>*</span><span class=n>y</span> <span class=o>=</span> <span class=n>z</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> 
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>x</span> <span class=o>=</span> <span class=mi>10</span><span class=p>;</span> <span class=n>y</span> <span class=o>=</span> <span class=mi>26</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;x, y = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>x</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;, &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>y</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>f2</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;x, y = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>x</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;, &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>y</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>f3</span><span class=p>(</span><span class=o>&amp;</span><span class=n>x</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>y</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;x, y = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>x</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;, &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>y</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>x</span><span class=o>++</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl>	<span class=n>y</span><span class=o>--</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>f2</span><span class=p>(</span><span class=n>y</span><span class=p>,</span> <span class=n>x</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;x, y = &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>x</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;, &#34;</span> <span class=o>&lt;&lt;</span> <span class=n>y</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></div></div><p>2、以下代码输出的是__？</p><div class=highlight-wrapper><div class=highlight><pre tabindex=0 class=chroma><code class=language-C++ data-lang=C++><span class=line><span class=cl><span class=kt>int</span> <span class=nf>foo</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>,</span><span class=kt>int</span> <span class=n>y</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span><span class=p>(</span><span class=n>x</span> <span class=o>&lt;=</span> <span class=mi>0</span> <span class=o>||</span><span class=n>y</span> <span class=o>&lt;=</span> <span class=mi>0</span><span class=p>)</span>  
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>3</span> <span class=o>*</span> <span class=n>foo</span><span class=p>(</span><span class=n>x</span><span class=o>-</span><span class=mi>1</span><span class=p>,</span> <span class=n>y</span><span class=o>/</span><span class=mi>2</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>foo</span><span class=p>(</span><span class=mi>3</span><span class=p>,</span><span class=mi>5</span><span class=p>)</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span></span></span></code></pre></div></div><p>3、若执行下面的程序时，从键盘上输入5，则输出是（）</p><div class=highlight-wrapper><div class=highlight><pre tabindex=0 class=chroma><code class=language-C++ data-lang=C++><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>int</span> <span class=n>argc</span><span class=p>,</span> <span class=kt>char</span><span class=o>**</span> <span class=n>argv</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>x</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>x</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span><span class=p>(</span><span class=n>x</span><span class=o>++</span> <span class=o>&gt;</span> <span class=mi>5</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>x</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>      
+</span></span><span class=line><span class=cl>    <span class=k>else</span>
+</span></span><span class=line><span class=cl>	<span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>x</span><span class=o>--</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></div></div><p>4、写出下面程序的结果：</p><div class=highlight-wrapper><div class=highlight><pre tabindex=0 class=chroma><code class=language-C++ data-lang=C++><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> 
+</span></span><span class=line><span class=cl><span class=p>{</span> 
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>a</span><span class=p>[</span><span class=mi>5</span><span class=p>]</span><span class=o>=</span><span class=p>{</span><span class=mi>1</span><span class=p>,</span><span class=mi>2</span><span class=p>,</span><span class=mi>3</span><span class=p>,</span><span class=mi>4</span><span class=p>,</span><span class=mi>5</span><span class=p>};</span> 
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=o>*</span><span class=n>ptr</span><span class=o>=</span><span class=p>(</span><span class=kt>int</span> <span class=o>*</span><span class=p>)(</span><span class=o>&amp;</span><span class=n>a</span><span class=o>+</span><span class=mi>1</span><span class=p>);</span> 
+</span></span><span class=line><span class=cl>    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;%d,%d&#34;</span><span class=p>,</span><span class=o>*</span><span class=p>(</span><span class=n>a</span><span class=o>+</span><span class=mi>1</span><span class=p>),</span><span class=o>*</span><span class=p>(</span><span class=n>ptr</span><span class=o>-</span><span class=mi>1</span><span class=p>));</span> 
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></div></div><h3 class="relative group">四、有段代码写成了下边这样，如何在只修改一个字符的前提下，使代码输出20个hello?<div id=四有段代码写成了下边这样如何在只修改一个字符的前提下使代码输出20个hello class=anchor></div><span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none"><a class="text-primary-300 dark:text-neutral-700 !no-underline" href=#%e5%9b%9b%e6%9c%89%e6%ae%b5%e4%bb%a3%e7%a0%81%e5%86%99%e6%88%90%e4%ba%86%e4%b8%8b%e8%be%b9%e8%bf%99%e6%a0%b7%e5%a6%82%e4%bd%95%e5%9c%a8%e5%8f%aa%e4%bf%ae%e6%94%b9%e4%b8%80%e4%b8%aa%e5%ad%97%e7%ac%a6%e7%9a%84%e5%89%8d%e6%8f%90%e4%b8%8b%e4%bd%bf%e4%bb%a3%e7%a0%81%e8%be%93%e5%87%ba20%e4%b8%aahello aria-label=锚点>#</a></span></h3><div class=highlight-wrapper><div class=highlight><pre tabindex=0 class=chroma><code class=language-C++ data-lang=C++><span class=line><span class=cl><span class=k>for</span><span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=mi>20</span><span class=p>;</span> <span class=n>i</span><span class=o>--</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=s>&#34;hello&#34;</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span></span></span></code></pre></div></div></div></div></section><footer class="pt-8 max-w-prose print:hidden"><div class=pt-8><hr class="border-dotted border-neutral-300 dark:border-neutral-600"><div class="flex justify-between pt-3"><span class="flex flex-col"><a class="flex text-neutral-700 hover:text-primary-600 dark:text-neutral dark:hover:text-primary-400" href=/posts/hello-world/><span class=leading-6><span class="inline-block rtl:rotate-180">&larr;</span>&ensp;我的第一篇博客
+</span></a><span class="ms-6 mt-1 text-xs text-neutral-500 dark:text-neutral-400"><time datetime=2026-08-04T00:00:00+00:00>2026-08-04</time>
+</span></span><span class="flex flex-col items-end"></span></div></div></footer></article><div id=scroll-to-top class="fixed bottom-6 end-6 z-50 transform translate-y-4 opacity-0 duration-200"><a href=#the-top class="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full bg-neutral/50 text-xl text-neutral-700 hover:text-primary-600 dark:bg-neutral-800/50 dark:text-neutral dark:hover:text-primary-400" aria-label=返回顶部 title=返回顶部>&uarr;</a></div></main><footer id=site-footer class="py-10 print:hidden"><div class="flex items-center justify-between"><p class="text-sm text-neutral-500 dark:text-neutral-400">&copy;
+2026
+Bohn</p><p class="text-xs text-neutral-500 dark:text-neutral-400">由 <a class="hover:underline hover:decoration-primary-400 hover:text-primary-500" href=https://gohugo.io/ target=_blank rel="noopener noreferrer">Hugo</a> & <a class="hover:underline hover:decoration-primary-400 hover:text-primary-500" href=https://blowfish.page/ target=_blank rel="noopener noreferrer">Blowfish</a> 强力驱动</p></div><script>mediumZoom(document.querySelectorAll("img:not(.nozoom)"),{margin:24,background:"rgba(0,0,0,0.5)",scrollOffset:0})</script></footer><div id=search-wrapper class="invisible fixed inset-0 flex h-screen w-screen cursor-default flex-col bg-neutral-500/50 p-4 backdrop-blur-sm dark:bg-neutral-900/50 sm:p-6 md:p-[10vh] lg:p-[12vh] z-500" data-url=/><div id=search-modal class="flex flex-col w-full max-w-3xl min-h-0 mx-auto border rounded-md shadow-lg top-20 border-neutral-200 bg-neutral dark:border-neutral-700 dark:bg-neutral-800"><header class="relative z-10 flex items-center justify-between flex-none px-2"><form class="flex items-center flex-auto min-w-0"><div class="flex items-center justify-center w-8 h-8 text-neutral-400"><span class="relative block icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" class="svg-inline--fa fa-search fa-w-16" role="img" viewBox="0 0 512 512"><path fill="currentColor" d="M505 442.7 405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9.0 208 0S0 93.1.0 208s93.1 208 208 208c48.3.0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9.0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7.0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7.0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg></span></div><input type=search id=search-query class="flex flex-auto h-12 mx-1 bg-transparent appearance-none focus:outline-dotted focus:outline-2 focus:outline-transparent" placeholder=搜索 tabindex=0></form><button id=close-search-button class="flex items-center justify-center w-8 h-8 text-neutral-700 hover:text-primary-600 dark:text-neutral dark:hover:text-primary-400" title="关闭 (Esc)">
+<span class="relative block icon"><svg viewBox="0 0 320 512"><path fill="currentColor" d="M310.6 361.4c12.5 12.5 12.5 32.75.0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3 54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75.0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75.0-45.25s32.75-12.5 45.25.0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25.0s12.5 32.75.0 45.25l-105.4 105.4L310.6 361.4z"/></svg></span></button></header><section class="flex-auto px-2 overflow-auto"><ul id=search-results></ul></section></div></div></div></body></html>
