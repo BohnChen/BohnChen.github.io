@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>技术记录 on Bohn's Blog</title><link>https://BohnChen.github.io/tags/%E6%8A%80%E6%9C%AF%E8%AE%B0%E5%BD%95/</link><description>Recent content in 技术记录 on Bohn's Blog</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Tue, 04 Aug 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://BohnChen.github.io/tags/%E6%8A%80%E6%9C%AF%E8%AE%B0%E5%BD%95/index.xml" rel="self" type="application/rss+xml"/><item><title>cpp概览</title><link>https://BohnChen.github.io/posts/studyrecord/cpp/cpp_overlook/</link><pubDate>Tue, 04 Aug 2026 00:00:00 +0000</pubDate><guid>https://BohnChen.github.io/posts/studyrecord/cpp/cpp_overlook/</guid><description>&lt;h2 id="概览"&gt;概览&lt;/h2&gt;
-&lt;p&gt;&lt;img alt="cpp概览" loading="lazy" src="../../../../static/images/1_LiLi_CPP_Overlook.png"&gt;&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>技术记录 on Bohn's Blog</title><link>https://BohnChen.github.io/tags/%E6%8A%80%E6%9C%AF%E8%AE%B0%E5%BD%95/</link><description>Recent content in 技术记录 on Bohn's Blog</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Tue, 04 Aug 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://BohnChen.github.io/tags/%E6%8A%80%E6%9C%AF%E8%AE%B0%E5%BD%95/index.xml" rel="self" type="application/rss+xml"/><item><title>命名空间、const关键字、new/delete、引用</title><link>https://BohnChen.github.io/posts/studyrecord/cpp/cpp_day01/</link><pubDate>Tue, 04 Aug 2026 00:00:00 +0000</pubDate><guid>https://BohnChen.github.io/posts/studyrecord/cpp/cpp_day01/</guid><description>&lt;h2 id="概览"&gt;概览&lt;/h2&gt;
+&lt;p&gt;&lt;img alt="cpp概览" loading="lazy" src="https://BohnChen.github.io/images/1_LiLi_CPP_Overlook.png"&gt;&lt;/p&gt;
 &lt;h2 id="day1知识点"&gt;day1知识点&lt;/h2&gt;
 &lt;h3 id="c发展历史"&gt;c++发展历史&lt;/h3&gt;
 &lt;p&gt;诞生的直接原因：Bjarne博士在研究Unix内核时，发现没有合适的工具可以有效的分析由于内核分布而造成的网络流量以及如何将内核模块化
-&lt;img alt="cpp历史" loading="lazy" src="../../../../static/images/3_cpp_history.png"&gt;&lt;/p&gt;
+&lt;img alt="cpp历史" loading="lazy" src="https://BohnChen.github.io/images/3_cpp_history.png"&gt;&lt;/p&gt;
 &lt;h3 id="c应用方向"&gt;c++应用方向&lt;/h3&gt;
-&lt;p&gt;&lt;img alt="cpp应用方向" loading="lazy" src="../../../../static/images/2_cpp_for_what.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="cpp应用方向" loading="lazy" src="https://BohnChen.github.io/images/2_cpp_for_what.png"&gt;&lt;/p&gt;
 &lt;h3 id="命名空间"&gt;命名空间&lt;/h3&gt;
 &lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-c++" data-lang="c++"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;/*
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 为了避免不经意间的名称冲突，让重复名称被正确管理，创造了命名空间
