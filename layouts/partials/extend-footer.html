@@ -1,6 +1,6 @@
 <canvas id="bg-canvas"></canvas>
 <div id="glass-overlay"></div>
-<button id="anim-toggle" title="切换动画" onclick="toggleAnim()">&#x26A1;</button>
+<button id="anim-toggle" title="切换动画" onclick="toggleAnim()">~</button>
 
 <script>
 // ──────────────── 滚动玻璃 ────────────────
@@ -27,7 +27,7 @@
 // ──────────────── 双模式动画引擎 ────────────────
 (function(){
   var c=document.getElementById("bg-canvas"),ctx=c.getContext("2d"),w,h,ps=[],rib=[];
-  var time=0,mode=0,anim=null;
+  var time=0,mode=1,anim=null;
   var colors=["rgba(59,130,246,0.32)","rgba(29,78,216,0.26)","rgba(99,102,241,0.28)",
               "rgba(6,182,212,0.22)","rgba(37,99,235,0.28)","rgba(56,189,248,0.20)"];
 
