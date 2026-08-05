@@ -53,13 +53,13 @@
     drawWave();
     for(var i=0;i<ps.length;i++)for(var j=i+1;j<ps.length;j++){
       var dx=ps[i].x-ps[j].x,dy=ps[i].y-ps[j].y,d=Math.sqrt(dx*dx+dy*dy);
-      if(d<120){ctx.strokeStyle="rgba(59,130,246,"+((1-d/120)*.12)+")";ctx.lineWidth=.35;
+      if(d<120){ctx.strokeStyle="rgba(59,130,246,"+((1-d/120)*.22)+")";ctx.lineWidth=.4;
         ctx.beginPath();ctx.moveTo(ps[i].x,ps[i].y);ctx.lineTo(ps[j].x,ps[j].y);ctx.stroke();}
     }
     for(var i=0;i<ps.length;i++){var p=ps[i];
-      var g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*2.5);
-      g.addColorStop(0,"rgba(99,102,241,0.12)");g.addColorStop(1,"rgba(99,102,241,0)");
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r*2.5,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+      var g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*1.8);
+      g.addColorStop(0,"rgba(99,102,241,0.07)");g.addColorStop(1,"rgba(99,102,241,0)");
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r*1.8,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
       ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.fill();}
   }
 
