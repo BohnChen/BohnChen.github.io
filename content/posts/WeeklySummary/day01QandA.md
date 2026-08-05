@@ -95,6 +95,8 @@ int (*func)(int, int);  // 函数指针：func 是"指针"，指向"两个int参
 
 ## 3. 0 / void\* / NULL / nullptr
 
+> [史上最明白的NULL、0、nullptr区别分析](https://www.cnblogs.com/porter/p/3611718.html)
+
 ### C 中的行为
 
 | 符号 | 类型 | 行为 |
@@ -137,6 +139,8 @@ char *p = (char*)malloc(16);  // C++ 中需要强转
 ### 内存泄漏
 
 程序在堆上动态分配的内存，不再需要时没有释放，导致不可回收。随时间积累可能耗尽系统内存。
+
+> [深入理解C++ new/delete, new \[\]/delete\[\]](https://www.cnblogs.com/tp-16b/p/8684298.html)
 
 ```cpp
 // C
