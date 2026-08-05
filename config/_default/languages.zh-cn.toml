@@ -12,7 +12,7 @@ title = "Bohn's Blog"
 [params.author]
   name = "Bohn"
   image = "img/author.jpg"
-  headline = "后台开发 / ROS2 / C++"
+  headline = "后端开发/ ROS2 / C++"
   bio = "记录学习过程，分享技术笔记。"
   links = [
     { github = "https://github.com/BohnChen" },
