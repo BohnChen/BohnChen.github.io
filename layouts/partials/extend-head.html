@@ -1,44 +1,57 @@
 <style>
-body {
-  background: transparent !important;
-}
+html, body { background: transparent !important; }
 .bg-neutral, .bg-neutral-50, .bg-neutral-100,
-.dark .bg-neutral-800, .dark .bg-neutral-900 {
-  background: transparent !important;
+.dark .bg-neutral-800, .dark .bg-neutral-900 { background: transparent !important; }
+
+canvas#bg-canvas {
+  position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none;
 }
 
-#bg-canvas {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%;
-  z-index: -1;
-  pointer-events: none;
+#glass-overlay {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(36px) saturate(1.3);
+  -webkit-backdrop-filter: blur(36px) saturate(1.3);
+  opacity: 0;
 }
+.dark #glass-overlay { background: rgba(20,20,30,0.95); }
 
-main article,
-main section,
-#home-profile {
-  background: rgba(255,255,255,0.78) !important;
-  backdrop-filter: blur(20px) saturate(1.2);
-  -webkit-backdrop-filter: blur(20px) saturate(1.2);
-  border-radius: 12px;
-  margin: 6px 0;
-  padding: 16px;
+main article, main section, #home-profile {
+  background: rgba(255,255,255,0.92) !important;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 16px; padding: 16px;
+  position: relative; z-index: 2;
 }
 footer {
-  background: rgba(255,255,255,0.78) !important;
-  backdrop-filter: blur(20px) saturate(1.2);
-  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  background: rgba(255,255,255,0.92) !important;
+  border-top: 1px solid rgba(0,0,0,0.06);
 }
-header nav {
-  backdrop-filter: blur(20px) saturate(1.2);
-  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+nav, header { position: relative; z-index: 1; }
+
+.dark main article, .dark main section, .dark #home-profile {
+  background: rgba(20,20,30,0.92) !important;
+  border-color: rgba(255,255,255,0.06);
 }
-.dark main article,
-.dark main section,
-.dark #home-profile {
-  background: rgba(20,20,30,0.82) !important;
+.dark footer { background: rgba(20,20,30,0.92) !important; border-top-color: rgba(255,255,255,0.06); }
+
+/* 模式切换按钮 */
+#anim-toggle {
+  position: fixed; bottom: 18px; right: 18px; z-index: 300;
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer; font-size: 0.85rem; color: #475569;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  transition: background 0.2s, transform 0.2s;
+  user-select: none;
 }
-.dark footer {
-  background: rgba(20,20,30,0.82) !important;
+#anim-toggle:hover { background: rgba(59,130,246,0.12); transform: scale(1.05); }
+.dark #anim-toggle {
+  background: rgba(20,20,30,0.85); border-color: rgba(255,255,255,0.12);
+  color: #94a3b8;
 }
+.dark #anim-toggle:hover { background: rgba(99,102,241,0.15); }
 </style>

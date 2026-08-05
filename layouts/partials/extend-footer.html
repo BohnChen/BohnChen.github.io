@@ -1,76 +1,130 @@
 <canvas id="bg-canvas"></canvas>
+<div id="glass-overlay"></div>
+<button id="anim-toggle" title="切换动画" onclick="toggleAnim()">&#x26A1;</button>
+
 <script>
-(function() {
-  var c = document.getElementById("bg-canvas");
-  var ctx = c.getContext("2d");
-  var w, h, particles = [];
-  var colors = [
-    "rgba(59,130,246,0.25)",
-    "rgba(29,78,216,0.20)",
-    "rgba(99,102,241,0.22)",
-    "rgba(6,182,212,0.18)"
-  ];
-
-  function resize() {
-    w = c.width = window.innerWidth;
-    h = c.height = window.innerHeight;
+// ──────────────── 滚动玻璃 ────────────────
+(function(){
+  var overlay=document.getElementById("glass-overlay");
+  var canvas=document.getElementById("bg-canvas");
+  var heroH=window.innerHeight*.7;
+  function U(){
+    var t=Math.min(Math.max(window.scrollY/heroH,0),1);
+    if(t<0.02){overlay.style.opacity=0}
+    else{overlay.style.opacity=1;
+      var dark=document.documentElement.classList.contains("dark")||document.querySelector("html").dataset.theme==="dark";
+      overlay.style.background=dark?"rgba(20,20,30,0.95)":"rgba(255,255,255,0.95)";
+      var h=Math.min(t*120,100),s=Math.max(0,h-8);
+      overlay.style.webkitMaskImage="linear-gradient(to top, black 0%, black "+s+"%, transparent "+h+"%)";
+      overlay.style.maskImage="linear-gradient(to top, black 0%, black "+s+"%, transparent "+h+"%)";
+    }
+    canvas.style.opacity=Math.max(0,1-t);
   }
-  resize();
-  window.addEventListener("resize", resize);
+  window.addEventListener("scroll",U,{passive:true});
+  U();
+})();
 
-  // Create 60 particles
-  for (var i = 0; i < 60; i++) {
-    particles.push({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      vx: (Math.random() - 0.5) * 0.6,
-      vy: (Math.random() - 0.5) * 0.6,
-      r: Math.random() * 3 + 1,
-      c: colors[Math.floor(Math.random() * colors.length)]
+// ──────────────── 双模式动画引擎 ────────────────
+(function(){
+  var c=document.getElementById("bg-canvas"),ctx=c.getContext("2d"),w,h,ps=[],rib=[];
+  var time=0,mode=0,anim=null;
+  var colors=["rgba(59,130,246,0.32)","rgba(29,78,216,0.26)","rgba(99,102,241,0.28)",
+              "rgba(6,182,212,0.22)","rgba(37,99,235,0.28)","rgba(56,189,248,0.20)"];
+
+  function R(){w=c.width=innerWidth;h=c.height=innerHeight}
+
+  // 0=海浪粒子
+  function initWave(){
+    ps=[];for(var i=0;i<150;i++)ps.push({
+      bx:Math.random()*w,by:Math.random()*h,x:Math.random()*w,y:Math.random()*h,
+      r:Math.random()*4+2,c:colors[Math.floor(Math.random()*colors.length)],
+      amp:Math.random()*25+12,freq:Math.random()*.03+.015,
+      phase:Math.random()*Math.PI*2,speed:Math.random()*.5+.25
     });
   }
-
-  function draw() {
-    ctx.clearRect(0, 0, w, h);
-
-    // Draw connections
-    for (var i = 0; i < particles.length; i++) {
-      for (var j = i + 1; j < particles.length; j++) {
-        var dx = particles[i].x - particles[j].x;
-        var dy = particles[i].y - particles[j].y;
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 150) {
-          var alpha = (1 - dist / 150) * 0.15;
-          ctx.strokeStyle = "rgba(59,130,246," + alpha + ")";
-          ctx.lineWidth = 0.5;
-          ctx.beginPath();
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.stroke();
-        }
-      }
+  function drawWave(){
+    for(var i=0;i<ps.length;i++){var p=ps[i];
+      p.x=p.bx+p.amp*Math.sin(p.by*p.freq+time*p.speed+p.phase);
+      p.y=p.by+p.amp*.25*Math.cos(p.bx*p.freq+time*p.speed*.6+p.phase);
+      p.bx-=.15;p.by+=.05;if(p.bx<-30)p.bx=w+30;if(p.by>h+30)p.by=-30;
     }
-
-    // Draw particles
-    for (var i = 0; i < particles.length; i++) {
-      var p = particles[i];
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = p.c;
-      ctx.fill();
-
-      // Move
-      p.x += p.vx;
-      p.y += p.vy;
-
-      // Bounce at edges
-      if (p.x < 0 || p.x > w) p.vx *= -1;
-      if (p.y < 0 || p.y > h) p.vy *= -1;
+  }
+  function renderWave(){
+    drawWave();
+    for(var i=0;i<ps.length;i++)for(var j=i+1;j<ps.length;j++){
+      var dx=ps[i].x-ps[j].x,dy=ps[i].y-ps[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<120){ctx.strokeStyle="rgba(59,130,246,"+((1-d/120)*.12)+")";ctx.lineWidth=.35;
+        ctx.beginPath();ctx.moveTo(ps[i].x,ps[i].y);ctx.lineTo(ps[j].x,ps[j].y);ctx.stroke();}
     }
-
-    requestAnimationFrame(draw);
+    for(var i=0;i<ps.length;i++){var p=ps[i];
+      var g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*2.5);
+      g.addColorStop(0,"rgba(99,102,241,0.12)");g.addColorStop(1,"rgba(99,102,241,0)");
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r*2.5,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.fill();}
   }
 
-  draw();
+  // 1=波纹彩带
+  function initRib(){
+    rib=[
+      {y:.15,a:45,f:.010,s:.35,c:"rgba(56,189,248,0.35)",w:8},
+      {y:.22,a:55,f:.008,s:.28,c:"rgba(6,182,212,0.28)",w:4},
+      {y:.34,a:60,f:.006,s:.22,c:"rgba(59,130,246,0.38)",w:18},
+      {y:.38,a:40,f:.012,s:.30,c:"rgba(99,102,241,0.22)",w:5},
+      {y:.46,a:70,f:.005,s:.18,c:"rgba(37,99,235,0.32)",w:14},
+      {y:.52,a:35,f:.014,s:.34,c:"rgba(56,189,248,0.26)",w:6},
+      {y:.58,a:55,f:.007,s:.25,c:"rgba(79,70,229,0.30)",w:16},
+      {y:.62,a:30,f:.016,s:.32,c:"rgba(6,182,212,0.22)",w:4},
+      {y:.72,a:65,f:.004,s:.16,c:"rgba(29,78,216,0.24)",w:28},
+      {y:.78,a:50,f:.008,s:.20,c:"rgba(99,102,241,0.20)",w:10},
+      {y:.85,a:75,f:.003,s:.14,c:"rgba(59,130,246,0.20)",w:22},
+    ];
+  }
+  function drawRib(){
+    for(var i=0;i<rib.length;i++){
+      var r=rib[i],y0=h*r.y;
+      // 外发光
+      ctx.beginPath();ctx.strokeStyle=r.c.replace(/[\d.]+\)$/,"0.08)");ctx.lineWidth=r.w+6;
+      for(var x=0;x<=w;x+=2){
+        var y=y0+r.a*Math.sin(x*r.f+time*r.s)+4*Math.sin(x*.0015+time*.2);
+        if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      }ctx.stroke();
+      // 主线
+      ctx.beginPath();ctx.strokeStyle=r.c;ctx.lineWidth=r.w;
+      for(var x=0;x<=w;x+=2){
+        var y=y0+r.a*Math.sin(x*r.f+time*r.s)+4*Math.sin(x*.0015+time*.2);
+        if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      }ctx.stroke();
+      // 高光线
+      ctx.beginPath();ctx.strokeStyle=r.c.replace(/[\d.]+\)$/,"0.55)");ctx.lineWidth=Math.max(1,r.w*.15);
+      for(var x=0;x<=w;x+=2){
+        var y=y0+r.a*Math.sin(x*r.f+time*r.s)+4*Math.sin(x*.0015+time*.2);
+        if(x===0)ctx.moveTo(x+r.w*.2,y);else ctx.lineTo(x+r.w*.2,y);
+      }ctx.stroke();
+    }
+  }
+
+  function D(ts){
+    time=ts*.001;ctx.clearRect(0,0,w,h);
+    if(mode===0)renderWave();
+    else drawRib();
+    anim=requestAnimationFrame(D);
+  }
+
+  function init(){
+    if(anim){cancelAnimationFrame(anim);anim=null}
+    R();
+    if(mode===0)initWave();
+    else initRib();
+    anim=requestAnimationFrame(D);
+  }
+
+  window.addEventListener("resize",function(){R();initWave();initRib();});
+  init();
+
+  window.toggleAnim=function(){
+    mode=mode===0?1:0;
+    init();
+    document.getElementById("anim-toggle").innerHTML=mode===0?"&#x26A1;":"~";
+  };
 })();
 </script>
