@@ -23,8 +23,7 @@ fingerprintAlgorithm = "sha512"
   showScrollToTop = true
 
 [homepage]
-  layout = "background"
-  homepageImage = "/images/1_LiLi_CPP_Overlook.png"
+  layout = "profile"
   showRecent = true
   showRecentItems = 5
   showMoreLink = true
