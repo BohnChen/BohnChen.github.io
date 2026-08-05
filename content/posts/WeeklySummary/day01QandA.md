@@ -179,7 +179,7 @@ void leak_cpp() {
 
 ### 分类梳理
 
-```mermaid
+{{< mermaid >}}
 graph TD
     subgraph 指针状态
         A[野指针: 未初始化]
@@ -217,7 +217,7 @@ graph TD
     I --> L
     K --> L
     F --> L
-```
+{{< /mermaid >}}
 
 ### 因果关系链
 
