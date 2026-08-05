@@ -1,0 +1,44 @@
+baseURL = "https://BohnChen.github.io/"
+defaultContentLanguage = "zh-cn"
+theme = "blowfish"
+
+enableRobotsTXT = true
+summaryLength = 0
+enableEmoji = true
+
+buildDrafts = false
+buildFuture = false
+
+[pagination]
+  pagerSize = 10
+
+[imaging]
+  anchor = 'Center'
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+
+[sitemap]
+  changefreq = 'daily'
+  filename = 'sitemap.xml'
+  priority = 0.5
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
+[related]
+  threshold = 0
+  toLower = false
+
+    [[related.indices]]
+        name = "tags"
+        weight = 100
+
+    [[related.indices]]
+        name = "categories"
+        weight = 100
+
+    [[related.indices]]
+        name = "date"
+        weight = 10

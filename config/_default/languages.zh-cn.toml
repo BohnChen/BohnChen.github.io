@@ -1,0 +1,19 @@
+locale = "zh-cn"
+label = "中文"
+weight = 1
+title = "Bohn's Blog"
+
+[params]
+  displayName = "CN"
+  isoCode = "zh-CN"
+  rtl = false
+  dateFormat = "2006-01-02"
+
+[params.author]
+  name = "Bohn"
+  image = "img/author.jpg"
+  headline = "后台开发 / ROS2 / C++"
+  bio = "记录学习过程，分享技术笔记。"
+  links = [
+    { github = "https://github.com/BohnChen" },
+  ]
