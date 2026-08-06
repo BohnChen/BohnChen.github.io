@@ -437,5 +437,94 @@ std::string s5 = cs;               // C string → string
 核心区别： std::string 是 RAII 对象，出作用域自动释放，拷贝/赋值/拼接都是值语义，不用管 malloc/free/\0/边界越界。这是 C++ 中用字符串的首选方式，除非你在写纯 C 或与 C 库接口。
 
 ## 内存分配
+关于内存分配，我们通过一张图和一份代码测试进行理解
+![virtual_memory](images/4_virtual_memory.png)
+
+```c++
+
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
+int globalint;//全局变量，位于全局区,初始化为0
+char *globalpointer_1;//全局变量，位于全局区,初始化为nullptr
+const int globalConstInt = 100;
+
+int main(int argc, char **argv)
+{
+    const int LocalConstInt = 0;//局部常量位于栈上
+    int localInt;//局部变量，位于栈区,初始化为随机值
+    char *localPointer_2;//localPointer_2本身也是位于栈区
+    char localStr_1[] = "hello";//localStr_1位于栈上
+    static int LocalStaticInt = 10;//静态变量位于静态区
+
+    int *localPointerToHeap = new int(10);//localPointerToHeap本身位于栈上， localPointerToHeap指向堆区
+    const char *stringToText = "helloworld";//stringToText本身位于栈上，stringToText指向变量位于文字常量区的
+
+    printf("\n打印变量的地址\n");
+    printf("&globalint = %p\n", &globalint);
+    printf("&globalpointer_1 = %p\n", &globalpointer_1);
+    printf("globalpointer_1 = %p\n", globalpointer_1);
+    printf("&localInt = %p\n", &localInt);
+    printf("&localPointer_2 = %p\n", &localPointer_2);
+    printf("localPointer_2 = %p\n", localPointer_2);
+    printf("&localStr_1 = %p\n", &localStr_1);
+    printf("localStr_1 = %p\n", localStr_1);
+    printf("&LocalStaticInt = %p\n", &LocalStaticInt);
+    printf("&localPointerToHeap = %p\n", &localPointerToHeap);
+    printf("localPointerToHeap = %p\n", localPointerToHeap);
+    printf("&stringToText = %p\n", &stringToText);
+    printf("stringToText= %p\n", stringToText);
+    printf("\"helloworld\"= %p\n", &"helloworld");//文字常量区
+    printf("&main = %p\n", &main);//程序代码区
+    printf("main = %p\n", main);
+    printf("&globalConstInt = %p\n", &globalConstInt);
+    printf("&LocalConstInt = %p\n", &LocalConstInt);
+
+    printf("\n打印变量的值\n");
+    printf("globalint = %d\n", globalint);
+    printf("localInt = %d\n", localInt );
+
+    delete localPointerToHeap;
+    localPointerToHeap = nullptr;
+
+    return 0;
+}
+
+
+
+
+```
+
+输出：
+```c++
+
+// output
+
+打印变量的地址
+&globalint = 0x100b38008
+&globalpointer_1 = 0x100b38010
+globalpointer_1 = 0x0
+&localInt = 0x16f2ce628
+&localPointer_2 = 0x16f2ce620
+localPointer_2 = 0xfffffffffffffff0
+&localStr_1 = 0x16f2ce618
+localStr_1 = 0x16f2ce618
+&LocalStaticInt = 0x100b38000
+&localPointerToHeap = 0x16f2ce610
+localPointerToHeap = 0x1011a1b00
+&stringToText = 0x16f2ce608
+stringToText= 0x100b308ca
+"helloworld"= 0x100b308ca
+&main = 0x100b305d0
+main = 0x100b305d0
+&globalConstInt = 0x100b30a80
+&LocalConstInt = 0x16f2ce62c
+
+打印变量的值
+globalint = 0
+localInt = 1865213656
+```
 
 
