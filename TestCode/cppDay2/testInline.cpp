@@ -10,6 +10,6 @@ inline int TestInline_2(int n) {
 }
 
 int main(int argc, char *argv[]) {
-	
+	TestInline_2(4);
 	return 0;
 }

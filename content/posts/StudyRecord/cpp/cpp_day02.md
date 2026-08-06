@@ -175,7 +175,6 @@ int main() {
 | 地址         | 有（编译器可保留一份） | 无                         |
 | #/## 操作符  | ❌ 不支持              | ✅ 支持                    R
  
-> 关于#/##：不过现代 C++ 中用得越来越少——模板、if constexpr、反射（C++26）在很多场景可以替代宏拼接。# 在断言/日志中还算常见，## 主要出现在那些不得不操作标识符名的底层框架代码里。
 
 
 ```c++
@@ -199,13 +198,76 @@ int main() {
     return 0;
 }
 
-关于#/##操作符：
+// 宏定义只做文本替换的例子
+#include <iostream>
+#define ADD(x, y) {return (x) + (y);}
 
+inline int add(int x, int y) {return x + y;}
+
+int main(int argc, char *argv[]) {
+#if 0
+	// main 函数提前返回
+	ADD(3, 4);
+	// 无法输出下面这句
+	std::cout << "hi" << std::endl;
+#endif
+	add(3,4);
+    // 正常输出
+	std::cout << "hi" << std::endl;
+	return 0;
+}
 
 ```
+
+
+> 关于#/##：不过现代 C++ 中用得越来越少——模板、if constexpr、反射（C++26）在很多场景可以替代宏拼接。# 在断言/日志中还算常见，## 主要出现在那些不得不操作标识符名的底层框架代码里。
+
+
 由于inline做的是直接将函数体放在调用位置的工作，因此，**要在同一个文件中同时找到声明和实现**
 
+在同一个文件：
+```c++
+// math.h
+#pragma once
+inline int add(int a, int b) { return a + b; }  // 声明+定义都在头文件
+// main.cpp
+#include "math.h"
+int main() { return add(1, 2); }   // 能看到函数体，可内联 ✅
+// other.cpp
+#include "math.h"
+int other() { return add(3, 4); }  // ✅ 也不会报重定义，因为有 inline
+```
 
+声明和实现在不同的文件，那就把他们拉到同一个文件中来:
+```c++
+// math.h
+#pragma once
+inline int add(int a, int b);    // 声明
+#include "math.ipp"              // 把定义"拉进来"
+
+// math.ipp
+inline int add(int a, int b) { return a + b; }  // 定义
+
+// main.cpp — 只需包含 .h
+#include "math.h"   // math.ipp 的内容被拉进 main.cpp，函数体可见 ✅
+
+```
+实现和声明不在同一个文件中时，会报错：
+```c++
+// math.h
+#pragma once
+int add(int a, int b);             // 只有声明，函数体不可见
+
+// math.cpp
+#include "math.h"
+inline int add(int a, int b) { return a + b; }  // 实现在此
+
+// main.cpp
+#include "math.h"   // 只看到声明，看不到函数体
+int main() { return add(1, 2); }   
+// ❌ 链接错误: undefined reference to add(int, int)
+// inline 函数在 math.cpp 有内部链接，对外不可见
+```
 ## C/C++风格字符串
 
 ## 内存分配
