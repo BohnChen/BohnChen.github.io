@@ -1,12 +1,12 @@
 ---
-title: "强制类型转换、内联函数、C 风格和 C++风格的字符串、内存分配"
+title: "重载、强制类型转换、内联函数、C 风格和 C++风格的字符串、内存分配"
 date: 2026-08-06
 draft: false
-categories: ["C/C++"]
-tags: ["StudyRecord", "WeeklySummary", "技术学习"]
+categories: ["编程语言"]
+tags: ["StudyRecord", "c/cpp", "技术学习"]
 ---
 
-# 强制类型转换、内联函数、C 风格和 C++风格的字符串、内存分配
+# 重载、强制类型转换、内联函数、C 风格和 C++风格的字符串、内存分配
 
 ## 强制类型转换
 在c语言中，强制类型转换通过括号就能实现，非常自由，也非常不安全。为了避免强制类型转换出现的问题，`C++ `创造了四种**强制类型转换运算符**来告诉编译器你的意图，从而让编译器最大可能对你提醒。
@@ -269,6 +269,172 @@ int main() { return add(1, 2); }
 // inline 函数在 math.cpp 有内部链接，对外不可见
 ```
 ## C/C++风格字符串
+`C`风格字符串使用:
+```c
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+
+void CStringUse() {
+	// 堆空间
+	char *pStr = (char *)malloc(11);
+	strcpy(pStr, "hello");
+	printf("%s\n", pStr);
+	strcat(pStr, "world");
+	pStr[0] = 'H';
+	printf("%s\n", pStr);
+	// 手动释放
+	free(pStr);
+	// 置空防止再次访问
+	pStr = NULL;
+
+	// 栈数组
+	char str[10];
+	strcpy(str, "nice");
+	printf("%s\n", str);
+
+}
+
+int main(int argc, char *argv[]) {
+	CStringUse();
+	return 0;
+}
+
+```
+c++中的string写法就方便非常多，而方便的源头得益于 cpp 写了很多运算符重载函数
+
+```c++
+
+#include <iostream>
+#include <string>
+
+using std::string;
+
+int main(int argc, char *argv[]) {
+	string str = "hello";
+	std::cout << str << std::endl;
+	str = str + "world";
+	std::cout << str << std::endl;
+	return 0;
+}
+
+```
+
+
+
+### C风格字符串的核心操作:
+声明与初始化
+```c
+char s1[] = "hello";              // 栈上，大小自动为 6（含 '\0'）
+char s2[10] = "hello";            // 栈上，剩余空间填 '\0'
+const char* s3 = "hello";         // 指针指向 .rodata 中的字符串字面量
+char s4[] = {'h', 'e', 'l', 'l', 'o', '\0'};
+```
+
+常用方法
+```c
+#include <cstring>
+
+// 长度
+size_t len = strlen(s1);          // 5（不含 '\0'）
+
+// 拷贝
+char dst[20];
+strcpy(dst, s1);                  // 拷贝到 dst
+strncpy(dst, s1, sizeof(dst)-1);  // 安全版，限制长度
+dst[sizeof(dst)-1] = '\0';        // 手动加终止符
+
+// 拼接
+strcat(dst, " world");            // dst = "hello world"
+strncat(dst, src, n);             // 安全版
+
+// 比较
+if (strcmp(s1, s2) == 0)          // 相等返回 0，不能用 s1 == s2
+if (strncmp(s1, s2, 3) == 0)      // 只比前 3 个字符
+
+// 搜索
+char* p = strchr(s1, 'e');        // 找字符，返回指针
+char* p = strstr(s1, "ll");       // 找子串
+```
+输入输出:
+```c
+char buf[100];
+scanf("%s", buf);                 // 遇到空格停止（不安全）
+fgets(buf, sizeof(buf), stdin);   // 保留空格，但会包含换行
+printf("%s", buf);
+puts(buf);                        // 自动加换行
+``` 
+常见坑:
+1. == 比较的是地址，不是内容：
+```c
+if (s1 == s2)          // 错！比的是指针地址
+if (strcmp(s1, s2) == 0)  // 对
+```
+2. strcpy 没有边界检查，容易溢出：
+```c
+char buf[5];
+strcpy(buf, "hello world");  // 缓冲区溢出，未定义行为
+```
+3. 修改字符串字面量是 UB：
+```c
+char* s = "hello";
+s[0] = 'H';             // 未定义行为，"hello" 在 .rodata 中不可写
+// 应改为
+char s[] = "hello";
+s[0] = 'H';             // 正确，s 在栈上可写
+```
+4. 结尾 \0 被遗忘：
+```c
+char buf[5] = {'h', 'e', 'l', 'l', 'o'};  // 没有 '\0'
+printf("%s", buf);  // 读到 '\0' 才停，越界！
+```
+用 \<string> 里的 std::string 可以避开上述大部分问题。
+
+### CPP中的字符串核心操作：
+
+C++ 用 std::string（<string>），自动管理内存，不需要手动申请、释放、担心 \0：
+```c++
+
+#include <string>
+#include <iostream>
+
+// 初始化
+std::string s1 = "hello";
+std::string s2("world");
+std::string s3(10, 'x');          // "xxxxxxxxxx"
+
+// 拼接
+std::string s4 = s1 + " " + s2;   // "hello world"
+s1 += " cpp";                      // 直接 +=
+
+// 长度
+size_t len = s1.size();            // 或 s1.length()
+bool empty = s1.empty();
+
+// 比较 — 直接用 == != < >，不再需要 strcmp
+if (s1 == s2) { }
+if (s1 < s2) { }                   // 字典序
+
+// 访问字符
+char c = s1[0];                    // 不检查越界
+char c = s1.at(0);                 // 越界抛 std::out_of_range
+char c = s1.front();               // 首字符
+char c = s1.back();                // 尾字符
+
+// 子串
+std::string sub = s1.substr(0, 3); // 从位置0起取3个字符
+size_t pos = s1.find("ll");        // 查找子串位置
+
+// 插入删除
+s1.insert(2, "xxx");               // 在位置2插入
+s1.erase(2, 3);                    // 从位置2删3个字符
+
+// C 风格互转
+const char* cs = s1.c_str();       // string → C string
+std::string s5 = cs;               // C string → string
+
+```
+核心区别： std::string 是 RAII 对象，出作用域自动释放，拷贝/赋值/拼接都是值语义，不用管 malloc/free/\0/边界越界。这是 C++ 中用字符串的首选方式，除非你在写纯 C 或与 C 库接口。
 
 ## 内存分配
 
