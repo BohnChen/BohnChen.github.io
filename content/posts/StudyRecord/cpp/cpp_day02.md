@@ -438,7 +438,7 @@ std::string s5 = cs;               // C string → string
 
 ## 内存分配
 关于内存分配，我们通过一张图和一份代码测试进行理解
-![virtual_memory](images/4_virtual_memory.png)
+![virtual_memory](/images/4_virtual_memory.png)
 
 ```c++
 
