@@ -2,8 +2,8 @@
 title: "命名空间、const关键字、new/delete、引用"
 date: 2026-08-04
 draft: false
-categories: ["cpp"]
-tags: ["StudyRecord", "技术记录"]
+categories: ["编程语言"]
+tags: ["StudyRecord",  "c/c++", "技术记录"]
 ---
 
 ## 概览
