@@ -833,3 +833,372 @@ public:
 };
 
 ```
+
+## 作业
+一、简答题
+1.设A为test类的对象且赋有初值,则语句test B(A); 表示。
+
+```bash
+用 A 初始化新对象 B
+```
+
+2.利用“对象名.成员变量”形式访问的对象成员仅限于被声明为 (1)的成员；若要访问其他成员变量，需要通过 (2) 函数
+
+```bash
+（1）public 或者子类访问protected 的
+
+（2）成员
+```
+
+3、浅拷贝与深拷贝区别？
+
+```bash
+浅拷贝不申请新地址，两个对象同用一个地址；深拷贝不仅拷贝值，还为新对象开辟新的空间
+
+```
+
+二、写出下面程序结果。
+1、写出以下程序运行的结果。（ ）
+
+运行后知：
+
+i=0,k=2
+
+i=0,k=2
+
+```C++
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
+class Sample 
+{
+public:
+      Sample();
+      void Display();
+private:
+      int i;
+      static int k;
+};
+Sample::Sample() 
+{
+	i=0;
+	k++;
+}
+
+void Sample::Display() 
+{
+   cout << "i=" << i << ",k=" << k << endl;
+}
+
+int Sample::k=0;
+
+int main( ) 
+{
+    Sample a, b;
+    a.Display();
+    b.Display();
+    
+    return 0;
+}
+```
+
+2、设有如下程序结构：
+
+答：3 次构造函数，3 次析构函数
+```C++
+class Box
+{
+    //....
+};
+
+int main()
+{
+	Box A,B,C; 
+}
+该程序运行时调用__次构造函数；调用 __次析构函数。
+```
+
+3、写出下面程序的运行结果（）
+
+```bash
+Constructor1
+Constructor2
+i=0
+i=10
+Destructor
+Destructor
+```
+
+
+```C++
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
+class Sample 
+{
+	int i;
+public:
+	Sample();
+	Sample(int val);
+	void Display();
+	~Sample();
+};
+Sample::Sample() 
+{
+	cout << "Constructor1" << endl;
+	i=0;
+}
+
+Sample::Sample(int val) 
+{
+	cout << "Constructor2" << endl;
+    i=val;
+}
+
+void Sample::Display() 
+{
+   cout << "i=" << i << endl;
+}
+
+Sample::~Sample() 
+{
+   cout << "Destructor" << endl;
+}
+
+int main() 
+{
+     Sample a, b(10);
+     a.Display();
+     b.Display();
+	 
+     return 0;
+}
+```
+
+4、设已经有A,B,C,D4个类的定义，程序中A,B,C,D析构函数调用顺序为？
+```C++
+C c;
+void main()
+{
+    A *pa=new A();
+    B b;
+    static D d;
+    delete pa;
+}
+```
+
+// 输出如下：
+// C()
+// A()
+// B()
+// D()
+// ~A()
+// ~B()
+// ~D()
+// ~C()
+
+你的理解不完全对。D 的析构在 C 之前，不是因为栈销毁，而是因为 C 和 D 都有*静态存储期 (static storage duration)*，它们遵循的规则是：
+
+> 同一编译单元内的静态对象，按构造的反序析构。
+
+析构顺序：
+
+| 顺序 | 输出 | 原因                                                    |
+| --   | --   | --                                                      |
+| 1    | ~A() | delete pa 在 return 前显式释放堆对象                    |
+| 2    | ~B() | return 时局部栈对象出作用域，栈展开                     |
+| 3    | ~D() | 静态局部对象，构造顺序为 2，静态对象反序析构，故先于 C |
+| 4    | ~C() | 全局对象，构造顺序为 1，最后析构                        |
+
+所以 D 在 C 之前析构，纯粹是因为 D 后构造。 静态对象的生命周期由运行时管理，和栈无关——栈销毁只影响局部自动对象（B），不影响 static/global 对象。
+
+
+
+
+
+5、写出下面程序的结果：
+
+
+```C++
+#include<iostream>
+
+using std::cout;
+using std::endl;
+
+int i = 1;
+
+class Test
+{
+public:
+	Test()
+	:_fourth(_third)
+	,_second(i++)
+	,_first(i++)
+	,_third(i++)
+	{
+		_third = i;
+	}
+	void print()
+	{
+		cout << "result : " << _first + _second + _third + _fourth << endl;
+	}
+private:
+	int _first;
+	int _second;
+	int _third;
+	int &_fourth;//注意：与前面学的引用类比即可
+};
+
+int main()
+{
+	Test test;
+	test.print();
+	
+	return 0;
+}
+```
+我答：11。因为first = 1, second = 2, third = 4, fourth = 4。
+核心在于：
+1. 初始化顺序安照生命顺序走
+2. i++是先引用后自增
+3. 构造函数中，先初始化列表执行，后函数体执行
+
+
+
+6、下列代码在编译时会产生错误的是()
+
+```C++
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
+struct Foo
+{
+	Foo()
+	{
+	}
+	
+
+	Foo(int)
+	{
+	}
+	
+	void func()
+	{
+	}
+
+};
+
+int main(void)
+{
+	Foo a(10);//语句1
+	a.fun();//语句2
+	Foo b();//语句3
+	b.fun();//语句4 
+	return 0;
+}
+```
+
+
+
+三、改错题。
+例题1：分析找出以下程序中的错误，说明错误原因，给出修改方案使之能正确运行。
+
+```C++
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
+class Base
+{ 
+	int a1,a2;
+public:
+	Base(int x1 = 0, x2 = 0);
+};
+
+int main()
+{
+	Base data(2,3);
+ 	cout << data.a1 << endl;
+ 	cout << data.a2 << endl;
+    
+    return 0;
+}
+```
+
+
+
+例题2：分析以下程序的错误原因，给出修改方案使之能正确运行。
+
+```C++
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
+class Base
+{
+	float _ix;
+	float _iy;
+public:
+    Base(float ix,float iy)
+    {
+        _ix = ix;
+        _iy = iy;
+    }
+ 	
+    float gain();
+};
+
+Base::float gain()
+{ 
+	return _iy/_ix; 
+}
+
+int main()
+{
+	Base base(5.0,10.0);
+ 	cout << "The gain is => " << gain() << endl;
+    
+    return 0;
+
+}
+```
+
+
+
+四、编程题。
+1、定义一个学生类，其中有3个数据成员：学号、姓名、年龄，以及若干成员函数。同时编写main函数使用这个类，实现对学生数据的赋值和输出。
+
+2、编写一个程序计算两个给定的长方形的周长和面积。
+
+3、编写一个类，实现简单的栈。栈中有以下操作：
+
+​		   > 元素入栈     void push(int);
+​		   > 元素出栈     void pop();
+​		   > 读出栈顶元素 int top();
+​		   > 判断栈空     bool emty();
+​		   > 判断栈满     bool full();
+​	 如果栈溢出，程序终止。栈的数据成员由存放10个整型数据的数组构成。（可以自己设计入栈出栈的数据）
+
+提示：就是用C++类的方式实现一个栈，然后写出栈的基本操作，入栈、出栈、栈为空、栈为满的函数，以及模拟栈的入栈出栈的操作。
+
+
+
+4、编写一个类，实现简单的队列。队列中有以下操作：
+       > 元素入队             void push(int);
+       > 元素出队             void pop();
+       > 读取队头元素         int front();
+       > 读取队尾元素         int back();
+       > 判断队列是否为空     bool emty();
+	   > 判断队列是否已满     bool full();
+
+注意循环队列的使用
+
+提示：就是用C++类的方式实现一个队列，然后写出队列的基本操作，入队列、出队列、队列为空、队列为满的函数，以及模拟队列的入队列出队列的操作。

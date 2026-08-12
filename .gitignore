@@ -2,3 +2,8 @@ public/
 resources/
 .hugo_build.lock
 .DS_Store
+
+# TestCode - 只跟踪源码，忽略编译产物（无后缀二进制）
+static/TestCode/**/*
+!static/TestCode/**/
+!static/TestCode/**/*.*
