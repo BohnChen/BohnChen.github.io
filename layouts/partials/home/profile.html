@@ -45,7 +45,9 @@
       </div>
     {{ end }}
   </header>
-  <section class="prose dark:prose-invert w-full">{{ .Content }}</section>
+  {{ with .Content }}
+  <section class="prose dark:prose-invert w-full">{{ . }}</section>
+  {{ end }}
 </article>
 <section>
   {{ partial "recent-articles/main.html" . }}
