@@ -1104,10 +1104,16 @@ int main(void)
 }
 ```
 
+> 因为 C++ 语法规定：任何能被解析为函数声明的语句，就必须被解析为函数声明。 和你是不是 struct 无关。
+Foo b(); 从语法形式上完全匹配 "返回值类型 函数名(参数列表)" 这一模式。编译器在语法分析阶段只看形式，不看上下文——Foo 是 struct 没关系，因为函数完全可以返回 struct 类型（比如 std::string getName()）。
+这是继承自 C 的语法规则：int f(); 在 C 里就是函数声明，C++ 无法改变这一点，否则会破坏兼容性。所以即使你本意是构造一个对象，编译器也只能把它当成函数声明。
+这就是 Most Vexing Parse 的由来。
+
 
 
 三、改错题。
 例题1：分析找出以下程序中的错误，说明错误原因，给出修改方案使之能正确运行。
+[testError1.cc](/TestCode/cppDay3/testError1.cc)
 
 ```C++
 #include <iostream>
@@ -1136,6 +1142,7 @@ int main()
 
 例题2：分析以下程序的错误原因，给出修改方案使之能正确运行。
 
+[testError2.cc](/TestCode/cppDay3/testError2.cc)
 ```C++
 #include <iostream>
 
@@ -1175,23 +1182,28 @@ int main()
 
 四、编程题。
 1、定义一个学生类，其中有3个数据成员：学号、姓名、年龄，以及若干成员函数。同时编写main函数使用这个类，实现对学生数据的赋值和输出。
+[Exercise1.cc](/TestCode/cppDay3/Exercise1.cc)
 
 2、编写一个程序计算两个给定的长方形的周长和面积。
+[Exercise2.cc](/TestCode/cppDay3/Exercise2.cc)
 
 3、编写一个类，实现简单的栈。栈中有以下操作：
+[Exercise3.cc](/TestCode/cppDay3/Exercise3.cc)
 
-​		   > 元素入栈     void push(int);
-​		   > 元素出栈     void pop();
-​		   > 读出栈顶元素 int top();
-​		   > 判断栈空     bool emty();
-​		   > 判断栈满     bool full();
-​	 如果栈溢出，程序终止。栈的数据成员由存放10个整型数据的数组构成。（可以自己设计入栈出栈的数据）
+		   > 元素入栈     void push(int);
+		   > 元素出栈     void pop();
+		   > 读出栈顶元素 int top();
+		   > 判断栈空     bool emty();
+		   > 判断栈满     bool full();
+	 如果栈溢出，程序终止。栈的数据成员由存放10个整型数据的数组构成。（可以自己设计入栈出栈的数据）
 
 提示：就是用C++类的方式实现一个栈，然后写出栈的基本操作，入栈、出栈、栈为空、栈为满的函数，以及模拟栈的入栈出栈的操作。
 
 
 
 4、编写一个类，实现简单的队列。队列中有以下操作：
+[Exercise4.cc](/TestCode/cppDay3/Exercise4.cc)
+
        > 元素入队             void push(int);
        > 元素出队             void pop();
        > 读取队头元素         int front();
