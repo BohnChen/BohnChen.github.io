@@ -2,8 +2,8 @@
 title: "C/C++ 指针与内存管理核心概念辨析"
 date: 2026-08-05
 draft: false
-categories: ["C/C++"]
-tags: ["StudyRecord", "cpp", "技术记录"]
+categories: ["编程语言"]
+tags: ["StudyRecord", "c/c++", "技术学习"]
 ---
 
 # C/C++ 指针与内存管理核心概念辨析
