@@ -36,6 +36,12 @@ footer {
 }
 nav, header { position: relative; z-index: 1; }
 
+/* 文章相关文字（标题、更多选项等）与文章卡片同层，不被蒙版遮挡 */
+main > section {
+  position: relative;
+  z-index: 2;
+}
+
 .dark main article {
   background: rgba(30,44,63,0.92) !important;
   border-color: rgba(255,255,255,0.06);
@@ -44,7 +50,17 @@ nav, header { position: relative; z-index: 1; }
 
 /* 模式切换按钮 */
 #anim-toggle {
-  ...
+  position: fixed; bottom: 18px; right: 18px; z-index: 300;
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer; font-size: 0.85rem; color: #475569;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  transition: background 0.2s, transform 0.2s;
+  user-select: none;
 }
 #anim-toggle:hover { background: rgba(59,130,246,0.12); transform: scale(1.05); }
 .dark #anim-toggle {
