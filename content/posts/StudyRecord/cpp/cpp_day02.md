@@ -3,7 +3,7 @@ title: "重载、强制类型转换、内联函数、C 风格和 C++风格的字
 date: 2026-08-06
 draft: false
 categories: ["编程语言"]
-tags: ["StudyRecord", "c/c++", "技术学习"]
+tags: ["c/c++", "技术学习"]
 ---
 
 # 重载、强制类型转换、内联函数、C 风格和 C++风格的字符串、内存分配
