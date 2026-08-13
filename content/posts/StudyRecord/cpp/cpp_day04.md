@@ -1,11 +1,11 @@
 ---
-title: "day04"
+title: "赋值操作符函数、特殊类对象处理"
 date: 2026-08-12
 draft: false
 categories: ["编程语言"]
 tags: ["StudyRecord", "c/c++", "技术学习"]
 ---
-# 赋值操作符函数
+# 赋值操作符函数、特殊类对象处理
 
 ## 赋值操作符函数的正确写法
 [Computer.cc](/TestCode/cppDay4/Computer.cc)
@@ -218,12 +218,195 @@ p5 = p6 = p7;
 ```
 
 ## 类内特殊成员处理
+有四类比较特殊的类对象需要单独处理，分别是类内常量数据成员、类内引用数据成员、类内类对象数据成员和静态类内数据成员。
 
-## 类内常量数据成员
+### 类内常量数据成员
+const 修饰的对象，无论在类内还是类外，都需要在声明时候就直接赋值。在类内做数据成员时，需要在构造函数的初始化列表中进行初始化，而不能在构造函数体内进行。
 
-## 类内引用数据成员
+```c++
+#include <iostream>
 
-## 类内类对象数据成员
+using std::cout;
+using std::endl;
+
+class Point
+{
+public:
+    Point(int ix = 0, int iy = 0)
+    : _ix(ix)
+    , _iy(iy)
+    {
+        cout << "Point(int = 0, int = 0)" << endl;
+        /* _ix = ix;//error,赋值 */
+        /* _iy = iy; */
+    }
+
+    void print()
+    {
+        cout << "(" << _ix << ", "
+              << _iy << ")" <<  endl;
+    }
+
+    ~Point()
+    {
+        cout << "~Point()" << endl;
+    }
+private:
+    const int _ix;//常量数据成员,必须在初始化列表中进行
+    const int _iy;
+};
 
 
-## 类内静态数据成员
+```
+
+
+### 类内引用数据成员
+同理，由于引用也必须在声明时初始化，也需要在初始化列表中进行初始化。
+```c++
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
+class Point
+{
+public:
+    Point(int ix = 0, int iy = 0)
+    : _ix(ix)
+    , _iy(iy)
+    , _ref(_ix)
+    {
+        cout << "Point(int = 0, int = 0)" << endl;
+        /* _ix = ix;//error,赋值 */
+        /* _iy = iy; */
+    }
+
+    void print()
+    {
+        cout << "(" << _ix << ", "
+              << _iy << ")" <<  endl;
+    }
+
+    ~Point()
+    {
+        cout << "~Point()" << endl;
+    }
+private:
+    int _ix;
+    int _iy;
+    int &_ref;
+};
+
+//成员函数不占用类的大小，成员函数存在于程序代码区，被该类的
+//左右对象共享
+//
+int main(int argc, char **argv)
+{
+    cout << "sizeof(Point) = " << sizeof(Point) << endl;
+
+    Point pt(1, 2);//栈对象
+    return 0;
+}
+```
+> 辨析：引用数据类型是否占用内存空间？
+
+通过`sizeof(Point)` 我们可以测出，只有两个 `int` 的类大小和多了一个引用变量的类大小：
+
+```c++
+// 没有引用变量_ref
+sizeof(Point) = 8
+
+// 有引用变量_ref
+sizeof(Point) = 16
+```
+测试结果表明，类内引用类型的数据成员变量占用了内存空间，而且是8个字节大小的指针；且可以说明，函数不占类的空间。进一步的，函数是存在`程序段`中的。
+
+
+结论：
+C++ 标准（[dcl.ref]）原文：
+> It is unspecified whether or not a reference requires storage.
+
+也就是说，引用是否占用存储是"未指定"的——编译器在不需要存储时可以不分配，在必须时则分配。
+
+<mark>实验正确证明了"引用作为类成员时按指针大小占 8 字节"，但这属于标准允许的"实现需要存储"的情形；局部引用和参数引用在底层常被消除或仅暂存于寄存器，所以不能笼统说"引用一定占内存"。</mark>
+### 类内类对象数据成员
+类内对象在被初始化时，要注意会调用其自身的构造函数，资源回收时，会调用自身的析构函数。
+
+```c++
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
+class Point
+{
+public:
+    /* Point(int ix = 0, int iy = 0) */
+    Point(int ix, int iy)
+    : _ix(ix)
+    , _iy(iy)
+    {
+        cout << "Point(int = 0, int = 0)" << endl;
+    }
+
+    void print()
+    {
+        cout << "(" << _ix << ", "
+              << _iy << ")" <<  endl;
+    }
+
+    ~Point()
+    {
+        cout << "~Point()" << endl;
+    }
+private:
+    int _ix;
+    int _iy;
+};
+
+class Line
+{
+public:
+    Line(int x1, int y1, int x2, int y2)
+    : _pt1(x1, y1)//类对象成员需要显示进行初始化，否则就是默认值
+    , _pt2(x2, y2)
+    {
+        cout << "Line(int, int, int,int)" << endl;
+    }
+
+    void printLine()
+    {
+        _pt1.print();
+        _pt2.print();
+    }
+
+    ~Line()
+    {
+        cout << "~Line()" << endl;
+    }
+
+private:
+    Point _pt1;//类对象成员(子对象)
+    Point _pt2;
+};
+int main(int argc, char **argv)
+{
+    Line line(1, 2, 3, 4);
+    line.printLine();
+    return 0;
+}
+
+// 输出如下：
+// 两个对象，因此，每个对象被创建时都调用了一次构造函数
+Point(int = 0, int = 0)
+Point(int = 0, int = 0)
+Line(int, int, int,int)
+(1, 2)
+(3, 4)
+~Line()
+// 两个对象，因此，每个对象被销毁都调用了一次析构函数
+~Point()
+~Point()
+```
+
+### 类内静态数据成员
