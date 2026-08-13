@@ -1,9 +1,9 @@
 ---
-title: "Markdown 语法示例大全"
+title: "Markdown 语法示例"
 date: 2026-08-13
-draft: false
-categories: ["Markdown"]
-tags: ["教程", "语法"]
+draft: true
+categories: ["文档书写"]
+tags: ["Blowfish", "Markdown"]
 ---
 
 这篇文章演示了本站支持的各种 Markdown 语法，本地 `hugo server` 预览可看实际效果。
@@ -31,7 +31,11 @@ tags: ["教程", "语法"]
 
 ## 文字强调
 
-**加粗**　*斜体*　***加粗斜体***　~~删除线~~　`行内代码`
+**加粗**
+*斜体*
+***加粗斜体***
+~~删除线~~
+`行内代码`
 
 ## 引用
 
@@ -49,6 +53,8 @@ tags: ["教程", "语法"]
 
 ## 任务列表
 
+- [x] rst
+- [ ] arst
 - [x] 已完成的任务
 - [ ] 未完成的任务
 
