@@ -5,8 +5,6 @@ draft: false
 categories: ["编程语言"]
 tags: ["c/c++", "技术学习"]
 ---
-# 赋值操作符函数、特殊类对象处理
-
 ## 赋值操作符函数的正确写法
 [Computer.cc](/TestCode/cppDay4/Computer.cc)
 
@@ -474,3 +472,330 @@ int main() {
 
 如果你想更仔细的了解，那么这篇文章也许比较适合你：[重定义错误并不“显然”]({{< ref "posts/WeeklySummary/HeaderDefender.md" >}})
 
+
+## 作业
+
+一、简答题
+
+1. 当定义类时，编译器会为类自动生成哪些函数？这些函数各自都有什么特点？
+    1. 无参构造函数
+      + 自动为类中的成员进行初始化，并且默认初始化为0
+      + 一旦显示的写出了构造函数，此构造函数将不再被调用
+    
+    2. 拷贝构造函数
+      + 在对类对象进行拷贝时，会调用此构造函数，被调用有三个时机
+        + 一个已有的类对象赋值给一个新的类对象时调用。
+        + 类对象作为参数进行传递，实参和形参结合时调用。
+        + 返回类型是类类型时，调用拷贝构造函数。
+      + 默认的调用是浅拷贝，两个对象指向的是同一片内存空间，当有占用堆上空间的数据成员，发生过已有对象给新对象初始化的情况，当资源回收，两个对象先后调用析构函数时，会出现`double-free`的严重错误。
+      + 一般情况下需要自己重新写拷贝构造函数，为在堆上的数据成员重新申请空间，再进行值的复制，以完成拷贝。
+
+    1. 赋值运算符函数
+      + 其实是一个赋值运算符的重载，等号两边是运算符重载函数的两个参数。
+      + 需要考虑自复制的情况，因此写此函数需要判断`if(*this != rhs)`
+      + 其返回类型不能是void；因为需要考虑 `a = b = c;`
+      + 这个函数的参数是`(const ClassName &rhs)`，`&`如果去掉，会先进行一次值传递，然后调用了参数仍然为`(const ClassName &rhs)`的拷贝构造函数，多了一次调用；因此，参数中的`&`不能去掉。
+      + 如果去掉`const`，那么它将不能接收右值。
+    
+    2. 析构函数
+      + 用于回收对象的资源
+      + `new`出的对象还要手动`delete`来主动调用析构函数回收资源，其他的资源在`return`时被调用回收
+
+2. 什么是左值与右值，拷贝构造函数中的引用与const为什么不能去掉？
+    + 左值和右值的区别是左值可以进行取地址，但是右值不可以取地址。常见的右值有临时对象，自面值，`lamda` 表达式等
+    
+    + 拷贝构造函数中的`const`不能去掉。原因是如果去掉，新定义的对象将无法接收一个本该被接受的右值，比如 `Point p1 = func();`，其中`func()`的返回类型是`Point`。
+
+
+3. this指针是什么?
+    + `this` 指针指向是一个指向类对象本身的指针，其实它隐藏在非静态成员函数的第一个参数位置。
+
+
+1. 必须在构造函数列表中初始化的3种情况?
+    - 类中的 const 修饰的常量数据成员；因为 const 必须定义即初始化。
+    - 类中的 & 引用类型成员的声明；同理，引用也必须定义即初始化
+    - 类中的类对象成员函数；声明类对象会调用构造函数，销毁时调用析构函数
+
+
+二、写出下面程序结果。
+1、写出以下程序运行的结果。
+
+
+***// 由于Distance 构造函数中不是引用传参，又调用了 Point 的拷贝构造函数***
+
+```c++
+// 首先，main 创建 Point 对象被调用两次
+point构造函数被调用
+point构造函数被调用
+// Distance 类创建的两个 Point 对象在初始化时，调用两次拷贝构造
+X = 1 Y=1Point拷贝构造函数被调用
+X = 4 Y=5Point拷贝构造函数被调用
+
+***// 由于Distance 构造函数中不是引用传参，又调用了 Point 的拷贝构造函数***
+X = 1 Y=1Point拷贝构造函数被调用
+X = 4 Y=5Point拷贝构造函数被调用
+
+Distance构造函数被调用
+The distance is:5
+```
+
+```C++
+#include <math.h>
+#include <iostream>
+
+using std::endl;
+using std::endl;
+
+class Point	
+{
+public:
+    Point(int xx = 0, int yy = 0) 
+	{
+		X = xx;
+		Y = yy;
+		cout << "point构造函数被调用" << endl;
+	}
+	
+
+   	Point(Point &p);
+   	
+   	int GetX() 
+   	{
+   		return X;
+   	}
+   	
+   	int GetY() 
+   	{
+   		return Y;
+   	}
+
+private:
+	int X,Y;
+};
+
+Point::Point(Point &p)	
+{
+	X = p.X;
+	Y = p.Y;
+	cout << "X = " << X << " Y=" << Y << "Point拷贝构造函数被调用" << endl;
+}
+
+class Distance	
+{
+public:	
+	Distance(Point xp1, Point xp2);
+	double GetDis()
+	{
+		return dist;
+	}
+private:	
+	Point p1,p2;	
+	double dist;	
+};
+
+Distance::Distance(Point xp1, Point xp2)
+: p1(xp1)
+,p2(xp2)
+{
+	cout << "Distance构造函数被调用" << endl;
+	double x = double(p1.GetX() - p2.GetX());
+	double y = double(p1.GetY() - p2.GetY());
+	dist = sqrt(x * x + y * y);
+}
+
+int main()
+{
+	Point myp1(1,1), myp2(4,5);
+	Distance myd(myp1, myp2);
+	cout << "The distance is:" ;
+	cout << myd.GetDis() << endl;
+	
+	return 0;
+}
+```
+
+
+
+2、写出以下程序运行的结果。
+// 输出
+```c++
+122444
+
+```
+
+```C++
+#include<iostream>
+using namespace std;
+class MyClass
+{
+public:
+    MyClass(int i = 0)
+    {
+        cout << i;
+    }
+    MyClass(const MyClass &x)
+    {
+        cout << 2;
+    }
+    MyClass &operator=(const MyClass &x)
+    {
+        cout << 3;
+        return *this;
+    }
+    ~MyClass()
+    {
+        cout << 4;
+    }
+};
+int main()
+{
+    MyClass obj1(1), obj2(2);
+    MyClass obj3 = obj1;
+    return 0;
+}
+```
+
+
+
+3、不考虑任何编译器优化(如:NRVO),下述代码的第10#会发生
+
+
+// 输出
+```c++
+B()
+B()
+B func(const B &)
+B(const B&)
+B &operator=(const B &s)
+~B()
+~B()
+~B()
+```
+
+```C++
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
+classB
+{
+public:
+	B()
+	{
+        cout << "B()" << endl;
+    }
+
+    ~B()
+    {
+    	cout << "~B()" << endl;
+    }
+    
+    B(const B &rhs)
+    {
+        cout << "B(const B&)" << endl;
+    }
+    
+    B &operator=(const B &rhs)
+    {
+    	cout << "B &operator=(const B &s)" << endl;
+    
+        return  *this;
+    }
+};
+
+B func(const B &rhs)
+{
+    cout << "B func(const B &)" << endl;
+    return rhs;
+}
+
+
+int main(int argc, char **argv)
+{
+	B b1,b2;
+    // 走进func 函数体，return 时调用拷贝构造函数做一次拷贝
+    // 回到 main ，做一次赋值，调用赋值构造函数。
+    b2=func(b1);//10#
+
+	return 0;
+}
+```
+
+
+
+三、编程题。
+1、实现一个自定义的String类，保证main函数对正确执行
+
+```C++
+class String
+{
+public:
+	String();
+	String(const char *pstr);
+	String(const String &rhs);
+	String &operator=(const String &rhs);
+	~String();
+	void print();
+
+private:
+	char * _pstr;
+};
+
+int main()
+{
+	String str1;
+	str1.print();
+	
+
+	String str2 = "Hello,world";
+	String str3("wangdao");
+	
+	str2.print();		
+	str3.print();	
+	
+	String str4 = str3;
+	str4.print();
+	
+	str4 = str2;
+	str4.print();
+	
+	return 0;
+}
+```
+
+
+
+2、用C++实现一个双向链表		
+
+```C++
+struct Node
+{
+	int data;
+ 	Node * pre;
+ 	Node * next;
+}; 
+
+class List
+{
+public:
+	List();
+ 	~List();
+				
+     void push_front(int data);//在头部进行插入         
+     void push_back(int data);//在尾部进行插入
+                 
+     void pop_front();//在链表头部进行删除          
+     void pop_back();//在链表的尾部进行删除
+     
+     bool find(int data);//在链表中进行查找
+     void insert(int pos, int data);//在指定位置后面插入pos 
+     void display() const; //打印链表	
+     void erase(int data);//删除一个指定的节点			 		
+
+private:
+	Node * _head;
+ 	Node * _tail;
+ 	int    _size;
+};		
+```
