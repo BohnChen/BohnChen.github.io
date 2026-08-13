@@ -410,3 +410,67 @@ Line(int, int, int,int)
 ```
 
 ### 类内静态数据成员
+类内定义静态成员时，需要在类外全局静态区域进行初始化。该静态数据成员存储在内存的全局静态区，所有的类对象，共享一份静态数据成员变量。
+对于头文件和实现文件分开的代码方式，为了避免重定义的问题，全局变量的初始化应放在 `.cc` 的实现文件中，而非头文件中。
+
+<span style="color:red"> 四个特殊数据成员中，唯有静态数据成员不能放在构造函数的初始化列表中初始化</span>
+
+```c++
+#include <cstring>
+#include <iomanip>
+#include <iostream>
+#include <stdlib.h>
+
+class TestClass {
+  // 不占类空间，直接放在全局静态区被类对象共享
+  static float _totalPrice;
+  char *_brand;
+  float _price;
+
+public:
+  TestClass(char *brand, float price)
+      : _brand(new char[strlen(brand) + 1]()), _price(price)
+  /*,_totalPrice(0.0)*/
+  {}
+  ~TestClass() {}
+
+  void caculateSum() { _totalPrice += _price; }
+  void printSum() {
+    std::cout << std::fixed << std::setprecision(2) << _totalPrice << std::endl;
+  }
+};
+
+// 这里不能加 `static` 修饰符
+float TestClass::_totalPrice = 0;
+
+int main() {
+  TestClass tc1("mac", 12000);
+  tc1.caculateSum();
+  tc1.printSum();
+  TestClass tc2("huawei", 1200000);
+  tc2.caculateSum();
+  tc2.printSum();
+
+  // 由于内存对齐机制，大小为 16; 将 float 换成 double 也是 16
+  std::cout << "the size of TestClass is " << sizeof(TestClass) << std::endl;
+  return 0;
+}
+```
+
+关于头文件卫士：
+我们经常在头文件中写
+```c++
+#ifndef __COMPUTER_H__
+#define __COMPUTER_H__
+
+// 头文件的内容
+
+#endif
+```
+
+这是为了避免在同一个`.cc`文件中多次包含某一个头文件造成重复定义的问题。
+我们想要的效果就是每一个包含该头文件的`.cc`文件都包含一次这个头文件，以便可以正常通过编译。
+当多个.o文件都有一份定义时候，那么会出现链接错误。
+
+如果你想更仔细的了解，那么这篇文章也许比较适合你：[重定义错误并不“显然”]({{< ref "posts/WeeklySummary/HeaderDefender.md" >}})
+
