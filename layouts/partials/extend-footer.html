@@ -20,7 +20,13 @@
     }
     canvas.style.opacity=Math.max(0,1-t);
   }
-  window.addEventListener("scroll",U,{passive:true});
+  var ticking = false;
+  window.addEventListener("scroll", function() {
+    if (!ticking) {
+      requestAnimationFrame(function() { U(); ticking = false; });
+      ticking = true;
+    }
+  }, { passive: true });
   U();
 })();
 
