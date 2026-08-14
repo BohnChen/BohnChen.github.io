@@ -727,6 +727,8 @@ int main(int argc, char **argv)
 三、编程题。
 1、实现一个自定义的String类，保证main函数对正确执行
 
+实现代码：[TestSting.cc](/TestCode/cppDay4/TestSting.cc)
+
 ```C++
 class String
 {
