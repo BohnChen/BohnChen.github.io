@@ -91,6 +91,7 @@ Computer &Computer::operator=(const Computer &rhs) {
 
 ```
 
+
 > 同时，关于析构函数中 `delete` 的写法，其实，析构调用时，意味着对象马上就没了，所以既不用在同一个对象上判空避免二次 `free`，`delete` 后也无需赋 `nullptr`。但是这是个好习惯。
 ```c++
 Computer::~Computer() {
