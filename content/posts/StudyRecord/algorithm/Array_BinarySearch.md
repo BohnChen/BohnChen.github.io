@@ -6,7 +6,6 @@ categories: ["算法"]
 tags: ["leetcode", "技术学习"]
 ---
 
-# 1_Array_leetcode704_Binary Search
 
 算法的刷题顺序，我按照 《代码随想录》[^1]这本书的刷题顺序进行，文章题目按照序号标定，`1_Array_leetcode704_Binary Search` 中`1`代表第一个模块，名称是`Array`，后面是`leetcode`的题号和题目名称。
 [^1]:[代码随想录官网](https://programmercarl.com/)
