@@ -1,6 +1,6 @@
 ---
 title: "单例模式、内存对齐"
-date: 2026-08-13
+date: 2026-08-13T19:53:41+08:00
 draft: false
 categories: ["编程语言"]
 tags: ["c/c++", "技术学习"]
