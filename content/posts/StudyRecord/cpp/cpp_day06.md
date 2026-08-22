@@ -580,9 +580,9 @@ void test12()
         return;
     }
 
-    ifs.seekg(std::ios_base::end);
-    auto length = ifs.tellg();
-    ifs.seekg(std::ios_base::beg);
+    ifs.seekg(0, std::ios_base::end);// 以 end 为基准移动0个位置：0 + end = end
+    std::streamsize length = ifs.tellg();// 
+    ifs.seekg(0, std::ios_base::beg);
     char *buff = new char[length + 1]();
     ifs.read(buff, length + 1);
     string content(buff, length + 1);
@@ -655,6 +655,7 @@ int main(int argc, char *argv[]) {
 
 1、执行以下程序
 
+D, str没有指向的空间,直接访问，会出错
 ```C++
 char *str;
 cin >> str;
@@ -667,6 +668,9 @@ A. abcd        B. abcd 1234         C.1234         D. 输出乱码或错误
 
 2、执行以下程序
 
+basic_istream& getline( char_type* s, std::streamsize count, char_type delim );
+(2)
+A getline 的结束符号是 ‘ ’ 。
 ```C++
 char a[200];
 cin.getline(a, 200, ' ');
@@ -681,9 +685,91 @@ A. abcd      B. abcd 1234      C.1234      D. 输出乱码或错误
 
 1、实现new/delete表达式中只能生成栈对象的代码和只能生成堆对象的代码。
 
+对象只能在堆不能在栈，那么需要构造函数可用，new/delete操作符函数可用，析构函数私有，不可用
+[objonheap.cc](/TestCode/cppDay6/objonheap.cc)
+```c++
+#include <iostream>
+
+class HeapObj {
+public:
+  HeapObj(int a = 0) : _a(a) {}
+  void operator delete(void *pret) {
+    std::cout << "void operator delete(void *pret)" << std::endl;
+    free(pret);
+  }
+
+  void destroy() {
+    std::cout << "destroy()" << std::endl;
+    delete this; // 删掉对象本身
+  }
+
+  void *operator new(size_t sz) {
+    std::cout << "void *operator new(size_t sz)" << std::endl;
+    void *ptr = malloc(sz);
+    return ptr;
+  }
+
+private:
+  ~HeapObj() {}
+  int _a;
+};
+
+int main(int argc, char *argv[]) {
+  std::cout << "hello world!" << std::endl;
+  // HeapObj hpstack(10);
+  HeapObj *hp = new HeapObj(10);
+
+  return 0;
+}
+```
+
+对象在栈上，那么需要构造函数可用，但是new/delete至少一个不可用。
+[objonstack](/TestCode/cppDay6/objonstack.cc)
+```c++
+#include <iostream>
+
+class HeapObj {
+public:
+  HeapObj(int a = 0) : _a(a) {}
+
+  void *operator new(size_t sz) {
+    std::cout << "void *operator new(size_t sz)" << std::endl;
+    void *ptr = malloc(sz);
+    return ptr;
+  }
+
+  void destroy() {
+    std::cout << "destroy()" << std::endl;
+    delete this; // 删掉对象本身
+  }
+
+  ~HeapObj() {}
+
+private:
+  void operator delete(void *pret) {
+    std::cout << "void operator delete(void *pret)" << std::endl;
+    free(pret);
+  }
+
+  int _a;
+};
+
+int main(int argc, char *argv[]) {
+
+  HeapObj hpstack(10);
+  // HeapObj *hp = new HeapObj(10);// ERROR
+  // hp->destroy();
+
+  return 0;
+}
+
+```
+
 2、统计一篇英文(The_Holy_Bible.txt)文章中出现的单词和词频，
 输入：某篇文章的绝对路径
 输出：词典（词典中的内容为每一行都是一个“单词 词频”）
+
+[dictionary.cc](/TestCode/cppDay6/dictionary.cc)
 
 词典的存储格式如下
 
