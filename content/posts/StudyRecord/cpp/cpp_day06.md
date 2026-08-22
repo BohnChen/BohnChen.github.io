@@ -336,9 +336,316 @@ void test4()
         cout << unitbuf << "hello, 齐天大圣Wukong" << nounitbuf;
     }
     ```
+### tie 操作
+为了让输出的提示能够出现在让用户输入之前，即使没有遇到“全缓冲（满）、行缓冲（换行等）”，也要把缓冲区的内容刷新出来。为什么我们平时没有注意到必须要用tie呢？因为<span style = "color:red">标准库默认已经把 cin tie 到了 cout（和 cerr）</span>。
+
+<span style="color:#3b82f6">这里我测试下来，只有在cin解绑了cerr和cout时，会出现缓冲被刷不及时的情况</span>
+
+| 机制                               | 作用              | 能否用 tie/sync 关掉           |
+| ---                                 | --                | ---                            |
+| tie()（cin/cerr/clog→cout）        | 读/写前刷 cout    | ✅ 能（tie(nullptr)）          |
+| 行缓冲（终端才有的 flush-on-read） | 读终端前刷 stdout | ❌ 关不掉，这是终端/stdio 行为 |
+
+```c++
+#include <iostream>
+#include <string>
+
+using std::string;
+using std::cin;
+using std::cout;
+
+
+void test4() {
+  std::ios::sync_with_stdio(false); // 全程序第一行，任何 IO 之前
+  cin.tie(nullptr);
+  cerr.tie(nullptr);
+
+  string s;
+  cout << "PROMPT: ";     // 应留在缓冲区，不显示
+  cerr << "[读前打点]\n"; // cerr 无缓冲，立刻显示
+  cin >> s;               // 光标等输入，此刻看不到 PROMPT:
+  cerr << "[读后打点]\n";
+  cout << "you typed: " << s << endl;
+}
+void test5() {
+  // 程序结束后，才进行刷新
+  cout << "test";
+  sleep(5);
+}
+
+int main() {
+
+    test4();
+
+    test5();
+
+}
+
+
+```
 ## 隐式转换
+cpp 中有独特的隐式转换，比如：
+```c++
+#include <iostream>
+
+using std::cin;
+using std::cout;
+
+class Test {
+private:
+  int _a;
+  int _b;
+
+public:
+  Test(int a = 0, int b = 0) : _a(a), _b(b) {}
+  void print() { std::cout << _a << "  " << _b << std::endl; }
+  ~Test() {}
+};
+
+int main(int argc, char *argv[]) {
+  // 这里发生了隐式转换
+  // 实际上被转换为了 Test test = Test(5);
+  Test test = 5;
+  test.print();
+
+  return 0;
+}
+```
+
+很多时候，我们并不想要这样的转换，因为这并不是我们设定好的行为，有时候，这样的行为会增加二义性。
+```c++
+void f(Test t);
+void f(int x);
+
+f(5);   // 到底调哪个？这里 int 更匹配 f(int)，但规则复杂易踩坑
+```
+因此我们有时会使用`explicit`关键字，禁止隐式转换，代码就写成了
+```c++
+#include <iostream>
+
+using std::cin;
+using std::cout;
+
+class Test {
+private:
+  int _a;
+  int _b;
+
+public:
+  explicit
+  Test(int a = 0, int b = 0) : _a(a), _b(b) {}
+  void print() { std::cout << _a << "  " << _b << std::endl; }
+  ~Test() {}
+};
+
+int main(int argc, char *argv[]) {
+  // 这里发生了隐式转换
+  // 实际上被转换为了 Test test = Test(5);
+  // 给构造函数加上 explicit 后，这句会报错
+  Test test = 5; // ERROR
+  test.print();
+
+  return 0;
+}
+
+
+```
+
 
 ## 文件操作
 
+### c++ 文件IO
+所谓“文件”，一般指存储在外部介质上数据的集合。一批数据是以文件的形式存放在外部介质上的。
+操作系统是以文件为单位对数据进行管理的。要向外部介质上存储数据也必须先建立一个文件（以文件名标识），才能向它输出数据。根据文件中数据的组织形式，可分为ASCII文件和二进制文件。
+外存文件包括磁盘文件、光盘文件和U盘文件。目前使用最广泛的是磁盘文件。
+文件流是以外存文件为输入输出对象的数据流。文件输入流是从外存文件流向内存的数据，文件输出流是从内存流向外存文件的数据。每一个文件流都有一个内存缓冲区与之对应。
+文件流本身不是文件，而只是以文件为输入输出对象的流。若要对磁盘文件输入输出，就必须通过文件流来实现。
+
+C++对文件进行操作的流类型有三个: ifstream（文件输入流）, ofstream（文件输出流）, fstream（文件输入输出流），他们的构造函数形式都很类似:
+
+```c++
+ifstream();
+explicit ifstream(const char *filename, openmode mode = in);
+explicit ifstream(const string &filename, openmode mode = in);
+
+ofstream();
+explicit ofstream(const char *filename, openmode mode = out);
+explicit ofstream(const string &filename, openmode mode = out);
+
+fstream();
+explicit fstream(const char *filename, openmode mode = in|out);
+explicit fstream(const string &filename, openmode mode = in|out)
+
+```
+### 文件模式
+根据不同的情况，对文件的读写操作，可以采用不同的文件打开模式。文件模式在GNU GCC7.4源码实
+现中，是用一个叫做openmode的枚举类型定义的，它位于ios_base类中。文件模式一共有六种，它们分别是:
+- in: 输入，文件将允许做读操作；如果文件不存在，打开失败
+- out: 输出，文件将允许做写操作；如果文件不存在，则直接创建一个
+- app: 追加，写入将始终发生在文件的末尾
+- ate: 末尾，读操作始终发生在文件的末尾
+- trunc: 截断，如果打开的文件存在，其内容将被丢弃，其大小被截断为零
+- binary: 二进制，读取或写入文件的数据为二进制形式如果文件不存在，则直接创建一个
+
+
+简单读文件可以用ifstream的相关方法>>，简单写文件可以用ofstream的相关方法<<:
+
+```c++
+void test()
+{
+    ifstream ifs("testvec.cc");
+    if(!ifs.good())
+    {
+        cerr << ">> ifstream open file error!\n";
+        return;
+    }
+    string line;
+    vector<string> vec;
+    while(getline(ifs, line)
+    {
+        //cout << line << endl;
+        vec.push_back(line);
+    }
+    ifs.close();
+    ofstream ofs("a.txt");
+    if(!ofs.good())
+    {
+        cerr << ">> ofstream open file error!\n";
+        return;
+    }
+    for(auto &elem : vec)
+    {
+        ofs << elem << '\n';
+    }
+    ofs.close();
+}
+
+
+```
+***一些常用的操作：***
+
+- seek = 移动指针（seekg 读 / seekp 写），tell = 读指针位置（tellg/tellp）。
+- 方向：beg 开头、cur 当前、end 末尾。
+
+```c++
+// seek 系列：移动读写指针
+// fstream fs("a.txt", ios::in | ios::out);
+
+fs.seekg(0);                        // 把"读指针"移到文件开头（绝对位置）
+fs.seekp(10, ios::beg);             // 把"写指针"从开头偏移 10 字节
+fs.seekg(-5, ios::cur);             // 读指针从当前位置回退 5 字节
+fs.seekp(0, ios::end);              // 写指针移到文件末尾
+
+// tell 系列：获取当前指针位置
+streampos pos = fs.tellg();         // 读指针当前位置
+streampos wpos = fs.tellp();        // 写指针当前位置
+
+// 经典用途：获取文件大小
+fs.seekg(0, ios::end);   // 移到末尾
+auto size = fs.tellg();  // 末尾偏移 = 文件大小
+fs.seekg(0, ios::beg);   // 记得移回来
+
+// C 标准库（fseek/ftell）
+FILE* fp = fopen("a.txt", "r");
+fseek(fp, 0, SEEK_END);          // 移到末尾
+long size = ftell(fp);           // 得到大小
+fseek(fp, 0, SEEK_SET);          // 移回开头
+rewind(fp);                      // 等价 fseek(fp, 0, SEEK_SET)
+
+```
+ 方向参数（三个，C++ 和 C 通用）
+| 常量     | 含义         | C 里对应 |
+|----------|--------------|----------|
+| ios::beg | 从开头算     | SEEK_SET |
+| ios::cur | 从当前位置算 | SEEK_CUR |
+| ios::end | 从末尾算     | SEEK_END |
+
+
+<mark>两个常见的坑:</mark>
+
+<mark>1. 读写切换要刷新/定位：fstream 在写和读之间切换，标准要求先 seekg/seekp（或 flush），否则行为未定义。</mark>
+
+<mark>2. 大文件（>2GB）：ftell 返回 long（32 位系统只有 2GB），要用 ftello/fseeko（off_t）或 C++ 的 streampos（本身支持大文件）。</mark>
+
+
+一次性拿到短文件数据：
+```c++
+void test12()
+{
+    ifstream ifs("a.txt");
+
+    if(!ifs.is_open())
+    {
+        cerr << "ifstream open file error!\n";
+        return;
+    }
+
+    ifs.seekg(std::ios_base::end);
+    auto length = ifs.tellg();
+    ifs.seekg(std::ios_base::beg);
+    char *buff = new char[length + 1]();
+    ifs.read(buff, length + 1);
+    string content(buff, length + 1);
+    cout << content << endl;
+
+    delete [] buff;
+}
+
+```
+
+复制文件：
+
+
+***复制文件应该用ios::binary(二进制模式)，原因是使用二进制文件模式时，程序将数据从内存传递给文件，将不会发生任何隐藏的转换，而默认状态下是文本模式，复制的内容可能会发生改变。***
+
+```c++
+
+void test13()
+{
+    fstream in("a.txt", std::ios::in|std::ios::binary);
+
+    if(!in.is_open())
+    {
+        cerr << "fstream open file error!\n";
+        return;
+    }
+    fstream out("a.txt", std::ios::out|std::ios::binary);
+
+    if(!out.is_open())
+    {
+        cerr << "fstream open file error!\n";
+        return;
+    }
+    out << in.rdbuf();//流的重定向
+    out.close();
+    in.close();
+}
+
+
+```
 ## vector的扩容机制
+在linux/mac上，vector的扩容机制是每次两倍扩大，实现时候，是将旧的小空间值复制到新空间去，然后丢掉旧空间。
+
+```c++
+#include <iostream>
+#include <vector>
+
+using std::vector;
+
+void printVec(const vector<int> &vec) {
+  std::cout << "the size of the vec is " << vec.size() << std::endl;
+  std::cout << "the capacity of the vec is " << vec.capacity() << std::endl;
+}
+
+int main(int argc, char *argv[]) {
+  vector<int> ivec;
+
+  for (int i = 0; i < 9; i++) {
+    ivec.push_back(i);
+    printVec(ivec);
+  }
+
+  return 0;
+}
+```
 
