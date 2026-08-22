@@ -655,7 +655,9 @@ int main(int argc, char *argv[]) {
 
 1、执行以下程序
 
-D, str没有指向的空间,直接访问，会出错
+ ~D~, str没有指向的空间,直接访问，会有概率出错和不出错
+
+实际，输出了 abcd，但仍然有可能崩溃。
 ```C++
 char *str;
 cin >> str;
