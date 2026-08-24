@@ -21,6 +21,7 @@ private:
   int _x;
   int _y;
 };
+
 MyClass &MyClass::operator*=(const MyClass &rhs) {
   this->_x *= rhs._x;
   this->_y *= rhs._y;
@@ -43,6 +44,7 @@ int main(int argc, char *argv[]) {
   c1.print();
   c2.print();
   c3.print();
+
   c2 *= c3;
   c2.print();
 

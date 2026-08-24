@@ -7,20 +7,26 @@ tags: ["c/c++", "技术学习"]
 ---
 
 ## 运算符重载
+
+### 为什么要运算符重载
+
 由于现有的运算符含义只针对内置类型有效，要对自己定义的对象进行操作，就必须要有运算符重载。
 
 ```c++
 class MyClass {};
 
-int main {
-    MyClass c1();
-    MyClass c2();
-    
-    // 进行重载后调用赋值运算符函数
+int main() {
+    MyClass c1;
+    MyClass c2;
+
+    // 未重载 + 运算符之前，对象无法直接相加
     MyClass c3 = c1 + c2; /*  ERROR 无法直接相加 */
 
 }
 ```
+
+### 重载规则
+
 运算符重载不能改变符号原本的定义，也不能改变原本符号的操作数数量和顺序，且操作数中至少需要一个自定义类型或者枚举类型。
 
 ```c++
@@ -32,16 +38,18 @@ int operator+(int a, int b) {
 }
 ```
 
-运算符重载之普通函数，访问私有成员，需要用类内`get, set`函数
+### 普通函数重载
+普通函数重载访问私有成员，需要用类内的 `get`、`set` 函数。
 
 ```c++
-/*   这里是重点内容
+/*  这里是重点：普通函数重载 operator+
+    不能直接访问私有成员 _x、_y，必须通过 get/set
 
 MyClass operator+(MyClass &a, MyClass &b) {
-    MyClass tmp();
-  /*  tmp._x = a._x + b._x; */ // ERROR
-  /*  tmp._y = a._y + b._y; */ // ERROR
-    tmp._x = a.getx() + b.getx();
+    MyClass tmp;
+    tmp._x = a._x + b._x;         // ERROR 无法访问私有成员
+    tmp._y = a._y + b._y;         // ERROR
+    tmp._x = a.getx() + b.getx(); // 正确：通过 get/set
     tmp._y = a.gety() + b.gety();
 }
 
@@ -95,14 +103,15 @@ int main(int argc, char *argv[]) {
 
 
 ```
-运算符重载之友元函数，可以直接访问私有成员。所以，通过友元函数，上面的代码就可以写成：
+### 友元函数重载
+友元函数可以直接访问私有成员。所以，通过友元函数，上面的代码就可以写成：
 ```c++
 /*
 类中的 friend 声明，然后实现时候直接访问 private 成员
 MyClass operator+(const MyClass &a, const MyClass &b) {
   MyClass tmp;
-  tmp._x = a._x;
-  tmp._y = a._y;
+  tmp._x = a._x + b._x;   // 直接访问私有成员
+  tmp._y = a._y + b._y;
   return tmp;
 }
 */
@@ -150,13 +159,24 @@ int main(int argc, char *argv[]) {
 ```
 
 
-运算符重载之成员函数，由于非静态成员函数的第一个位置是`this`指针，需要注意参数个数，比如`+`运算符只有两个参数
+### 成员函数重载
+由于非静态成员函数的第一个位置是 `this` 指针，所以作为成员函数重载时参数个数要**减一**：比如 `+` 运算符本来有两个操作数，用成员函数重载就只需要写一个参数（另一个是 `this`）。
 
-[类内的二元运算符函数报错](/images/7_binary_operator_within_class.png)
+```c++
+MyClass operator+(const MyClass &rhs) {   // 成员函数：隐藏了 this（第一个操作数）
+  MyClass tmp;
+  tmp._x = _x + rhs._x;
+  tmp._y = _y + rhs._y;
+  return tmp;
+}
+```
 
-普通的运算符重载，比如 + 运算符，两个值返回一个新的值，推荐以友元函数进行运算符重载。
+![类内的二元运算符函数报错](/images/7_binary_operator_within_class.png)
 
-特殊的运算符重载，比如符合运算符 `*=,+=,/=` 等运算符由于需要改第一个操作数，所以建议用成员函数的方式进行重载。
+### 复合赋值运算符
+普通的运算符重载，比如 `+` 运算符，两个值返回一个新的值，推荐以友元函数进行运算符重载。
+
+特殊的运算符重载，比如复合运算符 `*=、+=、/=` 等，由于需要修改第一个操作数（即 `*this`），所以建议用成员函数的方式进行重载。
 
 
 ```c++
@@ -169,7 +189,7 @@ MyClass &MyClass::operator*=(const MyClass &rhs) {
 
 ```
 
-自增运算符重载
+### 自增运算符重载
 由于
 ```c++
 int a = 3;
@@ -199,53 +219,231 @@ MyClass operator++(int) {
 
 ```
 
-输出流运算符的重载，不能放到类中去，因为对于输出流运算符，第一个操作数是`ostream`，如果放到类内，就改变了操作数顺序，这是不可以的。
+### 输出流运算符重载
+不能把 `operator<<` 放到类中去，因为对于输出流运算符，第一个操作数是 `ostream`，如果放到类内，就改变了操作数顺序，这是不可以的。
 
-另外，当把输出流运算符的重载放到全局中时，作为普通函数进行输出流运算符重载，会发现数据成员是私有的，想要访问，我们需要使用类内的`get、set` 函数，因此我们最好将其声明为友元，这样重载函数可以直接对齐操作。
+另外，把输出流运算符的重载放到全局中作为普通函数实现时，会发现数据成员是私有的，想要访问，需要使用类内的 `get`、`set` 函数，因此我们最好将其声明为友元，这样重载函数可以直接对其进行操作。
 
 ```c++
-// ERROR
-// std::ostream& operator<<(/*param1: 流，param2:对象*/);
+// ERROR：不能作为成员函数重载，否则会改变操作数顺序
+// std::ostream& operator<<(std::ostream& os, const MyClass& rhs);
 
+// 正确：声明为友元的全局函数，可以直接访问私有成员
 std::ostream &operator<<(std::ostream &os, const MyClass &rhs) {
-  os << "x = " << rhs._x << " , y = " << rhs._y << ". " << endl;
-  return os;
+  os << "x = " << rhs._x << " , y = " << rhs._y << ". " << std::endl;
+  return os;   // 返回流引用，支持连续输出
 }
 
 int main(int argc, char *argv[]) {
-  std::cout << "hello world!" << std::endl;
   MyClass c1(1, 2);
-  cout << c1;
-  operator<<(std::cout, c1);
-
+  std::cout << c1;                       // 等价于 operator<<(std::cout, c1)
   return 0;
 }
 ```
 
 
-输入流运算符的重载
+### 输入流运算符重载
 
+与输出流运算符一样，第一个操作数是 `istream`，不能放到类内，只能以友元函数重载。与输出流不同的是，第二个操作数需要**写入修改**，所以不能加 `const`。
 
+```c++
+#include <iostream>
 
-函数调用运算符(小括号)
+std::istream &operator>>(std::istream &is, MyClass &rhs) {
+  is >> rhs._x >> rhs._y;   // 友元，直接访问私有成员
+  return is;                // 返回流引用，支持连续输入
+}
 
+int main(int argc, char *argv[]) {
+  MyClass c;
+  std::cin >> c;          // 等价于 operator>>(std::cin, c)
+  std::cout << c << std::endl;
+  return 0;
+}
+```
 
+> 输出流运算符的第二个参数是 `const MyClass&`（只读），输入流运算符的第二个参数是 `MyClass&`（要写入），这是两者唯一的差别。
 
-下标访问运算符（中括号）
+### 函数调用运算符（小括号 / 仿函数）
 
+重载 `operator()` 后，对象就能像函数一样被"调用"，这样的对象称为**函数对象 / 仿函数（functor）**。它只能以**成员函数**的形式重载，参数个数不限，也可以多次重载。
 
-总结
+```c++
+#include <iostream>
 
-除了二元运算符，其他运算法重载不是建议以成员函数的方式重载，就是必须以成员函数的方式重载。
+class Add {
+public:
+  int operator()(int a, int b) const {
+    return a + b;
+  }
+};
+
+int main(int argc, char *argv[]) {
+  Add add;
+  int sum = add(3, 4);      // 等价于 add.operator()(3, 4)
+  std::cout << sum << std::endl;   // 7
+  return 0;
+}
+```
+
+函数对象最大的价值是**可以携带状态**（成员变量），比普通函数指针更灵活，常用于 `sort`、`for_each` 等算法的第三个参数。
+
+### 下标访问运算符（中括号）
+
+`operator[]` 只能以**成员函数**的形式重载。为了支持 `arr[0] = x` 这样的赋值，必须返回**引用**。
+
+```c++
+#include <iostream>
+
+class MyArray {
+public:
+  MyArray() : _data(new int[10]) {}
+  ~MyArray() { delete[] _data; }
+
+  int &operator[](size_t idx) {
+    return _data[idx];      // 返回引用，可读可写
+  }
+
+private:
+  int *_data;
+};
+
+int main(int argc, char *argv[]) {
+  MyArray arr;
+  arr[0] = 42;              // 等价于 arr.operator[](0) = 42
+  std::cout << arr[0] << std::endl;   // 42
+  return 0;
+}
+```
+
+> 如果返回值不加引用，`arr[0] = 42` 会编译失败——不能给一个右值（临时值）赋值。
+
+### 总结
+
+**重载形式的选择：**
+
+| 运算符 | 重载形式 | 原因 |
+|---|---|---|
+| `=`、`()`、`[]`、`->` | 必须成员函数 | 语言规定，本质是对对象本身操作 |
+| `+=`、`*=`、`/=` 等复合赋值 | 建议成员函数 | 需要修改第一个操作数（即 `*this`） |
+| `++`、`--` | 建议成员函数 | 前置返回引用、后置返回临时对象，依赖对象自身状态 |
+| `+`、`-`、`*`、`/` 等二元运算 | 推荐友元（普通函数） | 左右操作数对称，支持隐式转换 |
+| `<<`、`>>` 流运算符 | 必须友元（普通函数） | 第一个操作数是 `ostream`/`istream`，无法放入类内 |
+| `==`、`<` 等比较运算 | 推荐友元（普通函数） | 与 `+` 同理，左右对称 |
+
+**前置 `++` 与后置 `++`：**
+
+- 前置 `++`：`MyClass &operator++()`，返回 `*this` 的引用，`++(++a)` 连续使用合法。
+- 后置 `++`：`MyClass operator++(int)`，带一个无名的 `int` 参数用于区分，返回自增**前**的临时对象（拷贝构造），因此效率略低。
+
+**不能被重载的运算符：** `::`（作用域）、`.`（成员访问）、`.*`（成员指针访问）、`?:`（三目）、`sizeof`、`typeid`。
+
+**操作数限制：** 重载不能改变运算符原本的含义、操作数数量和顺序，且操作数中至少一个必须是自定义类型或枚举类型。
 
 ## 友元
-友元不受 `public，private，protect` 控制，友元破坏了封装性，所以应该尽量合理使用。
 
-友元之普通函数
+### 什么是友元
 
-友元之成员函数
+友元不受 `public、private、protected` 控制，友元破坏了封装性，所以应该尽量合理使用。
 
-友元之友元类
+### 友元之普通函数
+
+将类外的**普通（全局）函数**在类内声明为友元后，该函数就可以访问类的私有成员。
+
+```c++
+#include <iostream>
+
+class MyClass {
+public:
+  friend void show(const MyClass &rhs);   // 类内声明友元
+  MyClass(int x = 0, int y = 0) : _x(x), _y(y) {}
+
+private:
+  int _x;
+  int _y;
+};
+
+// 类外定义，无需再加 friend 关键字
+void show(const MyClass &rhs) {
+  std::cout << "_x = " << rhs._x
+            << ", _y = " << rhs._y << std::endl;   // 直接访问私有成员
+}
+
+int main(int argc, char *argv[]) {
+  MyClass c(1, 2);
+  show(c);
+  return 0;
+}
+```
+
+### 友元之成员函数
+
+把另一个类**的某个成员函数**声明为友元，只有这一个函数能访问私有成员。由于 A 的成员函数参数用到了 B 的引用，需要**前置声明** B，并注意类的定义顺序。
+
+```c++
+#include <iostream>
+
+class B;   // 前置声明，A 中才能写 B 的引用参数
+
+class A {
+public:
+  void print(const B &b);   // 先声明 A 的成员函数
+};
+
+class B {
+public:
+  friend void A::print(const B &b);   // 把 A::print 声明为 B 的友元
+private:
+  int _value = 10;
+};
+
+// 在 B 定义完之后再实现 A::print
+void A::print(const B &b) {
+  std::cout << b._value << std::endl;   // 可以访问 B 的私有成员
+}
+
+int main(int argc, char *argv[]) {
+  B b;
+  A a;
+  a.print(b);   // 10
+  return 0;
+}
+```
+
+### 友元之友元类
+
+把整个类声明为友元，该类的**所有成员函数**都可以访问另一个类的私有成员。
+
+```c++
+#include <iostream>
+
+class B {
+  friend class A;   // A 类的所有成员函数都是 B 的友元
+public:
+  B() : _value(10) {}
+
+private:
+  int _value;
+};
+
+class A {
+public:
+  void show(const B &b) const {
+    std::cout << b._value << std::endl;   // A 的任意成员函数都能访问 B 的私有成员
+  }
+};
+
+int main(int argc, char *argv[]) {
+  B b;
+  A a;
+  a.show(b);   // 10
+  return 0;
+}
+```
+
+> 三者的区别：友元普通函数是"一个全局函数"，友元成员函数是"另一个类的某一个函数"，友元类是"另一个类的所有函数"，访问权限依次扩大。
+
+### 友元的特性
 
 友元函数需要单独设计为友元，不会因为函数名相同，就设计了一批友元函数。
 
@@ -254,5 +452,22 @@ int main(int argc, char *argv[]) {
 无传递性：A -> B -> C，但是 C 不一定是 A 的友元
 
 无继承：友元不能被继承
+
+## 总结
+
+### 运算符重载
+
+- 本质：运算符重载就是编写一个名为 `operator符号` 的特殊函数，让自定义类型拥有与内置类型一致的运算语法。
+- 三种形式：**普通函数**（访问私有成员要 `get/set`）、**友元函数**（可直接访问私有成员）、**成员函数**（隐藏 `this`，参数个数减一）。
+- 选择口诀：二元运算用友元，复合赋值与自增自减用成员函数，`= / () / [] / ->` 必须成员函数，`<< / >>` 必须友元。
+- 前后置 `++`：前置返回 `*this` 引用、效率高；后置多一个 `int` 占位参数、返回旧值临时对象、效率略低。
+
+### 友元
+
+- 声明位置：类内任意位置（`public/private/protected` 皆可，效果相同）；不是类的成员，没有 `this`。
+- 三种形式：普通函数（全局函数）、成员函数（另一个类的单个成员）、友元类（另一个类的全部成员）。
+- 三条特性：**单向**（A 给 B 授权，B 能访问 A，A 不能访问 B）、**无传递性**（A→B→C 时 C 不是 A 的友元）、**无继承**（友元不能被子类继承）。
+- 注意：每个函数/类都要**单独**声明为友元，同名函数不会自动获得权限。
+- 代价：友元破坏了封装性，能不用就不用；主要使用场景是运算符重载，以及两个类需要紧密配合（如迭代器访问容器内部）。
 
 
