@@ -471,3 +471,189 @@ int main(int argc, char *argv[]) {
 - 代价：友元破坏了封装性，能不用就不用；主要使用场景是运算符重载，以及两个类需要紧密配合（如迭代器访问容器内部）。
 
 
+## 作业
+
+### 一、选择题
+1.关于友元的描述中，( A )是错误的。
+
+A．友元函数是成员函数，它被说明在类体内
+
+B．友元函数可直接访问类中的私有成员
+
+C．友元函数破坏封装性，使用时尽量少用
+
+D．友元类中的所有成员函数都是友元函数
+
+2.下面对于友元函数描述正确的是（ C ）。
+
+A.友元函数的实现必须在类的内部定义
+
+B.友元函数是类的成员
+
+C.友元函数破坏了类的封装性和隐藏性
+
+D.友元函数不能访问类的私有成员
+
+3.下列的各类函数中，（ C ）不是类的成员函数。
+
+A. 构造函数   B. 析构函数  C. 友元函数  D. 拷贝构造函数
+
+4．友元的作用是。（ A ）
+
+A.提高程序的运行效率  B.加强类的封装性
+
+C. 实现数据的隐蔽       D. 增加成员函数的种类
+
+5、如果类A被说明成类B的友元，则（ B D E ）。(多选题)
+
+A、类A的成员即类B的成员 
+
+B、类B的成员即类A的成员
+
+C、类A的成员函数不能访问类B的成员 
+
+D、类A的成员函数可以访问类B的成员
+
+E、类B不一定是类A的友元
+
+### 二、写出下列程序的结果
+
+33 88
+
+```C++
+#include <iostream>
+
+using std::endl;
+using std::cout;
+
+class B 
+{  
+   int y;
+public:
+	  friend class  A; 
+};
+class A
+{ 
+      int x;
+ public:  
+     A(int a,B &r, int b)  
+	 {
+		x=a; 
+		r.y=b;
+	 } 
+     void Display( B & ); 
+};
+void A::Display(B &r)
+{
+    cout<<x<<" "<<r.y<<endl;
+}
+
+int main( )
+{   B Obj2;
+    A Obj1(33,Obj2,88);
+    Obj1.Display(Obj2);
+	
+
+	return 0;
+
+} 
+```
+
+
+### 三、简答题
+
+1、什么是友元？友元的存在形式有？友元有何特点？
+
+用`friend`关键字修饰的，类，函数。这就有友元的成员函数，友元的普通函数，友元类三种存在形式。
+友元无视“public, protected, private” 规则，破坏了封装型，因此，我们要注意合理使用，不要过度。
+
+2、运算符重载的原则是什么？有哪些规则？
+
+    - 为了防止用户对标准类型进行运算符重载，C++规定重载的运算符的操作对象必须至少有一个是自
+    - 定义类型或枚举类型
+    - 重载运算符之后，其优先级和结合性还是固定不变的。
+    - 重载不会改变运算符的用法，原来有几个操作数、操作数在左边还是在右边，这些都不会改变。
+    - 重载运算符函数不能有默认参数，否则就改变了运算符操作数的个数。
+    - 重载逻辑运算符（&&,||）后，不再具备短路求值特性。
+    - 不能臆造一个并不存在的运算符，如@、$等
+
+3、不能重载的运算符有哪几个？
+
+四个，都带点，分别是
+
+    - 成员访问控制符 `.`
+    - 作用域限定符 `::`
+    - 成员指针访问运算符 `.*`
+    - 三目运算符 `?:`
+    - 长度运算符 `sizeof`
+    - (AI补充的一个)`typeid`
+
+4、运算符重载的形式有哪几种？
+
+    - 全局普通函数重载
+    - 全局友元函数重载
+    - 类内成员函数重载
+
+5、自增运算符的前置形式和后置形式有什么区别?返回值类型分别是什么？
+
+    - ++a 先自增后引用，表达式的值和 a 的值保持一致
+    - a++ 先引用后自增，表达式先引用 a 自增之前的值，a 再自增
+
+### 四、编程题
+1、问题描述，编写Base类使下列代码输出为1
+
+```C++
+int i=2;int j=7;
+Base x(i);
+Base y(j);
+cout << (x+y == j - i) << endl;
+```
+
+提示：本题考查的其实就是运算符重载的知识点。
+
+
+
+2、实现String类的其它运算符的重载
+
+```C++
+class String 
+{
+public:
+	String();
+	String(const char *);
+	String(const String &);
+	~String();
+	String &operator=(const String &);
+	String &operator=(const char *);
+
+	String &operator+=(const String &);
+	String &operator+=(const char *);
+	
+	char &operator[](std::size_t index);
+	const char &operator[](std::size_t index) const;
+	
+	std::size_t size() const;
+	const char* c_str() const;
+	
+	friend bool operator==(const String &, const String &);
+	friend bool operator!=(const String &, const String &);
+	
+	friend bool operator<(const String &, const String &);
+	friend bool operator>(const String &, const String &);
+	friend bool operator<=(const String &, const String &);
+	friend bool operator>=(const String &, const String &);
+	
+	friend std::ostream &operator<<(std::ostream &os, const String &s);
+	friend std::istream &operator>>(std::istream &is, String &s);
+
+private:
+	char * _pstr;
+};
+
+String operator+(const String &, const String &);
+String operator+(const String &, const char *);
+String operator+(const char *, const String &);
+```
+
+提示：将上面自定义String的所有函数重新实现一下，注意有些函数是可以相互调用的，这个代码不难，但是相对来说比较繁琐，可以写一个测试一个，降低错误率。
+
