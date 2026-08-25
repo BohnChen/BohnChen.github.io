@@ -3,7 +3,7 @@ title: "rclcpp / rcl / rmw / DDS 这四层分别是什么"
 date: 2026-08-25T15:11:03+08:00
 draft: false
 categories: ["ROS2"]
-tags: ["ROS2", "面试", "技术学习"]
+tags: ["ROS2", "技术学习"]
 ---
 
 > 配套演示代码：`~/02_Personal/06_JobMaterial/ROS2_layers_demo`（4 个文件逐层降级演示同一个功能）
