@@ -348,8 +348,318 @@ Widget &operator=(Widget &&other) noexcept;
 一句总结，这就是把类的私有成员全部打包进一个嵌套的实现类，对外只暴露一个指向这个实现类的指针，从而让类的头文件不暴漏任何实现细节和依赖。
 
 ### 内部类之单例模式的自动释放
+传统单例模式的的实现方式就是将构造函数和析构函数都私有化，这样来防止栈对象和堆对象的新建。
+传统代码为：
+```c++
+#include <iostream>
 
+using std::cin;
+using std::cout;
+using std::endl;
 
+class MySingleton {
+public:
+  void print() { cout << "This print()" << endl; }
 
+  static MySingleton &getInstance() {
+    if (nullptr == _pinstance) {
+      _pinstance = new MySingleton();
+    }
+    return *_pinstance;
+  }
+
+  MySingleton(const MySingleton &c) = delete;
+  MySingleton &operator=(const MySingleton &c) = delete;
+
+  static void destroy() {
+    if (nullptr != _pinstance) {
+      delete _pinstance;
+      _pinstance = nullptr;
+    }
+  }
+
+private:
+  MySingleton() { cout << "this is MySingleton()." << endl; }
+  ~MySingleton() { cout << "this is ~MySingleton()." << endl; }
+  static MySingleton *_pinstance;
+};
+
+MySingleton *MySingleton::_pinstance = nullptr;
+
+int main(int argc, char *argv[]) {
+  MySingleton &ms1 = MySingleton::getInstance();
+  MySingleton &ms2 = MySingleton::getInstance();
+  MySingleton &ms3 = MySingleton::getInstance();
+
+  ms1.destroy();
+  ms2.destroy();
+  ms3.destroy();
+
+  return 0;
+}
+```
+
+上面的传统代码里，创建靠 `getInstance()`，释放靠手动调用 `destroy()`。这里就引出了一个问题：**万一调用方忘了调 `destroy()`，堆上的实例就泄漏了**。于是我们需要"自动释放"。
+
+#### 为什么需要自动释放
+
+传统单例存在两个天生的隐患：
+
+1. **内存泄漏**：`_pinstance = new MySingleton()` 在堆上分配，但没有任何机制保证它会 `delete`。手动调用 `destroy()` 依赖调用方"记得"，一旦遗漏就泄漏，且程序运行越久泄漏越明显。
+2. **谁负责、何时释放**：单例是全局共享对象，没有明确的"所有者"。没有一个自然的作用域来回收它——它不像局部变量那样离开作用域自动析构。
+
+所以在 C++ 中，单例这种"没有 owner"的对象，需要**借 C++ 现成的自动回调点**（局部静态对象析构、`atexit` 注册、静态对象析构）把释放时机固定下来，这就是"自动释放"。
+
+自动释放的核心思想就一句话：**把 `delete _pinstance` 挂到 C++ 程序退出时一定会自动执行的某个节点上**。
+
+#### 自动释放的四种方法
+
+##### 方法一：局部静态变量（Meyers' Singleton）
+
+函数内的静态局部变量有两大特性：**首次调用时构造、程序退出时自动析构**。这就是最优雅的自动释放——连指针、`delete`、`destroy()` 全都不需要了。
+
+```c++
+#include <iostream>
+using std::cout;
+using std::endl;
+
+class MySingleton {
+public:
+  void print() { cout << "This print()" << endl; }
+
+  static MySingleton &getInstance() {
+    static MySingleton instance;   // ① 首次调用构造
+    return instance;               // ② 程序退出时自动析构
+  }
+
+  MySingleton(const MySingleton &c) = delete;
+  MySingleton &operator=(const MySingleton &c) = delete;
+
+private:
+  MySingleton() { cout << "this is MySingleton()." << endl; }
+  ~MySingleton() { cout << "this is ~MySingleton()." << endl; }
+};
+
+int main() {
+  MySingleton &ms1 = MySingleton::getInstance();
+  ms1.print();
+  return 0;   // 无需手动释放，instance 自动析构
+}
+```
+
+运行结果：
+```
+this is MySingleton().
+This print()
+this is ~MySingleton().
+```
+
+> 附带收益：C++11 起，局部静态变量的初始化是**线程安全**的，天然解决了懒汉模式的并发问题。这是最推荐的写法。
+
+##### 方法二：atexit 注册销毁函数
+
+`atexit(函数指针)` 可以把一个函数注册到"程序退出时自动调用"的清单里，程序结束时按注册顺序的反序自动执行。用它来注册 `destroy` 即可。
+
+```c++
+#include <iostream>
+#include <cstdlib>   // atexit 头文件
+using std::cout;
+using std::endl;
+
+class MySingleton {
+public:
+  static MySingleton *getInstance() {
+    if (nullptr == _pinstance) {
+      _pinstance = new MySingleton();
+      atexit(destroy);            // 首次创建时注册，程序退出时自动调用
+    }
+    return _pinstance;
+  }
+
+  static void destroy() {
+    if (nullptr != _pinstance) {
+      delete _pinstance;
+      _pinstance = nullptr;
+    }
+  }
+
+  MySingleton(const MySingleton &c) = delete;
+  MySingleton &operator=(const MySingleton &c) = delete;
+
+private:
+  MySingleton() { cout << "this is MySingleton()." << endl; }
+  ~MySingleton() { cout << "this is ~MySingleton()." << endl; }
+  static MySingleton *_pinstance;
+};
+
+MySingleton *MySingleton::_pinstance = nullptr;
+
+int main() {
+  MySingleton *ms1 = MySingleton::getInstance();
+  ms1->print();
+  return 0;   // 程序退出 → 自动调用 destroy() → delete 实例
+}
+```
+
+> 注意：懒汉 + atexit 时，`new` 和 `atexit` 注册都发生在运行时，多线程下需要配合锁或 `call_once` 才线程安全。
+
+##### 方法三：嵌套类 Garbo（垃圾回收类）
+
+利用"**静态对象程序退出时自动析构**"的特性：在单例内部嵌套一个 `Garbo` 类，它的析构函数负责 `delete` 单例。因为嵌套类是单例的"内部类"，天然可以访问单例的私有成员，不需要 friend。
+
+```c++
+#include <iostream>
+using std::cout;
+using std::endl;
+
+class MySingleton {
+public:
+  static MySingleton *getInstance() {
+    if (nullptr == _pinstance) {
+      _pinstance = new MySingleton();
+    }
+    return _pinstance;
+  }
+
+  void print() { cout << "This print()" << endl; }
+
+  MySingleton(const MySingleton &c) = delete;
+  MySingleton &operator=(const MySingleton &c) = delete;
+
+private:
+  MySingleton() { cout << "this is MySingleton()." << endl; }
+  ~MySingleton() { cout << "this is ~MySingleton()." << endl; }
+
+  static MySingleton *_pinstance;
+
+  class Garbo {                    // 嵌套回收类
+  public:
+    ~Garbo() {                     // 静态对象退出时自动析构 → 触发这里
+      if (nullptr != MySingleton::_pinstance) {
+        delete MySingleton::_pinstance;
+        MySingleton::_pinstance = nullptr;
+      }
+    }
+  };
+  static Garbo _garbo;             // 关键：静态成员对象，程序结束时自动析构
+};
+
+MySingleton *MySingleton::_pinstance = nullptr;
+MySingleton::Garbo MySingleton::_garbo;   // 静态成员也要在类外定义
+
+int main() {
+  MySingleton *ms1 = MySingleton::getInstance();
+  ms1->print();
+  return 0;   // _garbo 自动析构 → Garbo 析构函数 delete 掉实例
+}
+```
+
+释放链条：`main` 结束 → 静态成员 `_garbo` 自动析构 → 调用 `Garbo::~Garbo()` → 在函数里 `delete _pinstance`。这也是嵌套类应用的又一典型场景。
+
+##### 方法四：友元类回收
+
+和 Garbo 思路相同，但回收类定义在**外部**，通过 `friend` 友元声明获得访问私有析构的权限。
+
+```c++
+#include <iostream>
+using std::cout;
+using std::endl;
+
+class MySingleton {
+  friend class Recycle;            // 授权外部 Recycle 访问私有成员
+
+public:
+  static MySingleton *getInstance() {
+    if (nullptr == _pinstance) {
+      _pinstance = new MySingleton();
+    }
+    return _pinstance;
+  }
+
+  void print() { cout << "This print()" << endl; }
+
+  MySingleton(const MySingleton &c) = delete;
+  MySingleton &operator=(const MySingleton &c) = delete;
+
+private:
+  MySingleton() { cout << "this is MySingleton()." << endl; }
+  ~MySingleton() { cout << "this is ~MySingleton()." << endl; }
+  static MySingleton *_pinstance;
+};
+
+MySingleton *MySingleton::_pinstance = nullptr;
+
+class Recycle {                    // 外部回收类
+public:
+  ~Recycle() {
+    if (nullptr != MySingleton::_pinstance) {
+      delete MySingleton::_pinstance;   // 友元可调用私有析构
+      MySingleton::_pinstance = nullptr;
+    }
+  }
+};
+
+static Recycle recycle;            // 静态对象，程序退出时自动析构 → 触发回收
+
+int main() {
+  MySingleton *ms1 = MySingleton::getInstance();
+  ms1->print();
+  return 0;   // recycle 自动析构 → Recycle 析构函数 delete 掉实例
+}
+```
+
+> 与 Garbo 的区别：Garbo 是嵌套类，天然能访问私有成员；Recycle 是外部类，必须靠 `friend` 声明才能访问私有析构。代价是 friend 破坏了一点封装性。
+
+#### 自动释放单例的最优写法
+
+**结论：方法一（Meyers' 局部静态变量）是最优解。**
+
+原因：
+1. **代码最少**：没有指针成员、没有 `delete`、没有 `destroy()`、没有额外类；
+2. **自动释放**：静态局部对象在程序退出时自动析构，绝不泄漏；
+3. **线程安全**：C++11 起初始化线程安全，懒汉无需加锁；
+4. **懒加载**：首次调用才创建，不占用启动开销。
+
+```c++
+#include <iostream>
+using std::cout;
+using std::endl;
+
+class MySingleton {
+public:
+  static MySingleton &getInstance() {
+    static MySingleton instance;   // 一行搞定：懒加载 + 线程安全 + 自动释放
+    return instance;
+  }
+
+  void print() { cout << "This print()" << endl; }
+
+  MySingleton(const MySingleton &c) = delete;
+  MySingleton &operator=(const MySingleton &c) = delete;
+
+private:
+  MySingleton() { cout << "this is MySingleton()." << endl; }
+  ~MySingleton() { cout << "this is ~MySingleton()." << endl; }
+};
+
+int main() {
+  MySingleton &ms1 = MySingleton::getInstance();
+  MySingleton &ms2 = MySingleton::getInstance();
+  ms1.print();
+  return 0;
+}
+```
+
+各方法对比：
+
+| 方法 | 自动释放 | 线程安全(C++11+) | 代码量 | 依赖 |
+|------|:---:|:---:|:---:|------|
+| 传统手动 destroy | ❌ 靠调用方 | ❌ | 中 | 无 |
+| 局部静态变量（最优） | ✅ | ✅ | **最少** | 无 |
+| atexit 注册 | ✅ | ❌ | 中 | `<cstdlib>` |
+| 嵌套类 Garbo | ✅ | ❌ | 多 | 无 |
+| 友元类 Recycle | ✅ | ❌ | 多 | 无 |
+
+**结论：现代 C++ 首选 Meyers' 局部静态变量写法。** Garbo、atexit、友元这些方案更多用于理解"静态对象析构时机"和 C++11 之前的场景。
 
 ## string 的底层实现
