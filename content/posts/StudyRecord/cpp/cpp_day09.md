@@ -1,5 +1,5 @@
 ---
-title: "类域、"
+title: "类型转换函数、作用域、Pimpl设计模式、单例的自动释放、string 的底层原理"
 date: 2026-08-27T15:25:15+08:00
 draft: false
 categories: ["编程语言"]
