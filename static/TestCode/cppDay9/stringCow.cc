@@ -53,7 +53,8 @@ public:
 
     if (idx < size()) {
       if (getRefCount() > 1) {
-        char *ptmp = new char[strlen(_pstr) + 5] + 4;
+        char *ptmp = new char[strlen(_pstr) + 5]() + 4;
+        strcpy(ptmp, _pstr);
         decreaseRefCount();
         _pstr = ptmp;
         initRefCount();
@@ -64,13 +65,23 @@ public:
       return nullchar;
     }
   }
+
+  const char &operator[](size_t idx) const {
+    if (idx < size()) {
+      return _pstr[idx];
+    } else {
+      static char nullchar = '\0';
+      return nullchar;
+    }
+  }
+
   friend std::ostream &operator<<(std::ostream &os, const String &rhs);
 
-  size_t size() { return strlen(_pstr); }
+  const size_t size() const { return strlen(_pstr); }
   int getRefCount() const { return *(int *)(_pstr - 4); }
-  void initRefCount() { *(int *)(_pstr + 4) = 1; }
-  void increaseRefCount() { ++*(int *)(_pstr + 4); }
-  void decreaseRefCount() { --*(int *)(_pstr + 4); }
+  void initRefCount() { *(int *)(_pstr - 4) = 1; }
+  void increaseRefCount() { ++*(int *)(_pstr - 4); }
+  void decreaseRefCount() { --*(int *)(_pstr - 4); }
   const char *c_str() const { return _pstr; }
 
 private:
@@ -117,7 +128,8 @@ void test() {
   printf("s3's RefCount = %d\n", s3.getRefCount());
 
   cout << endl << "对s3[0] = \'H\'" << endl;
-  s3[0] = 'H';
+  // s3[0] = 'H';
+  s3[0];
   cout << "s1 = " << s1 << endl;
   cout << "s2 = " << s2 << endl;
   cout << "s3 = " << s3 << endl;
