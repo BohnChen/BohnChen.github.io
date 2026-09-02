@@ -7,7 +7,104 @@ tags: ["c/c++", "技术学习"]
 ---
 
 ## 类型转换
-类型转换函数
+
+### 类型转换函数
+
+**产生原因**：内置类型之间（int、double、bool……）编译器已经内置了转换规则，可以直接隐式转换；但**自定义类**对其他类型的转换，编译器一无所知。为了让自定义类用起来像内置类型一样自然，C++ 提供了**类型转换函数**（转换运算符），允许用户自己定义"类 → 其他类型"的转换规则。它是运算符重载家族的一员——把"类型转换"当成一种运算符来重载。
+
+**语法与规则**：
+
+```c++
+operator 目标类型() const { ... }
+```
+
+- 必须写成 `operator 目标类型()`，**不写返回类型**（返回类型就是目标类型本身）；
+- **不能带参数**，**必须是成员函数**（转换的是"自己"）；
+- 触发时机：编译器在"需要目标类型的值、而手里是类对象"的地方自动隐式调用。
+
+> 注意方向：**构造函数**负责"其他类型 → 类"，**类型转换函数**负责"类 → 其他类型"，二者方向相反、互为逆转换。
+
+**代码示例 1：类 → double（数值类）**
+
+复数类取实部转成 double，让 `Complex` 能直接参与 double 的运算：
+
+```c++
+#include <iostream>
+using std::cout;
+using std::endl;
+
+class Complex {
+public:
+  Complex(double real, double imag = 0) : _real(real), _imag(imag) {}
+
+  // 类型转换函数：Complex → double，取实部
+  operator double() const { return _real; }
+
+private:
+  double _real;
+  double _imag;
+};
+
+int main() {
+  Complex c(3.14, 2.0);
+
+  double d = c;                      // 隐式调用 operator double()
+  double d1 = static_cast<double>(c); // 显式调用
+  double d2 = (double)c;             // C 风格强制转换
+
+  cout << d << " " << d1 << " " << d2 << endl;  // 输出 3.14 3.14 3.14
+  return 0;
+}
+```
+
+**代码示例 2：operator bool 判空（包装对象）**
+
+`std::shared_ptr`、`optional` 等都能直接 `if (p)` 判断是否为空，靠的就是 `operator bool`：
+
+```c++
+#include <iostream>
+using std::cout;
+using std::endl;
+
+class MyPtr {
+public:
+  explicit MyPtr(int *p) : _ptr(p) {}
+
+  // 类型转换函数：MyPtr → bool
+  operator bool() const { return _ptr != nullptr; }
+
+private:
+  int *_ptr;
+};
+
+int main() {
+  int x = 5;
+  MyPtr p(&x);
+  if (p) { cout << "p 非空" << endl; }  // 条件上下文自动调用 operator bool()
+  return 0;
+}
+```
+
+**应用场景**：
+
+1. **COW string 的代理类**（关联本系列的 stringCow.cc）：`Agency` 里的 `operator char()` 就是类型转换函数。它让 `char c = s3[0];` 走"读路径"直接取字符，**不触发 detach 复制**；而 `s3[0] = 'H';` 走代理的 `operator=`，才先 detach 再写。同一个代理类，靠"转成 char（读）"和"被赋值（写）"两个运算符区分了读写路径；
+2. **智能指针 / 包装对象判空**：`operator bool`（示例 2）；
+3. **自定义数值类型与内置类型互转**：复数、分数、大数等，让它们能直接参与内置类型的运算和比较；
+4. **需要把对象"值"交给内置类型的场合**：`char c = s[0];`、`if (ptr)`、`obj + 1` 等。
+
+其中第 1 点的 `operator char()` 核心代码：
+
+```c++
+operator char() const {              // 读：转成 char 的值，不 detach
+  return _idx < _self->size() ? _self->_pstr[_idx] : '\0';
+}
+```
+
+**注意事项**：
+
+- 必须是成员函数，**不能写返回类型**，**不能带参数**；
+- 一个类可以定义多个转换函数，但转换路径过多时编译器可能产生**歧义**而报错；
+- C++11 起可写 `explicit operator bool() const`，限制只能在条件上下文隐式转换，避免 `int i = p;` 这类意外转换。
 
 ## 作用域
 
