@@ -48,23 +48,49 @@ public:
       delete[] (_pstr - 4);
     }
   }
+  class Agency {
+  public:
+    Agency(String *str, size_t idx) : _self(str), _idx(idx) {}
 
-  char &operator[](size_t idx) {
-
-    if (idx < size()) {
-      if (getRefCount() > 1) {
-        char *ptmp = new char[strlen(_pstr) + 5]() + 4;
-        strcpy(ptmp, _pstr);
-        decreaseRefCount();
-        _pstr = ptmp;
-        initRefCount();
-      }
-      return _pstr[idx];
-    } else {
-      static char nullchar = '\0';
-      return nullchar;
+    operator char() const {
+      return _idx < _self->size() ? _self->_pstr[_idx] : '\0';
     }
-  }
+
+    void detach() {
+      if (_self->getRefCount() > 1) {
+        char *ptmp = new char[strlen(_self->_pstr) + 5]() + 4;
+        strcpy(ptmp, _self->_pstr);
+        _self->decreaseRefCount();
+        _self->_pstr = ptmp;
+        _self->initRefCount();
+      }
+    }
+
+    Agency &operator=(char c) {
+      if (_idx < _self->size()) {
+        detach();
+        _self->_pstr[_idx] = c;
+      }
+      return *this;
+    }
+
+  private:
+    String *_self;
+    size_t _idx;
+  };
+
+  Agency operator[](size_t idx) { return Agency(this, idx); }
+
+  // 无法定位读或者写
+  // char &operator[](size_t idx) {
+  //
+  //   if (idx < size()) {
+  //     return _pstr[idx];
+  //   } else {
+  //     static char nullchar = '\0';
+  //     return nullchar;
+  //   }
+  // }
 
   const char &operator[](size_t idx) const {
     if (idx < size()) {
