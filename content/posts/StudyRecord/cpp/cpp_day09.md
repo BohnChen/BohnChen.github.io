@@ -775,15 +775,15 @@ int main() {
 编程题
 
 1、实现Line类的PIMPL模式 	
-[Pimpl.h](/TestCode/cppDay9/Pimpl.h)
-[PimplDesign.cc](/TestCode/cppDay9/PimplDesign.cc)
-[testPimpl.cc](/TestCode/cppDay9/testPimpl.cc)
+[Pimpl.h](/TestCode/cppTest/cppDay9/Pimpl.h)
+[PimplDesign.cc](/TestCode/cppTest/cppDay9/PimplDesign.cc)
+[testPimpl.cc](/TestCode/cppTest/cppDay9/testPimpl.cc)
 2、实现单例模式的自动释放（4种方式）
-[RecycleSingleton_1.cc](/TestCode/cppDay9/RecycleSingleton_1.cc)
-[RecycleSingleton_2.cc](/TestCode/cppDay9/RecycleSingleton_2.cc)
-[RecycleSingleton_3.cc](/TestCode/cppDay9/RecycleSingleton_3.cc)
-[RecycleSingleton_4.cc](/TestCode/cppDay9/RecycleSingleton_4.cc)
+[RecycleSingleton_1.cc](/TestCode/cppTest/cppDay9/RecycleSingleton_1.cc)
+[RecycleSingleton_2.cc](/TestCode/cppTest/cppDay9/RecycleSingleton_2.cc)
+[RecycleSingleton_3.cc](/TestCode/cppTest/cppDay9/RecycleSingleton_3.cc)
+[RecycleSingleton_4.cc](/TestCode/cppTest/cppDay9/RecycleSingleton_4.cc)
 
 3、实现COW的String，让其operator[]能够区分出读写操作
 
-[stringCow.cc](/TestCode/cppDay9/stringCow.cc)
+[stringCow.cc](/TestCode/cppTest/cppDay9/stringCow.cc)
