@@ -797,3 +797,530 @@ DerivedGood operator= (显式调用 Base::operator=)
 - **多基继承**：每个基类都要写继承方式（`class` 默认 `private`）；基类构造按继承列表顺序执行；同名成员用 `对象.基类名::成员()` 消除二义。
 - **菱形继承**：非虚时对象里存两份 A 子对象，访问 A 成员二义、空间浪费；用 `virtual` 虚基继承共享一份 A，代价是增加虚基指针（vbptr）按偏移定位共享子对象，布局示例 A=8 → 非虚 D=16 → 虚继承 B/C=16、D=24，成员函数与静态成员不计入对象大小。
 - **派生类对象间复制三情形**：只自定义基类的拷贝/赋值时，派生类缺省版本会自动调用它们，无需操心；一旦自定义了派生类的拷贝构造/赋值，就必须在内部显式调用基类版本（`Base(rhs)` / `Base::operator=(rhs)`），否则基类部分会悄悄丢失或不被更新。
+
+## 作业
+一、选择题
+
+> ✅ **1．选 A 正确。** 旁边注释不对：不是"取并集"，是**取权限更严格（较小）的一方**。A 错在"仍然"二字——private 继承下基类 protected 成员会变成派生类 private。
+
+下面叙述错误的是（ A ）
+
+A．基类的protected成员在派生类中仍然是protected
+
+B．基类的protected成员在public派生类中仍然是protected的
+
+C．基类的protected成员在private派生类中是private的
+
+D．基类的protected成员不能被派生类的对象访问
+
+
+// 看以哪种权限继承
+
+> ✅ **2．选 D 正确。**
+
+2、下列对派生类的描述中，( D )是错误的。
+
+A．一个派生类可以作为另一个派生类的基类
+
+B．派生类至少有一个基类
+
+C．派生类的成员除了它自己的成员外，还包含了它的基类成员
+
+D．派生类中继承的基类成员的访问权限到派生类保持不变
+
+
+
+
+> ✅ **3．选 A 正确。**
+
+3、派生类的对象对它的哪一类基类成员是可以访问的？（A）
+
+A．公有继承的基类的公有成员       B. 公有继承的基类的保护成员
+
+C. 公有继承的基类的私有成员       D. 保护继承的基类的公有成员
+
+
+// 注：非虚菱形继承时公共基类会存两份、有二义；加 virtual 虚继承后才"只有一个"、无二义
+
+> ❌ **4．选错了，应为 D。** B 说的是菱形继承：B、C 同继承公共基类 A（非虚）时，D 里有两份 A，访问确实可能二义（需虚继承消除）→ 叙述**正确**。错的是 D：派生类自己定义同名函数会**隐藏**基类版本，访问不产生二义。
+
+4、关于多继承二义性的描述，( D )是错误的。
+
+A．派生类的多个基类中存在同名成员时，派生类对这个成员访问可能出现二义性
+
+B．一个派生类是从具有共同的间接基类的两个基类派生来的，派生类对该公共基类的访问可能出现二义性
+
+C．解决二义性最常用的方法是作用域运算符对成员进行限定
+
+D．派生类和它的基类中出现同名函数时，将可能出现二义性
+
+5、设有基类定义：
+
+```C++
+class Base
+{   
+private: 
+	int a;
+protected: 
+	int b;
+public: 
+	int c;
+};
+```
+
+> ✅ **5．选 A 正确**，私有继承会把基类 protected 成员降为派生类 private。
+
+派生类采用何种继承方式可以使成员变量b成为自己的私有成员(  A   )
+
+A. 私有继承             B.保护继承
+
+C. 公有继承             D.私有、保护、公有均可
+
+二、填空题
+> ✅ **基本正确。** 顺序：派生类自身 → 对象成员（按声明逆序）→ 基类子对象。中间空格建议写"对象成员/类数据成员"更规范。
+
+1、在继承机制下，当对象消亡时，编译系统先执行<u>\__派生类_____</u>的析构函数，然后才执行<u>\_特殊数据成员比如类成员\_</u>___的析构函数，最后执行_<u>_____基类\___</u>_的析构函数。
+
+三、改错题以及写结果题。
+> ✅ **1．两处都改对了。** 错误①：protected 继承使 `move/getx/gety` 在 main 中不可见 → 改 public 继承；错误②：函数名大小写 `getlength/getwidth` → `getLength/getWidth`。
+
+1、指出并改正下面程序中的错误。
+
+```C++
+#include<iostream>
+
+using std::cout;
+using std::endl;
+
+class Point
+{   
+public:
+    Point(int a=0, int b=0) 
+	{
+		x = a; 
+		y = b;
+	}
+    void move(int xoffset,int yoffset) 
+	{
+		x += xoffset; 
+		y += yoffset;
+	}
+	
+
+    int getx() 
+    {	
+    	return x;	
+    }
+    
+    int gety() 
+    {	
+    	return y;	
+    }
+
+private:
+	int x,y;
+};
+
+// 保护继承后，基类公有成员变为protecetd
+// 只能在类的内部使用，不能被对象使用
+// 改为公有继承
+class Rectangle
+:protected Point
+{    
+public:
+	Rectangle(int x, int y, int l, int w)
+	: Point(x,y)
+	{   
+		length = l;
+		width  = w;
+	}
+	
+
+	int getLength()
+	{	
+		return length;	
+	}
+	
+	int getWidth()	
+	{	
+		return width;	
+	}
+
+private:
+	int length;
+	int width;
+};
+int main()
+{ 
+	Rectangle r(0, 0, 8,4);
+ 	r.move(23,56);
+	cout << r.getx() 
+	     << "," << r.gety() 
+         // 函数写错了
+		 << "," << r.getlength() 
+		 << "," << r.getwidth() << endl;
+		 
+
+	return 0;
+
+}
+```
+
+> ✅ **2．改对了。** 错误是二义性：`myc.x`、`myc.display()` 分不清 A/B，用 `A::` / `B::` 限定即可，而非改掉对成员的访问本身。
+
+2、指出并改正下面程序中的错误。
+
+```C++
+#include<iostream>
+
+using std::cout;
+using std::endl;
+
+class A
+{
+ public:
+    int x;
+    A(int a = 0) 
+	{
+		x = a;
+	}
+    void display() 
+	{ 
+		cout<< "A.x = " << x << endl;
+	}
+};
+class B
+{ 
+public:
+	int x;
+    B(int a = 0) 
+	{
+		x=a;
+	}
+ 	
+
+	void display() 
+	{
+		cout<<"B.x = " << x << endl; 
+	}
+
+};
+
+class C
+:public A
+,public B
+{   
+
+ public:
+    C(int a, int b, int c) 
+	: A(a)
+	, B(b)
+    {    
+		y=c;  
+	}
+	
+
+   	int gety() 
+   	{ 
+   		return y;
+   	}
+
+private:
+	int y;
+};
+int main()
+{ 
+    C myc(1, 2, 3);
+    // 二义性了
+    // myc.x = 10;
+    myc.A::x = 10;
+    myc.B::x = 10;
+    // 二义性了
+    // myc.display();
+    myc.A::display();
+    myc.B::display();
+
+	return 0;
+
+}
+```
+
+> ✅ **3．结果正确。** 构造顺序：先基类 `Base(13)`（`Constucting base class`），再对象成员 `_base(24)`（又一次 `Constucting base class`），后函数体；析构按反向：派生类 → 对象成员 → 基类。输出 `13,8,24` 无误。
+
+3、看程序写结果
+
+```C++
+/*
+Constucting base class
+Constucting base class
+Constructing derived class
+13,8,24
+Destructing derived class
+Destructing base class
+Destructing base class
+*/
+
+#include<iostream>
+
+using std::cout;
+using std::endl;
+
+class Base
+{     
+public:
+	Base(int n)
+	{
+		cout <<"Constucting base class" << endl;
+		_ix=n;
+	}
+	
+
+    ~Base()
+    {
+    	cout <<"Destructing base class" << endl;
+    }
+    
+    void showX()
+    {
+    	cout << _ix << ",";
+    }
+    
+    int getX()
+    {
+    	return _ix;
+    }
+
+private:
+	int _ix;
+};
+
+
+class Derived
+:public Base
+{     
+public:
+	Derived(int n, int m, int p)
+	: Base(m)
+	, _base(p)
+	{
+		cout << "Constructing derived class" <<endl;
+        j = n;
+    }
+
+    ~Derived()
+    {
+    	cout <<"Destructing derived class"<<endl;
+    }
+    
+    void show()
+    {
+    	Base::showX();
+        cout << j << "," << _base.getX() << endl;
+    }
+
+private:
+	int j;
+    Base _base;
+};
+int main()
+{ 
+	Derived obj(8,13,24);
+ 	obj.show();
+
+	return 0;
+
+}
+```
+
+
+四、简答题
+
+> ✏️ **1．意思对，订正错别字并补一句。** `proterceted→protected`、`provate→private`。三种继承中基类 **private 成员一律不可访问（但存在）**；protected 继承后 public/protected 变 protected（类内及派生类内可访问，对象不行）；private 继承后全部变 private（仅派生类内可访问）。
+
+1、三种继承方式对于基类成员的访问权限是怎样的？
+
+- public继承时，基类的public成员即可在派生类内访问，也可被派生类对象访问，proterceted成员只可在类内访问，派生类对象不能访问，provate成员不可访问
+
+- protected继承时，基类所有public,protected成员都变为protected类型，只能在类内访问，private成员不可被访问
+
+- private继承时，基类所有public,protected成员都变为派生类的private类型，智能在派生类内访问，
+
+> ✏️ **2．new/delete 应从列表中删掉**（它们是全局运算符/表达式，不是类成员，谈不上"继承"）。标准答案：**构造函数（含拷贝构造）、析构函数、`operator=`（赋值运算符）、友元函数与友元类**。可补充：静态成员、`using` 引入的成员可以继承。
+
+2、继承中有哪些内容是不能进行继承的？
+- new/delete
+- 友元
+- 构造函数
+- 析构函数
+- 赋值运算符函数
+
+> ✏️ **3．需补充菱形继承这一类。** 除你列出的两类外：当多个基类来自同一公共基类（非虚）时，派生类中会**重复存储**公共基类子对象，访问其成员同样二义、还浪费空间 → 用**虚基类（virtual 继承）**解决；不同基类的同名成员用 `::` 限定消除。
+
+3、多基派生会产生的问题有哪些？怎样解决？
+
+- 会有二义性的问题。
+通过类名加限定符`::`的方式访问来避免
+- 会有权限漏写的问题，继承时对每一个类都要写权限，默认是private继承
+
+> ✅ **4．正确，三条规则都覆盖了。**
+
+4、派生类对象之间的复制控制规则是什么？
+
+- 若基类写了拷贝构造函数，派生类旧对象给新对象初始化时调用派生类默认的拷贝构造函数，然后派生类默认拷贝构造函数自动调用基类的拷贝构造函数进行基类部分的赋值
+- 若基类写了赋值运算符函数，派生类两个旧对象之间赋值时，会自动调用缺省的派生类赋值运算符函数，函数内部会自动调用基类的赋值运算符函数，进行基类部分的赋值
+- 若派生类重写了拷贝构造函数或者赋值运算符函数，那么必须在重写的函数中显式的调用基类的拷贝构造函数或者赋值运算符函数，以避免出现基类部分没有被赋值的异常情况
+
+
+
+
+五、编程题。
+
+> ✏️ **编程 1&2：主流程缺输出。** 题目要求"分别显示圆半径、圆面积、圆周长、圆柱体积"，你的 main 只调了 `showVolume()`，圆的半径/面积/周长没显示。建议先 `c1.show()`（Cylinder 继承自 Circle，可直接调用）再 `c1.showVolume()`，或单独建一个 `Circle` 对象调用 `show()`；若想要"设置半径"，可补 `void setRadius(double)`。
+
+1. 编写一个圆类Circle，该类拥有： 
+
+  	① 1个成员变量，存放圆的半径；
+  	② 两个构造方法
+  	  Circle( )              // 将半径设为0           
+  	  Circle(double  r )     //创建Circle对象时将半径初始化为r      
+  	③ 三个成员方法              
+  	  double getArea( )      //获取圆的面积            
+  	  double getPerimeter( ) //获取圆的周长              
+  	  void  show( )          //将圆的半径、周长、面积输出到屏幕 
+
+2. 编写一个圆柱体类Cylinder，它继承于上面的Circle类，还拥有： 
+   ① 1个成员变量，圆柱体的高；
+   ② 构造方法           
+   Cylinder (double r, double  h) //创建Circle对象时将半径初始化为r         
+   ③ 成员方法
+   double getVolume( )   //获取圆柱体的体积             
+   void  showVolume( )   //将圆柱体的体积输出到屏幕  
+   编写应用程序，创建类的对象，分别设置圆的半径、圆柱体的高，计算并分别显示圆半径、圆面积、圆周长，圆柱体的体积。
+```c++
+#include <iostream>
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+const double PI = 3.1415926;
+
+class Circle {
+public:
+  Circle() : _r(0) {}
+  Circle(const double &r) : _r(r) {}
+  ~Circle() { cout << "~Circle()" << endl; }
+
+  double getArea() { return PI * _r * _r; }
+
+  double getPerimeter() { return 2 * PI * _r; }
+
+  void show() {
+    cout << "the radius of the circle is " << _r << endl
+         << "the Area of the Circle is " << getArea() << endl
+         << "the Perimeter of the Circle is " << getPerimeter() << endl;
+  }
+
+private:
+  double _r;
+};
+
+class Cylinder : public Circle {
+private:
+  double _dheight;
+
+public:
+  Cylinder(double r, double h) : Circle(r), _dheight(h) {
+    std::cout << "this is Cylinder()" << std::endl;
+  }
+
+  double getVolume() { return getArea() * _dheight; }
+
+  void showVolume() {
+    std::cout << "the Volume of the Cylinder is " << getVolume() << std::endl;
+  }
+};
+
+int main(int argc, char *argv[]) {
+  Cylinder c1(3, 5);
+  c1.showVolume();
+
+  return 0;
+}
+
+
+```
+> ✏️ **编程 3：功能基本可用，三处改进。** ① 题目明确要求 Employee 用 `display()` 输出姓名/年龄/部门/工资，你实现的是 `print()`——建议定义 `Employee::display()`（内部先调 `Person::display()` 再输出部门/工资）来"隐藏/覆盖"基类版本；② 拼写错误：`anverage`→`average`、`salasy`→`salary`；③ `const string name` 传值改成 `const string &name` 更优。平均值那段用 `map` 略显绕，直接循环 `getSalary()` 累加再除以 3 即可（`map` 还引入了不必要的 C++11 依赖）。
+
+3. 构建一个类Person，包含字符串成员name（姓名），整型数据成员age（年龄），成员函数 display()用来输出name和age。
+   构造函数包含两个参数，用来对name和age初始化。构建一个类Employee由Person派生，包含department（部门），实型
+   数据成员salary（工资）,成员函数display（）用来输出职工姓名、年龄、部门、工资，其他成员根据需要自己设定。
+   主函数中定义3个Employee类对象，内容自己设定，将其姓名、年龄、部门、工资输出，并计算他们的平均工资。
+```c++
+#include <iostream>
+#include <map>
+#include <string>
+using std::cin;
+using std::cout;
+using std::endl;
+using std::map;
+using std::string;
+
+class Person {
+public:
+  Person(const string &name, const int &age) : _name(name), _age(age) {}
+  ~Person() { cout << "~Person()" << endl; }
+
+  void display() {
+    cout << "The name of the Person is " << _name << endl
+         << "The age of the Person is " << _age << endl;
+  }
+  const string &getName() { return _name; }
+
+private:
+  string _name;
+  int _age;
+};
+
+class Employee : public Person {
+public:
+  Employee(const string name, const int age, const string &department,
+           const double &salary)
+      : Person(name, age), _department(department), _salary(salary) {
+    cout << "This is Employee(const string&, const double &). " << endl;
+  }
+  ~Employee() { std::cout << "~Employee()." << std::endl; }
+
+  void print() {
+    display();
+    cout << "Department is " << _department << endl
+         << "Salary is " << _salary << endl;
+  }
+
+  const double &getSalary() { return _salary; }
+
+private:
+  string _department;
+  double _salary;
+};
+
+int main(int argc, char *argv[]) {
+  Employee e1("张东", 20, "设计部", 4300);
+  Employee e2("陈敏", 24, "人事部", 3300);
+  Employee e3("于晨", 39, "工程部", 4900);
+  e1.print();
+  e2.print();
+  e3.print();
+  map<string, double> m;
+  m[e1.getName()] = e1.getSalary();
+  m[e2.getName()] = e2.getSalary();
+  m[e3.getName()] = e3.getSalary();
+  double sum = 0;
+  for (auto &e : m) {
+    sum += e.second;
+  }
+  double anverageSalary = sum / m.size();
+  std::cout << "the anverage salasy is " << anverageSalary << std::endl;
+  return 0;
+}
+```
