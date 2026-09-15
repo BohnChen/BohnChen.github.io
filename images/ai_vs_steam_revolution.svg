@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 480" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgComp" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f17" />
+      <stop offset="100%" stop-color="#161e2e" />
+    </linearGradient>
+    <linearGradient id="steamCard" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#334155" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#1e293b" stop-opacity="0.5" />
+    </linearGradient>
+    <linearGradient id="aiCard" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#312e81" stop-opacity="0.3" />
+    </linearGradient>
+  </defs>
+
+  <rect width="1000" height="480" fill="url(#bgComp)" rx="12" />
+
+  <!-- Header -->
+  <text x="50" y="45" fill="#f8fafc" font-size="22" font-weight="bold" font-family="-apple-system, BlinkMacSystemFont, sans-serif">为什么说 AI 革命不同于蒸汽机工业革命？</text>
+  <text x="50" y="72" fill="#94a3b8" font-size="13" font-family="-apple-system, BlinkMacSystemFont, sans-serif">李开复博士洞察：AI 并非从零铺设物理基建，而是直接站在晶体管与互联网信息革命的“完全体”之上</text>
+
+  <!-- Left: Steam Engine Paradigm -->
+  <g transform="translate(50, 95)">
+    <rect width="425" height="345" rx="12" fill="url(#steamCard)" stroke="#475569" stroke-width="1.5" />
+    <circle cx="35" cy="35" r="16" fill="#475569" fill-opacity="0.4" />
+    <text x="35" y="41" fill="#cbd5e1" font-size="16" text-anchor="middle">⚙️</text>
+    <text x="65" y="40" fill="#f1f5f9" font-size="18" font-weight="bold" font-family="sans-serif">第一次工业革命（蒸汽机时代）</text>
+    <text x="20" y="75" fill="#94a3b8" font-size="13" font-family="sans-serif">从发明到全球工厂普及：<tspan fill="#f59e0b" font-weight="bold">耗时近 50~80 年</tspan></text>
+
+    <!-- Flow of constraints -->
+    <g transform="translate(20, 95)">
+      <!-- Step 1 -->
+      <rect x="0" y="0" width="385" height="58" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+      <text x="15" y="24" fill="#e2e8f0" font-size="13" font-weight="600" font-family="sans-serif">1. 物理机械发明 (1769 瓦特改良)</text>
+      <text x="15" y="45" fill="#94a3b8" font-size="11" font-family="sans-serif">单点技术突破，但无法脱离煤矿与铸造工业独立存在</text>
+
+      <!-- Arrow down -->
+      <text x="190" y="74" fill="#64748b" font-size="14" text-anchor="middle">↓ 极为漫长沉重的物理建设周期</text>
+
+      <!-- Step 2 -->
+      <rect x="0" y="85" width="385" height="58" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+      <text x="15" y="109" fill="#e2e8f0" font-size="13" font-weight="600" font-family="sans-serif">2. 重新铺设基础设施与物理供应链</text>
+      <text x="15" y="130" fill="#94a3b8" font-size="11" font-family="sans-serif">开凿运河、铺设铁轨、冶金升级、建设标准化物理厂房</text>
+
+      <!-- Arrow down -->
+      <text x="190" y="159" fill="#64748b" font-size="14" text-anchor="middle">↓ 生产关系与劳动力重塑</text>
+
+      <!-- Step 3 -->
+      <rect x="0" y="170" width="385" height="58" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+      <text x="15" y="194" fill="#e2e8f0" font-size="13" font-weight="600" font-family="sans-serif">3. 劳动力迁徙与工厂制度成型</text>
+      <text x="15" y="215" fill="#94a3b8" font-size="11" font-family="sans-serif">农奴转为产业工人，数十年间社会制度剧烈摩擦震荡</text>
+    </g>
+  </g>
+
+  <!-- Right: AI Revolution Paradigm -->
+  <g transform="translate(525, 95)">
+    <rect width="425" height="345" rx="12" fill="url(#aiCard)" stroke="#6366f1" stroke-width="1.5" />
+    <circle cx="35" cy="35" r="16" fill="#4338ca" fill-opacity="0.5" />
+    <text x="35" y="41" fill="#c7d2fe" font-size="16" text-anchor="middle">⚡️</text>
+    <text x="65" y="40" fill="#f1f5f9" font-size="18" font-weight="bold" font-family="sans-serif">现代人工智能革命（AI 纪元）</text>
+    <text x="20" y="75" fill="#94a3b8" font-size="13" font-family="sans-serif">从模型破壁到席卷全球终端：<tspan fill="#38bdf8" font-weight="bold">仅用数月至数年</tspan></text>
+
+    <!-- Flow of readiness -->
+    <g transform="translate(20, 95)">
+      <!-- Step 1 -->
+      <rect x="0" y="0" width="385" height="58" rx="6" fill="#0f172a" stroke="#4f46e5" stroke-width="1"/>
+      <text x="15" y="24" fill="#a5b4fc" font-size="13" font-weight="600" font-family="sans-serif">1. 基础设施“完全就绪” (零时差)</text>
+      <text x="15" y="45" fill="#94a3b8" font-size="11" font-family="sans-serif">信息革命留下了全球海底光纤、5G、云数据中心与GPU算力池</text>
+
+      <!-- Arrow down -->
+      <text x="190" y="74" fill="#818cf8" font-size="14" text-anchor="middle">↓ 边际分发成本趋近于零 (API / 纯软件分发)</text>
+
+      <!-- Step 2 -->
+      <rect x="0" y="85" width="385" height="58" rx="6" fill="#0f172a" stroke="#4f46e5" stroke-width="1"/>
+      <text x="15" y="109" fill="#a5b4fc" font-size="13" font-weight="600" font-family="sans-serif">2. 瞬间触达 50 亿联网智能终端</text>
+      <text x="15" y="130" fill="#94a3b8" font-size="11" font-family="sans-serif">ChatGPT 2个月破亿用户；DeepSeek 数日登顶全球应用榜</text>
+
+      <!-- Arrow down -->
+      <text x="190" y="159" fill="#818cf8" font-size="14" text-anchor="middle">↓ 物理生产力被数字化直接赋能</text>
+
+      <!-- Step 3 -->
+      <rect x="0" y="170" width="385" height="58" rx="6" fill="#0f172a" stroke="#4f46e5" stroke-width="1"/>
+      <text x="15" y="194" fill="#a5b4fc" font-size="13" font-weight="600" font-family="sans-serif">3. 智力劳动杠杆与软件生产力重塑</text>
+      <text x="15" y="215" fill="#94a3b8" font-size="11" font-family="sans-serif">从代码生成、规范驱动(SDD)到复杂业务自动化无缝嵌合</text>
+    </g>
+  </g>
+</svg>

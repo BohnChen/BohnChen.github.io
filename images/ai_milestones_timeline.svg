@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 560" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16" />
+      <stop offset="100%" stop-color="#111827" />
+    </linearGradient>
+    <linearGradient id="curvePreGpt" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#64748b" />
+      <stop offset="100%" stop-color="#0ea5e9" />
+    </linearGradient>
+    <linearGradient id="curvePostGpt" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0ea5e9" />
+      <stop offset="50%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+    <filter id="neon">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1000" height="560" fill="url(#bg2)" rx="12" />
+
+  <!-- Header -->
+  <text x="50" y="50" fill="#f8fafc" font-size="22" font-weight="bold" font-family="-apple-system, BlinkMacSystemFont, sans-serif">AI 发展历史与能力演进里程碑 (1950 - 2026)</text>
+  <text x="50" y="78" fill="#94a3b8" font-size="13" font-family="-apple-system, BlinkMacSystemFont, sans-serif">从长达数十年的积累摸索，到 GPT 与推理模型时代的指数级陡峭跃升</text>
+
+  <!-- Coordinate Grid Area -->
+  <g transform="translate(80, 100)">
+    <!-- Y-Axis labels & Grid lines -->
+    <g stroke="#334155" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="4,4">
+      <line x1="0" y1="50" x2="860" y2="50" />
+      <line x1="0" y1="130" x2="860" y2="130" />
+      <line x1="0" y1="210" x2="860" y2="210" />
+      <line x1="0" y1="290" x2="860" y2="290" />
+      <line x1="0" y1="370" x2="860" y2="370" />
+    </g>
+
+    <text x="-15" y="55" fill="#64748b" font-size="11" text-anchor="end" font-family="monospace">AGI 临近/自主Agent</text>
+    <text x="-15" y="135" fill="#64748b" font-size="11" text-anchor="end" font-family="monospace">人类顶尖专家水平</text>
+    <text x="-15" y="215" fill="#64748b" font-size="11" text-anchor="end" font-family="monospace">通用自然语言/代码能力</text>
+    <text x="-15" y="295" fill="#64748b" font-size="11" text-anchor="end" font-family="monospace">特定专业领域突破</text>
+    <text x="-15" y="375" fill="#64748b" font-size="11" text-anchor="end" font-family="monospace">早期算法与符号规则</text>
+
+    <!-- X-Axis timeline line -->
+    <line x1="0" y1="380" x2="860" y2="380" stroke="#475569" stroke-width="2" />
+
+    <!-- Split zone indicator for GPT Era -->
+    <rect x="580" y="20" width="280" height="360" fill="#6366f1" fill-opacity="0.08" rx="8" />
+    <text x="720" y="42" fill="#a5b4fc" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="middle">⚡️ 性能爆发与大模型纪元</text>
+
+    <!-- Pre-GPT Curve (平缓长周期积累) -->
+    <!-- 1950 (0, 370) -> 1997 (140, 360) -> 2012 (320, 330) -> 2016 (410, 300) -> 2017 (470, 270) -> 2020 (540, 240) -> 2022 (590, 220) -->
+    <path d="M 10 372 
+             C 100 370, 160 365, 200 360 
+             C 270 355, 300 345, 340 330
+             C 380 315, 410 300, 440 285
+             C 480 265, 530 250, 580 220" 
+          fill="none" stroke="url(#curvePreGpt)" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- Post-GPT Curve (陡峭爆发式增长) -->
+    <!-- 2022.11 (580, 220) -> 2023.03 (640, 150) -> 2024.06 (710, 100) -> 2024.09 o1 (760, 65) -> 2025/2026 DeepSeek R1/Claude 3.7 (830, 35) -->
+    <path d="M 580 220 
+             C 610 200, 630 160, 655 140 
+             C 680 120, 710 95, 750 65
+             C 780 45, 810 32, 840 28" 
+          fill="none" stroke="url(#curvePostGpt)" stroke-width="4.5" filter="url(#neon)" stroke-linecap="round"/>
+
+    <!-- Milestone Points & Labels -->
+    <!-- 1950 -->
+    <circle cx="10" cy="372" r="4" fill="#94a3b8" />
+    <text x="10" y="405" fill="#94a3b8" font-size="11" font-family="monospace" text-anchor="middle">1950</text>
+    <text x="15" y="355" fill="#cbd5e1" font-size="11" font-family="sans-serif">图灵测试提出</text>
+
+    <!-- 1997 -->
+    <circle cx="180" cy="362" r="4" fill="#94a3b8" />
+    <text x="180" y="405" fill="#94a3b8" font-size="11" font-family="monospace" text-anchor="middle">1997</text>
+    <text x="180" y="345" fill="#cbd5e1" font-size="11" font-family="sans-serif" text-anchor="middle">深蓝战胜人类棋王</text>
+
+    <!-- 2012 -->
+    <circle cx="340" cy="330" r="4" fill="#38bdf8" />
+    <text x="340" y="405" fill="#94a3b8" font-size="11" font-family="monospace" text-anchor="middle">2012</text>
+    <text x="340" y="315" fill="#7dd3fc" font-size="11" font-family="sans-serif" text-anchor="middle">AlexNet 深度学习复兴</text>
+
+    <!-- 2016 -->
+    <circle cx="440" cy="285" r="4" fill="#38bdf8" />
+    <text x="440" y="405" fill="#94a3b8" font-size="11" font-family="monospace" text-anchor="middle">2016</text>
+    <text x="440" y="270" fill="#7dd3fc" font-size="11" font-family="sans-serif" text-anchor="middle">AlphaGo 围棋破壁</text>
+
+    <!-- 2017 -->
+    <circle cx="500" cy="255" r="5" fill="#0ea5e9" />
+    <text x="500" y="405" fill="#94a3b8" font-size="11" font-family="monospace" text-anchor="middle">2017</text>
+    <text x="500" y="240" fill="#38bdf8" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle">Transformer 诞生</text>
+
+    <!-- 2022 GPT Moment -->
+    <circle cx="580" cy="220" r="7" fill="#6366f1" stroke="#f8fafc" stroke-width="2" filter="url(#neon)"/>
+    <text x="580" y="405" fill="#a5b4fc" font-size="12" font-weight="bold" font-family="monospace" text-anchor="middle">2022.11</text>
+    <text x="580" y="200" fill="#a5b4fc" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="middle">ChatGPT 奇点破圈</text>
+
+    <!-- 2023 GPT-4 -->
+    <circle cx="655" cy="140" r="6" fill="#8b5cf6" />
+    <text x="655" y="405" fill="#c4b5fd" font-size="11" font-family="monospace" text-anchor="middle">2023.03</text>
+    <text x="655" y="125" fill="#ddd6fe" font-size="12" font-family="sans-serif" text-anchor="middle">GPT-4 通用推理</text>
+
+    <!-- 2024 Claude 3.5 Sonnet / o1 -->
+    <circle cx="750" cy="65" r="6" fill="#ec4899" />
+    <text x="750" y="405" fill="#f472b6" font-size="11" font-family="monospace" text-anchor="middle">2024</text>
+    <text x="750" y="52" fill="#fbcfe8" font-size="12" font-family="sans-serif" text-anchor="middle">o1慢思考 / Claude 3.5 编码巅峰</text>
+
+    <!-- 2025/2026 DeepSeek-R1 / Agentic Era -->
+    <circle cx="840" cy="28" r="7" fill="#f43f5e" stroke="#fff" stroke-width="2" filter="url(#neon)"/>
+    <text x="840" y="405" fill="#fda4af" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle">2025-2026</text>
+    <text x="840" y="16" fill="#ffe4e6" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="middle">DeepSeek-R1 开源风暴 / SDD自主Agent</text>
+  </g>
+</svg>
