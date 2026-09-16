@@ -6,7 +6,7 @@ categories: ["讨论交流"]
 tags: ["AI", "技术学习", "WeeklySummary", "软件工程"]
 ---
 
-![在这个直奔 AGI 的时代，学点编程吧](/images/agi_study_cover.png)
+![在这个直奔 AGI 的时代，学点编程吧](/images/zhiyuan_1/agi_study_cover.png)
 
 ## AI is You：当生产力工具反噬认知
 
@@ -57,7 +57,7 @@ Claude Code 的榜一大哥刘小排，曾因每个月消耗数万美金 API 费
 
 在 18 世纪，瓦特改良蒸汽机之后，这项技术并没有在一夜之间改变世界。恰恰相反，蒸汽机花了整整五六十年，才真正全面走入纺织厂与冶金车间。
 
-![AI 革命与蒸汽机工业革命的发展逻辑对比](/images/ai_vs_steam_revolution.png)
+![AI 革命与蒸汽机工业革命的发展逻辑对比](/images/zhiyuan_1/ai_vs_steam_revolution.png)
 
 为什么蒸汽机花了那么漫长的时间？
 因为**它的物理前置条件完全没有准备好**：
@@ -78,11 +78,11 @@ AI 需要的所有前置条件，在过去半个世纪**晶体管驱动的微电
 
 从 1950 年图灵提出“图灵测试”，到专家系统、AlphaGo，人工智能经历过漫长曲折的理论低谷与单点突破。然而，以 Transformer 架构为基石的大语言模型横空出世后，AI 的演化曲线彻底从线性摸索转变为极度陡峭的指数爆发：
 
-![AI 发展历史与里程碑图](/images/ai_milestones_timeline.png)
+![AI 发展历史与里程碑图](/images/zhiyuan_1/ai_milestones_timeline.png)
 
 伴随着技术性能爆发的，是推理成本呈现断崖式暴跌。
 
-![大模型推理成本断崖下跌趋势](/images/ai_token_cost_trend.png)
+![大模型推理成本断崖下跌趋势](/images/zhiyuan_1/ai_token_cost_trend.png)
 
 短短两三年时间，每百万 Token 的推理价格下跌超过 99%，跌幅甚至超越了摩尔定律。当高质量智力的边际成本跌到比一度电、一滴水还要便宜时，AI 的普及就不再是一场漫长的产业升级，而是一场**以周为单位快速重塑一切生产力边界的狂风骤雨**。
 
@@ -120,7 +120,7 @@ $$\text{人类编写规范} \longrightarrow \text{人类手工敲代码} \longri
 而在 SDD 模式下，生产力的分工发生了本质逆转：
 $$\text{人类制定严格规约 (Spec)} \longrightarrow \text{AI 自动化批量生成代码} \longrightarrow \text{测试套件自动化校验} \longrightarrow \text{人类 Review 架构与演进}$$
 
-![开发范式演进：传统手工开发 vs 规范驱动开发 (SDD)](/images/sdd_vs_traditional_dev.png)
+![开发范式演进：传统手工开发 vs 规范驱动开发 (SDD)](/images/zhiyuan_2/sdd_vs_traditional_dev.png)
 
 ### 什么是规范驱动开发（SDD）？
 

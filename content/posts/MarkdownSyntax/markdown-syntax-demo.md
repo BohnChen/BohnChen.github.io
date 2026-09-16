@@ -86,7 +86,7 @@ def greet(name):
 
 [这是一个链接](https://bohnchen.github.io/)
 
-![图片描述](/images/1_LiLi_CPP_Overlook.png)
+![图片描述](/images/cppstudy/1_LiLi_CPP_Overlook.png)
 
 ## 上标与下标
 

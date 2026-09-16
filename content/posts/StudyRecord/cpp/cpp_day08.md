@@ -171,7 +171,7 @@ MyClass operator+(const MyClass &rhs) {   // 成员函数：隐藏了 this（第
 }
 ```
 
-![类内的二元运算符函数报错](/images/7_binary_operator_within_class.png)
+![类内的二元运算符函数报错](/images/cppstudy/7_binary_operator_within_class.png)
 
 ### 复合赋值运算符
 普通的运算符重载，比如 `+` 运算符，两个值返回一个新的值，推荐以友元函数进行运算符重载。
