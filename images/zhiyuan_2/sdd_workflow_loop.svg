@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 360" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgSddLoop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1120" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+    <linearGradient id="stepGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <filter id="loopShadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <rect width="1000" height="360" fill="url(#bgSddLoop)" rx="12" />
+
+  <!-- Header -->
+  <text x="40" y="40" fill="#f8fafc" font-size="20" font-weight="bold" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">规范驱动开发 (SDD) 标准闭环：从意图到收敛</text>
+  <text x="40" y="65" fill="#94a3b8" font-size="13" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">严格把控「Why → What → How → Steps → Converge」渐进式推演，绝不跨阶段裸奔</text>
+
+  <!-- Flow Steps -->
+  <g transform="translate(40, 95)">
+    <!-- 1. Specify (What & Why) -->
+    <g transform="translate(0, 0)">
+      <rect width="165" height="155" rx="8" fill="url(#stepGrad)" stroke="#38bdf8" stroke-width="1.5" filter="url(#loopShadow)"/>
+      <circle cx="28" cy="28" r="14" fill="#0284c7" fill-opacity="0.3" />
+      <text x="28" y="33" fill="#38bdf8" font-size="12" font-weight="bold" text-anchor="middle">1</text>
+      <text x="50" y="32" fill="#ffffff" font-size="14" font-weight="bold" font-family="sans-serif">Specify</text>
+      <text x="15" y="60" fill="#38bdf8" font-size="12" font-weight="bold" font-family="sans-serif">定义清晰规约</text>
+      <text x="15" y="80" fill="#94a3b8" font-size="11" font-family="sans-serif">• 业务背景与动机</text>
+      <text x="15" y="100" fill="#94a3b8" font-size="11" font-family="sans-serif">• 场景 (When/Then)</text>
+      <text x="15" y="120" fill="#94a3b8" font-size="11" font-family="sans-serif">• 输入输出契约</text>
+      <text x="15" y="142" fill="#38bdf8" font-size="10" font-weight="600" font-family="sans-serif">输出: spec.md</text>
+    </g>
+
+    <!-- Arrow 1 -->
+    <g transform="translate(170, 70)">
+      <line x1="0" y1="5" x2="20" y2="5" stroke="#38bdf8" stroke-width="2.5"/>
+      <polygon points="20,1 27,5 20,9" fill="#38bdf8" />
+    </g>
+
+    <!-- 2. Plan (How) -->
+    <g transform="translate(202, 0)">
+      <rect width="165" height="155" rx="8" fill="url(#stepGrad)" stroke="#818cf8" stroke-width="1.5" filter="url(#loopShadow)"/>
+      <circle cx="28" cy="28" r="14" fill="#4f46e5" fill-opacity="0.3" />
+      <text x="28" y="33" fill="#818cf8" font-size="12" font-weight="bold" text-anchor="middle">2</text>
+      <text x="50" y="32" fill="#ffffff" font-size="14" font-weight="bold" font-family="sans-serif">Plan / Design</text>
+      <text x="15" y="60" fill="#818cf8" font-size="12" font-weight="bold" font-family="sans-serif">拟定技术架构</text>
+      <text x="15" y="80" fill="#94a3b8" font-size="11" font-family="sans-serif">• 架构设计方案</text>
+      <text x="15" y="100" fill="#94a3b8" font-size="11" font-family="sans-serif">• 技术选型与权衡</text>
+      <text x="15" y="120" fill="#94a3b8" font-size="11" font-family="sans-serif">• 数据模型 / 接口</text>
+      <text x="15" y="142" fill="#818cf8" font-size="10" font-weight="600" font-family="sans-serif">输出: design.md</text>
+    </g>
+
+    <!-- Arrow 2 -->
+    <g transform="translate(372, 70)">
+      <line x1="0" y1="5" x2="20" y2="5" stroke="#818cf8" stroke-width="2.5"/>
+      <polygon points="20,1 27,5 20,9" fill="#818cf8" />
+    </g>
+
+    <!-- 3. Tasks (Breakdown) -->
+    <g transform="translate(404, 0)">
+      <rect width="165" height="155" rx="8" fill="url(#stepGrad)" stroke="#c084fc" stroke-width="1.5" filter="url(#loopShadow)"/>
+      <circle cx="28" cy="28" r="14" fill="#9333ea" fill-opacity="0.3" />
+      <text x="28" y="33" fill="#c084fc" font-size="12" font-weight="bold" text-anchor="middle">3</text>
+      <text x="50" y="32" fill="#ffffff" font-size="14" font-weight="bold" font-family="sans-serif">Tasks</text>
+      <text x="15" y="60" fill="#c084fc" font-size="12" font-weight="bold" font-family="sans-serif">原子拆解清单</text>
+      <text x="15" y="80" fill="#94a3b8" font-size="11" font-family="sans-serif">• 步骤极小化 (2-5m)</text>
+      <text x="15" y="100" fill="#94a3b8" font-size="11" font-family="sans-serif">• 明确依赖先后顺序</text>
+      <text x="15" y="120" fill="#94a3b8" font-size="11" font-family="sans-serif">• 附带自测验收标准</text>
+      <text x="15" y="142" fill="#c084fc" font-size="10" font-weight="600" font-family="sans-serif">输出: tasks.md</text>
+    </g>
+
+    <!-- Arrow 3 -->
+    <g transform="translate(574, 70)">
+      <line x1="0" y1="5" x2="20" y2="5" stroke="#c084fc" stroke-width="2.5"/>
+      <polygon points="20,1 27,5 20,9" fill="#c084fc" />
+    </g>
+
+    <!-- 4. Implement (Execution) -->
+    <g transform="translate(606, 0)">
+      <rect width="150" height="155" rx="8" fill="url(#stepGrad)" stroke="#f472b6" stroke-width="1.5" filter="url(#loopShadow)"/>
+      <circle cx="28" cy="28" r="14" fill="#db2777" fill-opacity="0.3" />
+      <text x="28" y="33" fill="#f472b6" font-size="12" font-weight="bold" text-anchor="middle">4</text>
+      <text x="50" y="32" fill="#ffffff" font-size="14" font-weight="bold" font-family="sans-serif">Implement</text>
+      <text x="15" y="60" fill="#f472b6" font-size="12" font-weight="bold" font-family="sans-serif">Agent 依约执行</text>
+      <text x="15" y="80" fill="#94a3b8" font-size="11" font-family="sans-serif">• 单任务专注编码</text>
+      <text x="15" y="100" fill="#94a3b8" font-size="11" font-family="sans-serif">• 随时检查规范边界</text>
+      <text x="15" y="120" fill="#94a3b8" font-size="11" font-family="sans-serif">• 任务逐项勾选打勾</text>
+      <text x="15" y="142" fill="#f472b6" font-size="10" font-weight="600" font-family="sans-serif">输出: 实际代码与测试</text>
+    </g>
+
+    <!-- Arrow 4 -->
+    <g transform="translate(761, 70)">
+      <line x1="0" y1="5" x2="20" y2="5" stroke="#f472b6" stroke-width="2.5"/>
+      <polygon points="20,1 27,5 20,9" fill="#f472b6" />
+    </g>
+
+    <!-- 5. Converge (Verification & Archive) -->
+    <g transform="translate(793, 0)">
+      <rect width="130" height="155" rx="8" fill="url(#stepGrad)" stroke="#34d399" stroke-width="1.5" filter="url(#loopShadow)"/>
+      <circle cx="28" cy="28" r="14" fill="#059669" fill-opacity="0.3" />
+      <text x="28" y="33" fill="#34d399" font-size="12" font-weight="bold" text-anchor="middle">5</text>
+      <text x="48" y="32" fill="#ffffff" font-size="14" font-weight="bold" font-family="sans-serif">Converge</text>
+      <text x="12" y="60" fill="#34d399" font-size="12" font-weight="bold" font-family="sans-serif">验证质检与收敛</text>
+      <text x="12" y="80" fill="#94a3b8" font-size="11" font-family="sans-serif">• 测试 100% 通过</text>
+      <text x="12" y="100" fill="#94a3b8" font-size="11" font-family="sans-serif">• 契约完全收敛</text>
+      <text x="12" y="120" fill="#94a3b8" font-size="11" font-family="sans-serif">• 变更归档合并</text>
+      <text x="12" y="142" fill="#34d399" font-size="10" font-weight="600" font-family="sans-serif">输出: 归档/主干 Spec</text>
+    </g>
+
+    <!-- Loop Back: Divergence or iterative refinement -->
+    <path d="M 858 160 C 858 215, 82 215, 82 160" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6,4" />
+    <polygon points="79,162 82,152 85,162" fill="#f59e0b" />
+    <text x="460" y="215" fill="#fbbf24" font-size="12" font-family="sans-serif" text-anchor="middle">⚠️ 未收敛 (Broken Tests / Spec 偏差) ➔ 反向回溯调整规约或任务，重跑实现</text>
+  </g>
+</svg>

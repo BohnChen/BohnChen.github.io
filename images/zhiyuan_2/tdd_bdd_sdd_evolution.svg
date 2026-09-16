@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 480" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgEvo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="tddCard" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.95" />
+    </linearGradient>
+    <linearGradient id="bddCard" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.95" />
+    </linearGradient>
+    <linearGradient id="sddCard" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2e1065" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.95" />
+    </linearGradient>
+    <filter id="cardShadow">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1000" height="480" fill="url(#bgEvo)" rx="12" />
+
+  <!-- Header -->
+  <text x="50" y="45" fill="#f8fafc" font-size="22" font-weight="bold" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">从 TDD、BDD 到 SDD：软件工程驱动范式的跃迁</text>
+  <text x="50" y="72" fill="#94a3b8" font-size="13" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">伴随 AI 认知能力的爆发，软件开发正经历从「代码为王」向「规约为主权」的根本性倒置</text>
+
+  <!-- Container for the 3 columns -->
+  <g transform="translate(50, 95)">
+    <!-- 1. TDD Card -->
+    <g transform="translate(0, 0)">
+      <rect width="280" height="345" rx="10" fill="url(#tddCard)" stroke="#334155" stroke-width="1.2" filter="url(#cardShadow)"/>
+      <rect x="18" y="16" width="68" height="24" rx="6" fill="#3b82f6" fill-opacity="0.2"/>
+      <text x="52" y="32" fill="#60a5fa" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="middle">TDD</text>
+      <text x="18" y="68" fill="#f1f5f9" font-size="16" font-weight="bold" font-family="sans-serif">测试驱动开发</text>
+      <text x="18" y="88" fill="#64748b" font-size="11" font-family="monospace">Test-Driven Development</text>
+      
+      <!-- Divider -->
+      <line x1="18" y1="102" x2="262" y2="102" stroke="#334155" stroke-width="1"/>
+
+      <text x="18" y="125" fill="#94a3b8" font-size="12" font-weight="bold" font-family="sans-serif">核心命题：</text>
+      <text x="18" y="145" fill="#cbd5e1" font-size="12" font-family="sans-serif">代码是否符合开发者的技术预期？</text>
+
+      <text x="18" y="175" fill="#94a3b8" font-size="12" font-weight="bold" font-family="sans-serif">典型循环：</text>
+      <text x="18" y="195" fill="#ef4444" font-size="12" font-weight="bold" font-family="sans-serif">红 (失败测试) → <tspan fill="#22c55e">绿 (通过实现)</tspan> → <tspan fill="#3b82f6">重构</tspan></text>
+
+      <text x="18" y="225" fill="#94a3b8" font-size="12" font-weight="bold" font-family="sans-serif">代码定位：</text>
+      <text x="18" y="245" fill="#e2e8f0" font-size="12" font-family="sans-serif">代码是核心资产，测试护航代码</text>
+
+      <text x="18" y="275" fill="#94a3b8" font-size="12" font-weight="bold" font-family="sans-serif">痛点与局限：</text>
+      <text x="18" y="295" fill="#94a3b8" font-size="11" font-family="sans-serif">偏向技术细节与函数级别单元，业务</text>
+      <text x="18" y="312" fill="#94a3b8" font-size="11" font-family="sans-serif">价值与需求易产生隔阂脱节。</text>
+    </g>
+
+    <!-- Arrow 1 -> 2 -->
+    <g transform="translate(285, 160)">
+      <line x1="2" y1="0" x2="18" y2="0" stroke="#64748b" stroke-width="2" stroke-dasharray="4,2"/>
+      <polygon points="18,-4 26,0 18,4" fill="#64748b" />
+    </g>
+
+    <!-- 2. BDD Card -->
+    <g transform="translate(310, 0)">
+      <rect width="280" height="345" rx="10" fill="url(#bddCard)" stroke="#0284c7" stroke-width="1.2" stroke-opacity="0.8" filter="url(#cardShadow)"/>
+      <rect x="18" y="16" width="68" height="24" rx="6" fill="#0284c7" fill-opacity="0.2"/>
+      <text x="52" y="32" fill="#38bdf8" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="middle">BDD</text>
+      <text x="18" y="68" fill="#f1f5f9" font-size="16" font-weight="bold" font-family="sans-serif">行为驱动开发</text>
+      <text x="18" y="88" fill="#64748b" font-size="11" font-family="monospace">Behavior-Driven Development</text>
+      
+      <!-- Divider -->
+      <line x1="18" y1="102" x2="262" y2="102" stroke="#334155" stroke-width="1"/>
+
+      <text x="18" y="125" fill="#94a3b8" font-size="12" font-weight="bold" font-family="sans-serif">核心命题：</text>
+      <text x="18" y="145" fill="#cbd5e1" font-size="12" font-family="sans-serif">软件行为是否符合业务方预期？</text>
+
+      <text x="18" y="175" fill="#94a3b8" font-size="12" font-weight="bold" font-family="sans-serif">通用语境：</text>
+      <text x="18" y="195" fill="#38bdf8" font-size="12" font-family="monospace">Given (前提) - When - Then (结果)</text>
+
+      <text x="18" y="225" fill="#94a3b8" font-size="12" font-weight="bold" font-family="sans-serif">代码定位：</text>
+      <text x="18" y="245" fill="#e2e8f0" font-size="12" font-family="sans-serif">业务场景统一认知，驱动代码实现</text>
+
+      <text x="18" y="275" fill="#94a3b8" font-size="12" font-weight="bold" font-family="sans-serif">痛点与局限：</text>
+      <text x="18" y="295" fill="#94a3b8" font-size="11" font-family="sans-serif">维护 Gherkin 脚本成本高；人工将自然</text>
+      <text x="18" y="312" fill="#94a3b8" font-size="11" font-family="sans-serif">语言翻译为胶水代码仍然极其耗时。</text>
+    </g>
+
+    <!-- Arrow 2 -> 3 -->
+    <g transform="translate(595, 160)">
+      <line x1="2" y1="0" x2="18" y2="0" stroke="#a855f7" stroke-width="2.5"/>
+      <polygon points="18,-4 26,0 18,4" fill="#a855f7" />
+    </g>
+
+    <!-- 3. SDD Card -->
+    <g transform="translate(620, 0)">
+      <rect width="280" height="345" rx="10" fill="url(#sddCard)" stroke="#a855f7" stroke-width="1.8" filter="url(#cardShadow)"/>
+      <rect x="18" y="16" width="68" height="24" rx="6" fill="#a855f7" fill-opacity="0.3"/>
+      <text x="52" y="32" fill="#d8b4fe" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="middle">SDD</text>
+      <text x="18" y="68" fill="#f8fafc" font-size="16" font-weight="bold" font-family="sans-serif">规范驱动开发 ⚡️</text>
+      <text x="18" y="88" fill="#a855f7" font-size="11" font-family="monospace">Spec-Driven Development</text>
+      
+      <!-- Divider -->
+      <line x1="18" y1="102" x2="262" y2="102" stroke="#4c1d95" stroke-width="1"/>
+
+      <text x="18" y="125" fill="#d8b4fe" font-size="12" font-weight="bold" font-family="sans-serif">核心命题：</text>
+      <text x="18" y="145" fill="#ffffff" font-size="12" font-weight="bold" font-family="sans-serif">规约即源头：精确规范直接合成代码</text>
+
+      <text x="18" y="175" fill="#d8b4fe" font-size="12" font-weight="bold" font-family="sans-serif">执行范式：</text>
+      <text x="18" y="195" fill="#fbcfe8" font-size="12" font-family="monospace">Specify → Plan → Tasks → Gen Code</text>
+
+      <text x="18" y="225" fill="#d8b4fe" font-size="12" font-weight="bold" font-family="sans-serif">根本性倒置 (Power Inversion)：</text>
+      <text x="18" y="245" fill="#38bdf8" font-size="12" font-weight="bold" font-family="sans-serif">Spec 成为一等资产，代码只是衍生品</text>
+
+      <text x="18" y="275" fill="#d8b4fe" font-size="12" font-weight="bold" font-family="sans-serif">AI 时代红利：</text>
+      <text x="18" y="295" fill="#e2e8f0" font-size="11" font-family="sans-serif">人只把控契约与质量；AI 承担机械</text>
+      <text x="18" y="312" fill="#e2e8f0" font-size="11" font-family="sans-serif">翻译与代码实现，生产力指数级释放。</text>
+    </g>
+  </g>
+</svg>
