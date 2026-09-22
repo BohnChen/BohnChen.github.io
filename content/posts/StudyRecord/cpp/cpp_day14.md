@@ -176,6 +176,127 @@ int main() {
 }
 ```
 
+---
 
-## 虚基指针和
+## 多基派生的二义性
+
+多基派生虽然允许派生类聚合多个父类的能力，但随之而来的最核心痛点就是**二义性（Ambiguity）**。二义性本质上分为两大类：**成员名字二义性**与**继承路径/层次二义性**。
+
+### 1. 成员名字二义性
+
+#### (1) 触发场景
+当两个或多个基类中拥有**同名成员（不管是成员变量还是成员函数）**时，派生类对象如果直接通过成员名访问，编译器就无法确定到底指向哪一个基类的版本，直接编译报错。
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class BaseA {
+public:
+    int data = 10;
+    void print() { cout << "BaseA::print()\n"; }
+};
+
+class BaseB {
+public:
+    int data = 20;
+    void print() { cout << "BaseB::print()\n"; }
+    void print(int x) { cout << "BaseB::print(" << x << ")\n"; } // 重载版本
+};
+
+class Derived : public BaseA, public BaseB {
+};
+
+int main() {
+    Derived d;
+    // 错误 1：访问变量二义性
+    // cout << d.data << endl; // 报错：request for member 'data' is ambiguous
+
+    // 错误 2：调用函数二义性
+    // d.print(); // 报错：request for member 'print' is ambiguous
+
+    // 关键陷阱：重载不能跨作用域匹配！
+    // d.print(5); // 依然报错！即使参数唯一匹配，也会直接判定名字冲突！
+}
+```
+
+> **底层规则提示**：
+> C++ 的解析顺序是**先名字查找（Name Lookup），再做重载决议（Overload Resolution）**。
+> `d.print(5)` 在查找符号 `print` 时，发现同时存在于 `BaseA` 与 `BaseB` 两个平行独立的作用域中，编译器在这一步便立即报出“名字二义性”，根本不会进入判断形参匹配的步骤。
+
+#### (2) 解决方案
+
+- **方案一：调用方显式使用作用域限定符（`::`）**
+  ```cpp
+  d.BaseA::data = 100;
+  d.BaseB::print();
+  d.BaseB::print(5);
+  ```
+- **方案二：类定义内使用 `using` 声明提升作用域**
+  ```cpp
+  class Derived : public BaseA, public BaseB {
+  public:
+      using BaseA::print;
+      using BaseB::print; 
+      // 将两个父类的 print 提升至 Derived 作用域构成重载组合
+      // 此时 d.print(5) 即可精确匹配 BaseB::print(int)
+  };
+  ```
+- **方案三：派生类显式重写并隐藏基类同名成员**
+  ```cpp
+  class Derived : public BaseA, public BaseB {
+  public:
+      void print() {
+          BaseA::print();
+          BaseB::print();
+      }
+  };
+  ```
+
+---
+
+### 2. 虚函数多态环境下的二义性
+
+若多个基类中存在同签名的纯虚或虚函数：
+```cpp
+class BaseA {
+public:
+    virtual void show() { cout << "BaseA::show\n"; }
+};
+
+class BaseB {
+public:
+    virtual void show() { cout << "BaseB::show\n"; }
+};
+
+class Derived : public BaseA, public BaseB {
+public:
+    void show() override { cout << "Derived::show\n"; }
+};
+```
+
+- **对象直调**：`d.show()` 不存在二义性，因为派生类的 `show` 屏蔽了基类的同名方法。
+- **基类指针多态调用**：
+  ```cpp
+  BaseA* pa = &d;
+  pa->show(); // 输出 Derived::show
+
+  BaseB* pb = &d;
+  pb->show(); // 输出 Derived::show（通过 Thunk 修正 this 正常调用）
+  ```
+  **均不会产生二义性**。这是因为 `Derived::show()` 构成了 `BaseA` 和 `BaseB` 对应虚表槽位的**最终重写者（final overrider）**。
+
+---
+
+### 3. 继承路径二义性（菱形继承问题的前奏）
+
+当继承图谱呈现如下分叉汇合结构时：
+```text
+      CommonBase
+      /        \
+   BaseA      BaseB
+      \        /
+       Derived
+```
+若使用普通的非虚继承，`Derived` 对象内部将同时存在两份完全独立的 `CommonBase` 子对象，不仅浪费空间，在直接访问 `CommonBase` 的成员时也会因为路径不唯一引发严重的路径二义性。为了从根本上消除这种二义性，C++ 引入了**虚拟继承（Virtual Inheritance）**。
 
