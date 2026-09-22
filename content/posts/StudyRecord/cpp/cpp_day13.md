@@ -11,7 +11,7 @@ tags: ["c/c++", "技术学习"]
 
 ## 虚函数
 从前面我们知道，用`virtual`关键字修饰的函数是虚函数，比如下方的`display()`就是一个虚函数，一旦基类中写了`virtual`关键字，派生类中即使不写`virtual`关键字，也是虚函数。我们推荐写上`override`关键字，是因为这样可以让编译器帮你检查是否有错误。
-```
+```c++
 class Base {
 public:
   Base(int a) : _ia(a) { cout << "Base(int a)" << endl; }
