@@ -25,7 +25,7 @@ tags: ["AI", "技术学习"]
 1. 它有一本“内置字典”（词表，通常包含 3 万到 10 几万个词元）。
 2. 它把人类的文本切碎，每个碎片如果能在字典里找到，就给它一个编号（ID）。这个碎片和编号就叫 **Token**。
 
-具体来讲：
+目前主流的大模型大多采用 **BPE（Byte-Pair Encoding，字节对编码）** 或基于其演进的分词算法（如 GPT-4 采用的 `cl100k_base`、Llama 采用的 SentencePiece BPE、Qwen 采用的分词器）。它的切分逻辑不是死记硬背每个词，而是统计高频出现的字符组合：
 
 - **英文中**：一个 Token 大约等于 0.75 个英文单词，或者 3~4 个字母。
   - 常见单词 `"apple"`，字典里直接有，算 1 个 Token。
@@ -52,10 +52,17 @@ tags: ["AI", "技术学习"]
 - 如果一个模型的速度是 50 tokens/s，意味着它 1 秒钟能吐出 50 个 Token。
 - 换算成人类阅读速度，大概就是 1 秒钟能在屏幕上打出 30~40 个汉字，肉眼看已经非常快了（像极速打字机）。
 
-所以新闻上的“实测 Prefill 速度达到 300+ tok/s，Decode 速度达到 20+ tok/s”，意思其实是：**预填充速度达到了两三百汉字每秒，解码（回答你）速度达到了十几二十个汉字每秒。**
+那么，为什么新闻里的实测指标要把速度拆成 **Prefill（预填充）** 和 **Decode（解码）** 两个完全不同的量级（300+ vs 20+）呢？
 
-> **什么是 Prefill？**  
-> 当你在聊天框里复制了一大篇几千字的文章发给 AI，并问它“帮我总结一下”。AI 在打出第一个字之前，必须先把你的这几千个字（提示词/输入上下文）全塞进脑子里快速过一遍。这个“一口气吞下所有输入并理解”的过程，就叫 **Prefill（预填充）**。
+![大模型推理双阶段对比：Prefill 与 Decode](/images/ai_era/prefill_decode_diagram.png)
+
+这两个阶段有着根本性的计算与硬件瓶颈差异：
+
+1. **Prefill（预填充阶段，300+ tok/s）**：  
+   当你在聊天框里贴了一篇几千字的长文并发送“帮我总结”，AI 在生成第一个回复字符之前，必须先将整个输入上下文一口气处理完毕。由于此时的所有提示词是已知的，GPU 可以利用强大的矩阵运算能力对这些输入 Token 进行**完全并行计算**。这一阶段属于算力受限（Compute-bound），因此吞吐极高，能跑出几百甚至上千 tok/s。
+
+2. **Decode（自回归解码阶段，20+ tok/s）**：  
+   到了模型开始回答吐字的阶段，它必须每生成一个 Token，将其追加到历史序列中，才能计算下一个 Token。这种**单步串行依赖**导致 GPU 无法提前并行，每生成一个 Token 都需要从高带宽显存中把庞大的数十 GB 权重参数完整读取一遍。这一阶段属于内存带宽受限（Memory-bound），因此速度会显著回落到每秒十几到几十个 Token，这也是我们肉眼看到的“打字机流式输出速度”。
 
 ---
 
@@ -66,3 +73,27 @@ tags: ["AI", "技术学习"]
 哎？那你可能会有疑问：难道 AI 回答问题，纯粹就是词句的再组合吗？它到底会不会思考？它怎么知道该什么时候、怎么拼词？如果它思考怎么拼词，这个思考过程本身又耗不消耗 Token？
 
 我们下一篇来探讨一下。
+
+---
+
+## 参考文献与延伸阅读
+
+1. **Neural Machine Translation of Rare Words with Subword Units**  
+   Sennrich, R., Haddow, B., & Birch, A. (2016). *Proceedings of the 54th Annual Meeting of the Association for Computational Linguistics (ACL 2016)*, pp. 1715–1725.  
+   [arXiv:1508.07909](https://arxiv.org/abs/1508.07909)  
+   *（将 BPE 算法引入自然语言处理的开山之作，奠定了现代大模型子词分词器 Tokenizer 的切分机制。）*
+
+2. **RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control**  
+   Brohan, A., Chebotar, Y., Finn, C., Hausman, K., Herzog, A., Ho, D., Julian, R., Ibarz, J., Irpan, A., Jang, E., et al. (2023). *arXiv preprint*.  
+   [arXiv:2307.15818](https://arxiv.org/abs/2307.15818)  
+   *（Google 具身智能经典论文，展示了如何将机械臂的末端轨迹与离散动作空间直接映射为 Token 序列，与文本 Token 一同自回归预测。）*
+
+3. **Efficient Memory Management for Large Language Model Serving with PagedAttention (vLLM)**  
+   Kwon, W., Li, Z., Zhuang, S., Sheng, Y., Zheng, L., Yu, C. H., Gonzalez, J. E., Zhang, H., & Stoica, I. (2023). *Proceedings of the 29th ACM Symposium on Operating Systems Principles (SOSP 2023)*.  
+   [arXiv:2309.06180](https://arxiv.org/abs/2309.06180)  
+   *（系统论述了大模型服务中 Prefill（Compute-bound）与 Decode（Memory-bound）两阶段的根本差异及 KV Cache 内存优化机制。）*
+
+4. **OpenAI Platform Documentation: What are tokens and how to count them?**  
+   OpenAI. (2024). *OpenAI Official Guides & Tokenizer Tool*.  
+   [https://platform.openai.com/tokenizer](https://platform.openai.com/tokenizer)  
+   *（OpenAI 官方关于 Token 计算规则、不同语言切分比率以及计费计量方式的权威指南。）*
