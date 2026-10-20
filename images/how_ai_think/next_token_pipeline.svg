@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 360" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="flowBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+
+    <!-- Node Gradient 1 -->
+    <linearGradient id="nodeGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+
+    <!-- Node Highlight Gradient -->
+    <linearGradient id="nodeGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#312e81" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+
+    <!-- Filter for glow -->
+    <filter id="boxShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1000" height="360" rx="16" fill="url(#flowBg)" stroke="#334155" stroke-width="1.5" />
+
+  <!-- Diagram Title -->
+  <text x="50" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif" font-size="20" font-weight="700" fill="#f8fafc">
+    大模型生成下一个词（Next-Token）的完整流水线
+  </text>
+  <text x="50" y="74" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif" font-size="13" fill="#94a3b8">
+    从输入文本切片，经由几何向量与注意力交互，映射到词表概率分布并采样输出
+  </text>
+
+  <!-- Step 1: Tokenizer & Embedding -->
+  <g transform="translate(50, 105)" filter="url(#boxShadow)">
+    <rect width="180" height="190" rx="12" fill="url(#nodeGrad1)" stroke="#38bdf8" stroke-width="1.5" />
+    <rect x="15" y="15" width="28" height="28" rx="6" fill="#0284c7" fill-opacity="0.3" />
+    <text x="23" y="34" font-family="sans-serif" font-size="14" fill="#38bdf8">1</text>
+    <text x="52" y="34" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="700" fill="#f8fafc">向量表征</text>
+    <text x="15" y="65" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#38bdf8">Embedding</text>
+    <line x1="15" y1="78" x2="165" y2="78" stroke="#334155" stroke-width="1" />
+    <text x="15" y="102" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#cbd5e1" line-height="1.5">
+      <tspan x="15" dy="0">• 文本拆为 Token 编号</tspan>
+      <tspan x="15" dy="22">• 映射至多维空间坐标</tspan>
+      <tspan x="15" dy="22">• 语义相近的词距离更近</tspan>
+      <tspan x="15" dy="22">• 融入位置编码信息</tspan>
+    </text>
+  </g>
+
+  <!-- Arrow 1 -> 2 -->
+  <g stroke="#64748b" stroke-width="2" fill="none">
+    <path d="M 235 200 L 275 200" marker-end="url(#arrow)" />
+    <polygon points="275,195 285,200 275,205" fill="#64748b" />
+  </g>
+
+  <!-- Step 2: Attention Layers -->
+  <g transform="translate(290, 105)" filter="url(#boxShadow)">
+    <rect width="200" height="190" rx="12" fill="url(#nodeGrad2)" stroke="#818cf8" stroke-width="2" />
+    <rect x="15" y="15" width="28" height="28" rx="6" fill="#4338ca" fill-opacity="0.5" />
+    <text x="23" y="34" font-family="sans-serif" font-size="14" fill="#a5b4fc">2</text>
+    <text x="52" y="34" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="700" fill="#ffffff">自注意力交互</text>
+    <text x="15" y="65" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#a5b4fc">Self-Attention</text>
+    <line x1="15" y1="78" x2="185" y2="78" stroke="#4338ca" stroke-width="1" />
+    <text x="15" y="102" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#e2e8f0" line-height="1.5">
+      <tspan x="15" dy="0">• 词与词双向计算关联度</tspan>
+      <tspan x="15" dy="22">• 动态吸收语境上下文</tspan>
+      <tspan x="15" dy="22">• 例：“苹果”+“发布会”</tspan>
+      <tspan x="15" dy="22">• 几十层 Transformer 迭代</tspan>
+    </text>
+  </g>
+
+  <!-- Arrow 2 -> 3 -->
+  <g stroke="#64748b" stroke-width="2" fill="none">
+    <polygon points="495,195 505,200 495,205" fill="#64748b" />
+  </g>
+
+  <!-- Step 3: Logits & Softmax -->
+  <g transform="translate(510, 105)" filter="url(#boxShadow)">
+    <rect width="210" height="190" rx="12" fill="url(#nodeGrad1)" stroke="#c084fc" stroke-width="1.5" />
+    <rect x="15" y="15" width="28" height="28" rx="6" fill="#7e22ce" fill-opacity="0.3" />
+    <text x="23" y="34" font-family="sans-serif" font-size="14" fill="#c084fc">3</text>
+    <text x="52" y="34" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="700" fill="#f8fafc">概率分布计算</text>
+    <text x="15" y="65" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#c084fc">Logits &amp; Softmax</text>
+    <line x1="15" y1="78" x2="195" y2="78" stroke="#334155" stroke-width="1" />
+    <text x="15" y="102" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#cbd5e1" line-height="1.5">
+      <tspan x="15" dy="0">• 线性投影至全词表空间</tspan>
+      <tspan x="15" dy="22">• 32,000+ 词元打分 (Logits)</tspan>
+      <tspan x="15" dy="22">• Softmax 归一化为概率</tspan>
+      <tspan x="15" dy="22">• 形成概率累积总和为 100%</tspan>
+    </text>
+  </g>
+
+  <!-- Arrow 3 -> 4 -->
+  <g stroke="#64748b" stroke-width="2" fill="none">
+    <polygon points="725,195 735,200 725,205" fill="#64748b" />
+  </g>
+
+  <!-- Step 4: Sampling & Output -->
+  <g transform="translate(740, 105)" filter="url(#boxShadow)">
+    <rect width="210" height="190" rx="12" fill="url(#nodeGrad1)" stroke="#10b981" stroke-width="1.5" />
+    <rect x="15" y="15" width="28" height="28" rx="6" fill="#047857" fill-opacity="0.3" />
+    <text x="23" y="34" font-family="sans-serif" font-size="14" fill="#34d399">4</text>
+    <text x="52" y="34" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="700" fill="#f8fafc">采样与输出</text>
+    <text x="15" y="65" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#34d399">Sampling &amp; Decode</text>
+    <line x1="15" y1="78" x2="195" y2="78" stroke="#334155" stroke-width="1" />
+    <text x="15" y="102" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#cbd5e1" line-height="1.5">
+      <tspan x="15" dy="0">• 贪心搜索 (Greedy) 或</tspan>
+      <tspan x="15" dy="22">• Temperature / Top-p 采样</tspan>
+      <tspan x="15" dy="22">• 输出选中的 1 个 Token</tspan>
+      <tspan x="15" dy="22">• 滚入输入序列继续自回归</tspan>
+    </text>
+  </g>
+
+  <!-- Loopback connection indicator -->
+  <path d="M 845 300 C 845 335 140 335 140 300" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 4" />
+  <polygon points="140,297 136,305 144,305" fill="#38bdf8" />
+  <text x="490" y="332" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#38bdf8" text-anchor="middle">
+    将新生成的 Token 追加至上下文末尾，循环启动下一次预测（自回归 Autoregressive）
+  </text>
+</svg>
