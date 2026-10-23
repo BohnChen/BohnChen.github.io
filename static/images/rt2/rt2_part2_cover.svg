@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1120" />
+      <stop offset="50%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+
+    <!-- Ambient Glows -->
+    <radialGradient id="glowLeft" cx="20%" cy="30%" r="55%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="glowRight" cx="80%" cy="65%" r="50%">
+      <stop offset="0%" stop-color="#818cf8" stop-opacity="0.28" />
+      <stop offset="100%" stop-color="#818cf8" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Card Gradients -->
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.95" />
+    </linearGradient>
+
+    <!-- Action Token Pill Gradients -->
+    <linearGradient id="tokenGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="tokenGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#6d28d9" />
+    </linearGradient>
+    <linearGradient id="tokenGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Layer -->
+  <rect width="1200" height="630" fill="url(#bgGrad)" />
+  <rect width="1200" height="630" fill="url(#glowLeft)" />
+  <rect width="1200" height="630" fill="url(#glowRight)" />
+
+  <!-- Subtle Grid Pattern -->
+  <g stroke="#334155" stroke-width="1" opacity="0.15">
+    <path d="M 0,90 L 1200,90 M 0,180 L 1200,180 M 0,270 L 1200,270 M 0,360 L 1200,360 M 0,450 L 1200,450 M 0,540 L 1200,540" />
+    <path d="M 150,0 L 150,630 M 300,0 L 300,630 M 450,0 L 450,630 M 600,0 L 600,630 M 750,0 L 750,630 M 900,0 L 900,630 M 1050,0 L 1050,630" />
+  </g>
+
+  <!-- Top Badge -->
+  <g transform="translate(80, 75)">
+    <rect width="210" height="34" rx="17" fill="#0369a1" fill-opacity="0.3" stroke="#38bdf8" stroke-width="1.2" />
+    <circle cx="18" cy="17" r="5" fill="#38bdf8" />
+    <text x="34" y="22" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif" font-size="13" font-weight="600" fill="#bae6fd" letter-spacing="1">RT-2 论文精读 · 第二篇</text>
+  </g>
+
+  <!-- Main Title Area -->
+  <text x="80" y="165" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Noto Sans SC', sans-serif" font-size="46" font-weight="800" fill="#f8fafc" letter-spacing="-0.5">
+    动作是如何伪装成词元的？
+  </text>
+  <text x="80" y="215" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Noto Sans SC', sans-serif" font-size="22" font-weight="400" fill="#94a3b8">
+    从连续物理量到 256 格装箱，再到端到端大模型词表映射
+  </text>
+
+  <!-- Flow Visual Cards (Three Steps) -->
+  
+  <!-- Step 1: Continuous Action -->
+  <g transform="translate(80, 265)">
+    <rect width="310" height="230" rx="16" fill="url(#cardGrad)" stroke="#334155" stroke-width="1.5" />
+    <rect x="20" y="20" width="80" height="24" rx="12" fill="#0284c7" fill-opacity="0.2" stroke="#38bdf8" stroke-width="1" />
+    <text x="32" y="36" font-family="-apple-system, sans-serif" font-size="11" font-weight="700" fill="#38bdf8">STEP 01</text>
+    
+    <text x="20" y="78" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="18" font-weight="700" fill="#f1f5f9">物理连续动作 (8维)</text>
+    <text x="20" y="104" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="13" fill="#64748b">末端平移 · 姿态旋转 · 夹爪 · 终止</text>
+
+    <!-- Formula / Values Display -->
+    <rect x="20" y="128" width="270" height="74" rx="8" fill="#090d16" stroke="#1e293b" />
+    <text x="32" y="152" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" fill="#94a3b8">Δx, Δy, Δz: [-0.05, 0.05] m</text>
+    <text x="32" y="174" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" fill="#38bdf8">[-0.012, +0.035, -0.005...]</text>
+    <text x="32" y="193" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#475569">带浮点数的真实物理位移量</text>
+  </g>
+
+  <!-- Arrow 1 -> 2 -->
+  <g transform="translate(405, 365)" stroke="#38bdf8" stroke-width="2.5" fill="none">
+    <path d="M 0,0 L 20,0" stroke-linecap="round" />
+    <path d="M 12,-6 L 20,0 L 12,6" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+
+  <!-- Step 2: Binning Quantization -->
+  <g transform="translate(440, 265)">
+    <rect width="310" height="230" rx="16" fill="url(#cardGrad)" stroke="#334155" stroke-width="1.5" />
+    <rect x="20" y="20" width="80" height="24" rx="12" fill="#7c3aed" fill-opacity="0.2" stroke="#a78bfa" stroke-width="1" />
+    <text x="32" y="36" font-family="-apple-system, sans-serif" font-size="11" font-weight="700" fill="#a78bfa">STEP 02</text>
+    
+    <text x="20" y="78" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="18" font-weight="700" fill="#f1f5f9">256 格离散装箱</text>
+    <text x="20" y="104" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="13" fill="#64748b">按比例等分，将浮点数装入收纳盒</text>
+
+    <!-- Formula Display -->
+    <rect x="20" y="128" width="270" height="74" rx="8" fill="#090d16" stroke="#1e293b" />
+    <text x="32" y="152" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" fill="#c084fc">bin = round(255 × (v - vmin)/range)</text>
+    <text x="32" y="174" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" fill="#e2e8f0">[112, 203, 115, 130, 98...]</text>
+    <text x="32" y="193" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#475569">变成 8 个在 [0, 255] 的纯整数</text>
+  </g>
+
+  <!-- Arrow 2 -> 3 -->
+  <g transform="translate(765, 365)" stroke="#a78bfa" stroke-width="2.5" fill="none">
+    <path d="M 0,0 L 20,0" stroke-linecap="round" />
+    <path d="M 12,-6 L 20,0 L 12,6" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+
+  <!-- Step 3: VLM Action Token Output -->
+  <g transform="translate(800, 265)">
+    <rect width="320" height="230" rx="16" fill="url(#cardGrad)" stroke="#6366f1" stroke-width="1.8" />
+    <rect x="20" y="20" width="80" height="24" rx="12" fill="#10b981" fill-opacity="0.2" stroke="#34d399" stroke-width="1" />
+    <text x="32" y="36" font-family="-apple-system, sans-serif" font-size="11" font-weight="700" fill="#34d399">STEP 03</text>
+    
+    <text x="20" y="78" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="18" font-weight="700" fill="#f1f5f9">借用原生词表输出</text>
+    <text x="20" y="104" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="13" fill="#64748b">大模型做自然语言接龙，直接输出指令</text>
+
+    <!-- Token Pill Container -->
+    <rect x="20" y="128" width="280" height="74" rx="8" fill="#090d16" stroke="#1e293b" />
+    <text x="32" y="152" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="12" fill="#94a3b8">输出文本字符串 (Autoregressive):</text>
+    
+    <!-- Token Badges -->
+    <g transform="translate(32, 163)">
+      <rect width="38" height="24" rx="6" fill="url(#tokenGrad1)" />
+      <text x="19" y="16" font-family="ui-monospace, monospace" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">112</text>
+      
+      <rect x="44" width="38" height="24" rx="6" fill="url(#tokenGrad1)" />
+      <text x="63" y="16" font-family="ui-monospace, monospace" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">203</text>
+      
+      <rect x="88" width="38" height="24" rx="6" fill="url(#tokenGrad2)" />
+      <text x="107" y="16" font-family="ui-monospace, monospace" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">115</text>
+
+      <rect x="132" width="38" height="24" rx="6" fill="url(#tokenGrad2)" />
+      <text x="151" y="16" font-family="ui-monospace, monospace" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">130</text>
+
+      <rect x="176" width="30" height="24" rx="6" fill="#334155" />
+      <text x="191" y="16" font-family="ui-monospace, monospace" font-size="12" font-weight="700" fill="#cbd5e1" text-anchor="middle">...</text>
+    </g>
+  </g>
+
+  <!-- Bottom Footer Info -->
+  <g transform="translate(80, 545)">
+    <circle cx="6" cy="6" r="4" fill="#10b981" />
+    <text x="22" y="10" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="13" fill="#64748b">端到端映射 · 视觉语言动作模型 (VLA) · 不需要新增专有控制头</text>
+  </g>
+</svg>
