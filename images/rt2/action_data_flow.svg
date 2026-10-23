@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 420" width="100%" height="100%">
+  <defs>
+    <linearGradient id="flowBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0f1d" />
+      <stop offset="100%" stop-color="#111827" />
+    </linearGradient>
+
+    <linearGradient id="cardBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+
+    <linearGradient id="boxBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#0369a1" />
+    </linearGradient>
+
+    <linearGradient id="boxPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#6d28d9" />
+    </linearGradient>
+
+    <linearGradient id="boxGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1100" height="420" rx="16" fill="url(#flowBg)" stroke="#1e293b" stroke-width="1.5" />
+
+  <!-- Top Title -->
+  <text x="50" y="50" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="20" font-weight="700" fill="#f8fafc">
+    机械臂动作的端到端数据流向
+  </text>
+  <text x="50" y="76" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="13" fill="#64748b">
+    从人类输入到电机执行，大模型直接一步到位生成 8 个动作 Token
+  </text>
+
+  <!-- Node 1: Inputs (Vision + Instruction) -->
+  <g transform="translate(50, 110)">
+    <rect width="210" height="250" rx="12" fill="url(#cardBg)" stroke="#334155" stroke-width="1.2" />
+    <text x="20" y="32" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="14" font-weight="700" fill="#38bdf8">1. 多模态输入</text>
+    
+    <!-- Image block -->
+    <rect x="20" y="52" width="170" height="85" rx="8" fill="#0f172a" stroke="#1e293b" />
+    <text x="35" y="86" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="12" fill="#94a3b8">📷 摄像头图片</text>
+    <text x="35" y="108" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#475569">(切分为视觉 Patch)</text>
+
+    <!-- Text prompt block -->
+    <rect x="20" y="148" width="170" height="75" rx="8" fill="#0f172a" stroke="#1e293b" />
+    <text x="30" y="174" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="12" fill="#94a3b8">💬 人类语言指令</text>
+    <text x="30" y="200" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#38bdf8">"拿起灭绝的动物"</text>
+  </g>
+
+  <!-- Arrow 1 -> 2 -->
+  <g transform="translate(275, 230)" stroke="#38bdf8" stroke-width="2" fill="none">
+    <path d="M 0,0 L 25,0" stroke-linecap="round" />
+    <path d="M 17,-5 L 25,0 L 17,5" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+
+  <!-- Node 2: The VLA Backbone (Inside the Blackbox) -->
+  <g transform="translate(315, 110)">
+    <rect width="270" height="250" rx="12" fill="url(#cardBg)" stroke="#6366f1" stroke-width="1.5" />
+    <text x="20" y="32" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="14" font-weight="700" fill="#a78bfa">2. VLA 大脑（单模型端到端）</text>
+
+    <rect x="18" y="52" width="234" height="60" rx="8" fill="#1e1b4b" stroke="#4338ca" />
+    <text x="30" y="76" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="12" font-weight="600" fill="#e0e7ff">互联网常识与语义推理</text>
+    <text x="30" y="96" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#a5b4fc">"灭绝动物 = 画面左侧恐龙玩偶"</text>
+
+    <rect x="18" y="122" width="234" height="60" rx="8" fill="#1e1b4b" stroke="#4338ca" />
+    <text x="30" y="146" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="12" font-weight="600" fill="#e0e7ff">注意力对齐与位姿映射</text>
+    <text x="30" y="166" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#a5b4fc">机械臂末端直接向目标位置规划</text>
+
+    <text x="20" y="215" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#64748b">无需文本中转，直接利用 Softmax 头</text>
+    <text x="20" y="233" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#64748b">自回归预测动作 Token</text>
+  </g>
+
+  <!-- Arrow 2 -> 3 -->
+  <g transform="translate(600, 230)" stroke="#a78bfa" stroke-width="2" fill="none">
+    <path d="M 0,0 L 25,0" stroke-linecap="round" />
+    <path d="M 17,-5 L 25,0 L 17,5" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+
+  <!-- Node 3: 8 Action Tokens -->
+  <g transform="translate(640, 110)">
+    <rect width="210" height="250" rx="12" fill="url(#cardBg)" stroke="#334155" stroke-width="1.2" />
+    <text x="20" y="32" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="14" font-weight="700" fill="#34d399">3. 动作 Token 序列</text>
+
+    <text x="20" y="60" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#64748b">自原生词表中逐字蹦出：</text>
+
+    <!-- Token list -->
+    <g transform="translate(20, 75)">
+      <rect width="40" height="22" rx="5" fill="url(#boxBlue)" />
+      <text x="20" y="15" font-family="monospace" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">112</text>
+      <text x="48" y="15" font-family="-apple-system, sans-serif" font-size="11" fill="#94a3b8">Δx</text>
+
+      <g transform="translate(85, 0)">
+        <rect width="40" height="22" rx="5" fill="url(#boxBlue)" />
+        <text x="20" y="15" font-family="monospace" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">203</text>
+        <text x="48" y="15" font-family="-apple-system, sans-serif" font-size="11" fill="#94a3b8">Δy</text>
+      </g>
+
+      <g transform="translate(0, 32)">
+        <rect width="40" height="22" rx="5" fill="url(#boxBlue)" />
+        <text x="20" y="15" font-family="monospace" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">115</text>
+        <text x="48" y="15" font-family="-apple-system, sans-serif" font-size="11" fill="#94a3b8">Δz</text>
+      </g>
+
+      <g transform="translate(85, 32)">
+        <rect width="40" height="22" rx="5" fill="url(#boxPurple)" />
+        <text x="20" y="15" font-family="monospace" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">130</text>
+        <text x="48" y="15" font-family="-apple-system, sans-serif" font-size="11" fill="#94a3b8">roll</text>
+      </g>
+
+      <g transform="translate(0, 64)">
+        <rect width="40" height="22" rx="5" fill="url(#boxPurple)" />
+        <text x="20" y="15" font-family="monospace" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">98</text>
+        <text x="48" y="15" font-family="-apple-system, sans-serif" font-size="11" fill="#94a3b8">pitch</text>
+      </g>
+
+      <g transform="translate(85, 64)">
+        <rect width="40" height="22" rx="5" fill="url(#boxPurple)" />
+        <text x="20" y="15" font-family="monospace" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">128</text>
+        <text x="48" y="15" font-family="-apple-system, sans-serif" font-size="11" fill="#94a3b8">yaw</text>
+      </g>
+
+      <g transform="translate(0, 96)">
+        <rect width="40" height="22" rx="5" fill="url(#boxGreen)" />
+        <text x="20" y="15" font-family="monospace" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">255</text>
+        <text x="48" y="15" font-family="-apple-system, sans-serif" font-size="11" fill="#94a3b8">爪闭</text>
+      </g>
+
+      <g transform="translate(85, 96)">
+        <rect width="40" height="22" rx="5" fill="#334155" />
+        <text x="20" y="15" font-family="monospace" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">0</text>
+        <text x="48" y="15" font-family="-apple-system, sans-serif" font-size="11" fill="#94a3b8">继续</text>
+      </g>
+    </g>
+
+    <text x="20" y="225" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#64748b">伪装成普通纯文本数字序列</text>
+  </g>
+
+  <!-- Arrow 3 -> 4 -->
+  <g transform="translate(865, 230)" stroke="#34d399" stroke-width="2" fill="none">
+    <path d="M 0,0 L 25,0" stroke-linecap="round" />
+    <path d="M 17,-5 L 25,0 L 17,5" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+
+  <!-- Node 4: Robot Arm Execution -->
+  <g transform="translate(905, 110)">
+    <rect width="150" height="250" rx="12" fill="url(#cardBg)" stroke="#334155" stroke-width="1.2" />
+    <text x="15" y="32" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="14" font-weight="700" fill="#f8fafc">4. 电机执行</text>
+
+    <rect x="15" y="55" width="120" height="65" rx="8" fill="#0f172a" stroke="#1e293b" />
+    <text x="25" y="80" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#94a3b8">反查表公式还原</text>
+    <text x="25" y="100" font-family="monospace" font-size="11" fill="#38bdf8">-0.012 m ...</text>
+
+    <rect x="15" y="135" width="120" height="65" rx="8" fill="#0f172a" stroke="#1e293b" />
+    <text x="25" y="160" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#94a3b8">机械臂伺服控制</text>
+    <text x="25" y="180" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#10b981">移动一步 🦾</text>
+
+    <!-- Loop back label -->
+    <text x="15" y="230" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#64748b">↺ 拍照后重新闭环</text>
+  </g>
+</svg>
