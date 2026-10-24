@@ -2,6 +2,7 @@
 title: "RT-2：让动作“伪装”成词元"
 date: 2026-10-23T10:21:40+08:00
 draft: false
+math: true
 categories: ["论文阅读"]
 tags: ["AI", "技术学习", "具身智能"]
 ---
